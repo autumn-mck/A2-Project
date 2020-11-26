@@ -5,8 +5,47 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:A2_Project"
         mc:Ignorable="d"
-        Title="MainWindow" Height="450" Width="800">
-    <Grid>
+        Title="MainWindow" Height="1096" Width="1936" Background="#151515" Closing="Window_Closing" WindowStartupLocation="CenterScreen">
+	<Viewbox Stretch="UniformToFill" HorizontalAlignment="Left">
+		<Grid HorizontalAlignment="Left" Width="1936" Height="1080">
+			<Grid Width="1876" Margin="60,0,0,0">
+				<Viewbox>
+					<Label x:Name="lblContents"/>
+				</Viewbox>
+			</Grid>
 
-    </Grid>
+			<Grid x:Name="grdMenu" HorizontalAlignment="Left" Background="#2D2D2D">
+				<Grid x:Name="grdMenuButtons" HorizontalAlignment="Left" VerticalAlignment="Top" Width="60">
+					<Grid.Resources>
+						<Style TargetType="Label">
+							<Setter Property="Foreground" Value="#D5D5D5"/>
+							<Setter Property="FontSize" Value="24"/>
+							<Setter Property="Margin" Value="50, 0, 0, 0"/>
+						</Style>
+						<Style TargetType="Image">
+							<Setter Property="Width" Value="48"/>
+							<Setter Property="Height" Value="48"/>
+							<Setter Property="HorizontalAlignment" Value="Left"/>
+						</Style>
+					</Grid.Resources>
+					<Grid x:Name="grdToggleMenu" Height="50" Width="300" Margin="6, 6, 0, 0" VerticalAlignment="Top" MouseDown="GrdToggleMenu_MouseDown">
+						<Image Source="/Resources/menubar.png"/>
+						<Label Content="Close Menu"/>
+					</Grid>
+					<Grid x:Name="grdCalander" Height="50" Width="300" Margin="6, 66, 0, 0" VerticalAlignment="Top" MouseDown="GrdCalander_MouseDown">
+						<Image Source="/Resources/calendar.png"/>
+						<Label Content="Calander"/>
+					</Grid>
+					<Grid x:Name="grdAccounts" Height="50" Width="300" Margin="6, 126, 0, 0" VerticalAlignment="Top" MouseDown="GrdAccounts_MouseDown">
+						<Image Source="/Resources/accounts.png"/>
+						<Label Content="Manage Clients"/>
+					</Grid>
+					<Grid x:Name="grdInvoices" Height="50" Width="300" Margin="6, 186, 0, 0" VerticalAlignment="Top" MouseDown="GrdInvoices_MouseDown">
+						<Image Source="/Resources/notebook.png"/>
+						<Label Content="Manage Invoices"/>
+					</Grid>
+				</Grid>
+			</Grid>
+		</Grid>
+	</Viewbox>
 </Window>
