@@ -1,9 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Data.SqlClient;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using System.Data.SqlClient;
 
 namespace A2_Project
 {
@@ -28,7 +23,7 @@ namespace A2_Project
 				Conn.Open();
 				return true;
 			}
-			catch (SqlException ex)
+			catch
 			{
 				//MessageBox.Show(ex.Message);
 				return false;

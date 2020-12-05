@@ -1,4 +1,4 @@
-﻿<Project Sdk="Microsoft.NET.Sdk.WindowsDesktop">
+﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
     <OutputType>WinExe</OutputType>
@@ -9,7 +9,10 @@
 
   <ItemGroup>
     <None Remove="Resources\accounts.png" />
+    <None Remove="Resources\addStaff.png" />
     <None Remove="Resources\calendar.png" />
+    <None Remove="Resources\chart-box.png" />
+    <None Remove="Resources\logowhite.png" />
     <None Remove="Resources\menubar.png" />
     <None Remove="Resources\notebook.png" />
     <None Remove="Resources\printer.png" />
@@ -20,10 +23,11 @@
   </ItemGroup>
 
   <ItemGroup>
-    <Resource Include="Resources\accounts.png">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </Resource>
+    <Resource Include="Resources\accounts.png" />
+    <Resource Include="Resources\addStaff.png" />
     <Resource Include="Resources\calendar.png" />
+    <Resource Include="Resources\chart-box.png" />
+    <Resource Include="Resources\logowhite.png" />
     <Resource Include="Resources\menubar.png" />
     <Resource Include="Resources\notebook.png" />
     <Resource Include="Resources\printer.png" />
@@ -42,6 +46,12 @@
       <Generator>PublicResXFileCodeGenerator</Generator>
       <LastGenOutput>Resource1.Designer.cs</LastGenOutput>
     </EmbeddedResource>
+  </ItemGroup>
+
+  <ItemGroup>
+    <None Update="Resources\emailPassword.txt">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
   </ItemGroup>
 
 </Project>
