@@ -73,9 +73,48 @@ namespace A2_Project {
         /// <summary>
         ///   Looks up a localized resource of type System.Byte[].
         /// </summary>
+        public static byte[] addStaff {
+            get {
+                object obj = ResourceManager.GetObject("addStaff", resourceCulture);
+                return ((byte[])(obj));
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized resource of type System.Byte[].
+        /// </summary>
         public static byte[] calendar {
             get {
                 object obj = ResourceManager.GetObject("calendar", resourceCulture);
+                return ((byte[])(obj));
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized resource of type System.Byte[].
+        /// </summary>
+        public static byte[] chart_box {
+            get {
+                object obj = ResourceManager.GetObject("chart_box", resourceCulture);
+                return ((byte[])(obj));
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to ubmX5rMKRjF3ZY7.
+        /// </summary>
+        public static string emailPassword {
+            get {
+                return ResourceManager.GetString("emailPassword", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized resource of type System.Byte[].
+        /// </summary>
+        public static byte[] logowhite {
+            get {
+                object obj = ResourceManager.GetObject("logowhite", resourceCulture);
                 return ((byte[])(obj));
             }
         }

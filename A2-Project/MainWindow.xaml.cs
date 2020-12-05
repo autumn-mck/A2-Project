@@ -1,19 +1,8 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Diagnostics;
-using System.Linq;
-using System.Text;
 using System.Threading;
-using System.Threading.Tasks;
 using System.Windows;
-using System.Windows.Controls;
-using System.Windows.Data;
-using System.Windows.Documents;
 using System.Windows.Input;
-using System.Windows.Media;
-using System.Windows.Media.Imaging;
-using System.Windows.Navigation;
-using System.Windows.Shapes;
 
 namespace A2_Project
 {
@@ -25,8 +14,16 @@ namespace A2_Project
 		private int menuDirection = 1;
 		private bool toExit = false;
 
-		private Database db;
-		private DBAccess dBAccess;
+		public string CurrentUser { get; set; }
+
+		private readonly Database db;
+		private readonly DBAccess dBAccess;
+
+		private RegisterNewStaffWindow regWindow;
+		private CalanderTest calWindow;
+		private InvoiceTesting invoiceTesting;
+		private ClientManagement clientManagement;
+		private readonly LoginWindow login;
 
 		public MainWindow()
 		{
@@ -37,10 +34,14 @@ namespace A2_Project
 			// Lets the user know if there is an error connecting to the database
 			if (db.Connect()) dBAccess = new DBAccess(db);
 			else MessageBox.Show("Database Connection Unsuccessful.", "Error");
-		}
+			grdAccounts.MouseDown += GrdAccounts_MouseDown;
+			grdCalander.MouseDown += GrdCalander_MouseDown;
+			grdInvoices.MouseDown += GrdInvoices_MouseDown;
+			grdAddStaff.MouseDown += GrdAddStaff_MouseDown;
 
-		ClientManagement clientManagement;
-		CalanderTest calWindow;
+			login = new LoginWindow(dBAccess);
+			lblContents.Content = login.Content;
+		}
 
 		/// <summary>
 		/// Widens the menu bar to reveal the hidden text
@@ -50,7 +51,7 @@ namespace A2_Project
 			int lclMenuDir = menuDirection;
 			menuDirection = -menuDirection;
 			double tMax = 0.25; // The time taken for the transition in seconds
-			double a = 200; // The amplitude of the movement
+			double a = 220; // The amplitude of the movement
 			double tPassed = 0; // The time passed since the start of the animation
 			double prevT = 0; // The time passed the previous time the loop completed
 			Stopwatch stopwatch = new Stopwatch();
@@ -64,27 +65,44 @@ namespace A2_Project
 			stopwatch.Stop();
 		}
 
+		public void HasLoggedIn()
+		{
+			lblContents.Content = null;
+			grdAccounts.MouseDown += GrdAccounts_MouseDown;
+			grdCalander.MouseDown += GrdCalander_MouseDown;
+			grdInvoices.MouseDown += GrdInvoices_MouseDown;
+			grdAddStaff.MouseDown += GrdAddStaff_MouseDown;
+		}
+
 		#region Events
 		/// <summary>
 		/// Closes any sub-windows to allow the application to fully close.
 		/// </summary>
 		private void Window_Closing(object sender, System.ComponentModel.CancelEventArgs e)
 		{
-			if (clientManagement != null) clientManagement.Close();
+			if (regWindow != null) regWindow.Close();
 			if (calWindow != null) calWindow.Close();
+			if (invoiceTesting != null) invoiceTesting.Close();
+			if (login != null) login.Close();
 			toExit = true;
 		}
-		#region MouseDown events
+
+		private void Window_ContentRendered(object sender, EventArgs e)
+		{
+			login.Owner = this;
+		}
+
+		#region MouseDown Events
 		private void GrdToggleMenu_MouseDown(object sender, MouseButtonEventArgs e)
 		{
 			Thread thread = new Thread(MenuTransition);
 			thread.Start();
 		}
-
+		// TODO: See if the following methods can be simplified
 		private void GrdCalander_MouseDown(object sender, MouseButtonEventArgs e)
 		{
 			if (calWindow == null)
-				calWindow = new CalanderTest { Owner = this };
+				calWindow = new CalanderTest(dBAccess) { Owner = this };
 			lblContents.Content = calWindow.Content;
 		}
 
@@ -97,7 +115,16 @@ namespace A2_Project
 
 		private void GrdInvoices_MouseDown(object sender, MouseButtonEventArgs e)
 		{
+			if (invoiceTesting == null)
+				invoiceTesting = new InvoiceTesting(dBAccess) { Owner = this };
+			lblContents.Content = invoiceTesting.Content;
+		}
 
+		private void GrdAddStaff_MouseDown(object sender, MouseButtonEventArgs e)
+		{
+			if (regWindow == null)
+				regWindow = new RegisterNewStaffWindow(dBAccess) { Owner = this };
+			lblContents.Content = regWindow.Content;
 		}
 		#endregion MouseDown Events
 		#endregion Events

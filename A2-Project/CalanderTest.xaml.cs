@@ -18,17 +18,19 @@ namespace A2_Project
 	/// </summary>
 	public partial class CalanderTest : Window
 	{
-		Point diffMouseAndElem;
+		private Point diffMouseAndElem;
 		private bool mouseDown = false;
-		object currentlySelected;
+		private object currentlySelected;
 		private bool toExit = false;
-		Point diff;
+		private Point diff;
+		private readonly DBAccess dbAccess;
 
-		public CalanderTest()
+		public CalanderTest(DBAccess _dbAccess)
 		{
 			InitializeComponent();
 			Thread thread = new Thread(Loop);
 			thread.Start();
+			dbAccess = _dbAccess;
 		}
 
 		/// <summary>
@@ -41,11 +43,9 @@ namespace A2_Project
 				Dispatcher.Invoke(() => {
 					if (mouseDown && currentlySelected is FrameworkElement elem)
 					{
-						diff = (Point)(Mouse.GetPosition(Owner) - diffMouseAndElem);
+						diff = (Point)(Mouse.GetPosition(grd) - diffMouseAndElem);
 						elem.Margin = new Thickness(diff.X, diff.Y, 0, 0);
-						lblCoOrds.Content = new Point(diff.X + diffMouseAndElem.X, diff.Y + diffMouseAndElem.Y);
 					}
-					lblCoOrds.Content = ((MainWindow)Owner).ActualWidth + ", " + ((MainWindow)Owner).ActualHeight;
 				});
 				Thread.Sleep(10);
 			}
@@ -60,7 +60,7 @@ namespace A2_Project
 			currentlySelected = sender;
 			if (currentlySelected is FrameworkElement element)
 			{
-				diffMouseAndElem = (Point)(Mouse.GetPosition(Owner) - new Point(element.Margin.Left, element.Margin.Top));
+				diffMouseAndElem = (Point)(Mouse.GetPosition(grd) - new Point(element.Margin.Left, element.Margin.Top));
 				if (element is Rectangle rect)
 				{
 					Rectangle newRect = new Rectangle
@@ -88,8 +88,7 @@ namespace A2_Project
 		private void RctRect_MouseUp(object sender, MouseButtonEventArgs e)
 		{
 			mouseDown = false;
-			// Note: Currently needs a lot of work, as viewboxes and windows in windows seem to confuse this
-			Point mPos = new Point(diff.X + diffMouseAndElem.X - 35, diff.Y + diffMouseAndElem.Y);
+			Point mPos = new Point(diff.X + diffMouseAndElem.X, diff.Y + diffMouseAndElem.Y);
 			if (sender is FrameworkElement f) f.Margin = new Thickness(mPos.X - mPos.X % f.Width, mPos.Y - mPos.Y % f.Height, 0, 0);
 		}
 
@@ -99,6 +98,36 @@ namespace A2_Project
 		private void Window_Closing(object sender, System.ComponentModel.CancelEventArgs e)
 		{
 			toExit = true;
+		}
+
+		private void DatePicker_SelectedDateChanged(object sender, SelectionChangedEventArgs e)
+		{
+			grdResults.Children.Clear();
+			DateTime picked = (DateTime)dtPick.SelectedDate;
+			int days = DateTime.DaysInMonth(picked.Year, picked.Month);
+			for (int i = 1; i < days; i++)
+			{
+				DateTime startOfMonth = picked.AddDays(-picked.Day + i);
+				List<List<string>> results = dbAccess.GetAllAppointmentsOnDay(startOfMonth);
+				int count = 0;
+				foreach (List<string> ls in results)
+				{
+					DateTime d = DateTime.Parse(ls[10]);
+					count++;
+					Rectangle newRect = new Rectangle
+					{
+						Width = 40,
+						Height = 40,
+						Margin = new Thickness(i * 40, (d.TimeOfDay.TotalHours - 7) * 40, 0, 0),
+						Fill = Brushes.LightBlue,
+						Stroke = Brushes.Black,
+						StrokeThickness = 2,
+						VerticalAlignment = VerticalAlignment.Top,
+						HorizontalAlignment = HorizontalAlignment.Left
+					};
+					grdResults.Children.Add(newRect);
+				}
+			}
 		}
 	}
 }
