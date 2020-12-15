@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Data.SqlClient;
+using System.Linq;
 using System.Security.Cryptography;
 using System.Text;
 
@@ -122,6 +123,36 @@ namespace A2_Project
 		{
 			// Method from a previous project that sort of? gets the primary keys
 			return GetStringsWithQuery("SELECT C.CONSTRAINT_TYPE FROM INFORMATION_SCHEMA.TABLE_CONSTRAINTS AS C JOIN INFORMATION_SCHEMA.KEY_COLUMN_USAGE AS K ON C.TABLE_NAME = K.TABLE_NAME AND C.CONSTRAINT_CATALOG = K.CONSTRAINT_CATALOG AND C.CONSTRAINT_SCHEMA = K.CONSTRAINT_SCHEMA AND C.CONSTRAINT_NAME = K.CONSTRAINT_NAME WHERE C.TABLE_NAME = '" + tableName + "';");
+		}
+
+		public void GetCountOfAppointmentTypes(ref int[] counts, ref string[] headers)
+		{
+			counts = GetStringsWithQuery("SELECT Count(AppointmentTypeID) FROM [Appointment] GROUP BY AppointmentTypeID;").Select(int.Parse).ToArray();
+			headers = GetStringsWithQuery("SELECT Description FROM [AppointmentType] ORDER BY AppointmentTypeID;").ToArray();
+		}
+
+		public void GetBusinessOfStaff(ref int[] counts, ref string[] headers)
+		{
+			counts = GetStringsWithQuery("SELECT Count(StaffID) FROM [Appointment] GROUP BY StaffID ORDER BY StaffID;").Select(int.Parse).ToArray();
+			headers = GetStringsWithQuery("SELECT StaffName FROM [Staff] ORDER BY StaffID;").ToArray();
+		}
+
+		public void GetGrowthOverTime(ref int[] counts, ref string[] headers)
+		{
+			List<int> growth = new List<int>();
+			DateTime startDate = Convert.ToDateTime(GetStringsWithQuery("SELECT MIN(ClientJoinDate) FROM Client")[0]);
+			DateTime endDate = Convert.ToDateTime(GetStringsWithQuery("SELECT MAX(ClientJoinDate) FROM Client")[0]);
+			int diff = (int)(endDate - startDate).TotalDays;
+			for (int i = 0; i < diff; i += 50)
+			{
+				growth.Add(Convert.ToInt32(GetStringsWithQuery("SELECT COUNT(ClientID) FROM [Client] WHERE ClientJoinDate <= '" + startDate.AddDays(i).ToString("yyyy-MM-dd") + "';")[0]));
+			}
+			counts = growth.ToArray();
+		}
+
+		public List<int> GetGrowthOverTime()
+		{
+			return GetStringsWithQuery("SELECT Count(ClientJoinDate) FROM [Client] GROUP BY CONVERT(DATE, ClientJoinDate) ORDER BY ClientJoinDate;").Select(int.Parse).ToList();
 		}
 		#endregion Get Requests
 

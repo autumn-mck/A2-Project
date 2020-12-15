@@ -23,6 +23,7 @@ namespace A2_Project
 		private CalanderTest calWindow;
 		private InvoiceTesting invoiceTesting;
 		private ClientManagement clientManagement;
+		private StatisticsWindow statsWindow;
 		private readonly LoginWindow login;
 
 		public MainWindow()
@@ -38,6 +39,7 @@ namespace A2_Project
 			grdCalander.MouseDown += GrdCalander_MouseDown;
 			grdInvoices.MouseDown += GrdInvoices_MouseDown;
 			grdAddStaff.MouseDown += GrdAddStaff_MouseDown;
+			grdViewStats.MouseDown += GrdViewStats_MouseDown;
 
 			login = new LoginWindow(dBAccess);
 			lblContents.Content = login.Content;
@@ -72,6 +74,7 @@ namespace A2_Project
 			grdCalander.MouseDown += GrdCalander_MouseDown;
 			grdInvoices.MouseDown += GrdInvoices_MouseDown;
 			grdAddStaff.MouseDown += GrdAddStaff_MouseDown;
+			grdViewStats.MouseDown += GrdViewStats_MouseDown;
 		}
 
 		#region Events
@@ -125,6 +128,13 @@ namespace A2_Project
 			if (regWindow == null)
 				regWindow = new RegisterNewStaffWindow(dBAccess) { Owner = this };
 			lblContents.Content = regWindow.Content;
+		}
+
+		private void GrdViewStats_MouseDown(object sender, MouseButtonEventArgs e)
+		{
+			if (statsWindow == null)
+				statsWindow = new StatisticsWindow(dBAccess) { Owner = this };
+			lblContents.Content = statsWindow.Content;
 		}
 		#endregion MouseDown Events
 		#endregion Events
