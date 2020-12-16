@@ -11,7 +11,7 @@ namespace A2_Project
 	{
 		// TODO: https://stackoverflow.com/questions/14376473/what-are-good-ways-to-prevent-sql-injection
 		// Because https://xkcd.com/327/
-		// TODO: Should this class be static?
+		// TODO: Can/Should this class be static?
 
 		public DBAccess(Database db)
 		{
@@ -151,9 +151,42 @@ namespace A2_Project
 			headers = new string[] { startDate.ToString("dd/MM/yyyy"), endDate.ToString("dd/MM/yyyy") };
 		}
 
-		public List<int> GetGrowthOverTime()
+		public void GetAppsByDayOfWeek(ref int[] counts, ref string[] headers)
 		{
-			return GetStringsWithQuery("SELECT Count(ClientJoinDate) FROM [Client] GROUP BY CONVERT(DATE, ClientJoinDate) ORDER BY ClientJoinDate;").Select(int.Parse).ToList();
+			counts = new int[7];
+			for (int i = 0; i < counts.Length; i++)
+			{
+				counts[i] = Convert.ToInt32(GetStringsWithQuery("SELECT COUNT(AppointmentID) FROM [Appointment] WHERE DATEPART(WEEKDAY, AppointmentDateTime) =" + (i + 1) + ";")[0]);
+			}
+			headers = new string[] { "Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun" };
+		}
+
+		public void GetBookingsInMonths(ref int[] counts, ref string[] headers)
+		{
+			counts = new int[12];
+			for (int i = 0; i < counts.Length; i++)
+			{
+				counts[i] = Convert.ToInt32(GetStringsWithQuery("SELECT COUNT(AppointmentID) FROM [Appointment] WHERE DATEPART(MONTH, AppointmentDateTime) =" + (i + 1) + ";")[0]);
+			}
+			headers = new string[] { "Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec" };
+		}
+
+		public void GetAppCancelRate(ref int[] counts, ref string[] headers)
+		{
+			DateTime startDate = Convert.ToDateTime(GetStringsWithQuery("SELECT MIN(AppointmentDateTime) FROM Appointment")[0]);
+			DateTime endDate = Convert.ToDateTime(GetStringsWithQuery("SELECT MAX(AppointmentDateTime) FROM Appointment")[0]);
+			int diff = (int)(endDate - startDate).TotalDays;
+			List<int> growth = new List<int>();
+			for (int i = 0; i < diff; i += 100)
+			{
+				int totalInTime = Convert.ToInt32(GetStringsWithQuery("SELECT COUNT(AppointmentID) FROM [Appointment] WHERE AppointmentDateTime <= '" + startDate.AddDays(i).ToString("yyyy-MM-dd") + "' AND AppointmentDateTime > '" + startDate.AddDays(i - 50).ToString("yyyy-MM-dd") + "';")[0]);
+				int cancelledInTime = Convert.ToInt32(GetStringsWithQuery("SELECT COUNT(AppointmentID) FROM [Appointment] WHERE IsCancelled = 1 AND AppointmentDateTime <= '" + startDate.AddDays(i).ToString("yyyy-MM-dd") + "' AND AppointmentDateTime > '" + startDate.AddDays(i - 50).ToString("yyyy-MM-dd") + "';")[0]);
+				if (cancelledInTime == 0 || totalInTime == 0)
+					growth.Add(0);
+				else growth.Add((int)((float)cancelledInTime * 100 / totalInTime));
+			}
+			counts = growth.ToArray();
+			headers = new string[] { startDate.ToString("dd/MM/yyyy"), endDate.ToString("dd/MM/yyyy") };
 		}
 		#endregion Get Requests
 
