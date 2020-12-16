@@ -7,8 +7,8 @@
         mc:Ignorable="d"
         Title="StatisticsWindow" Height="1080" Width="1876" Background="#151515">
 	<Grid Height="1080" Width="1876">
-		<Grid x:Name="grdAppTypes" Width="400" Height="235" HorizontalAlignment="Left" VerticalAlignment="Top" Margin="100,700,0,0"/>
-		<Grid x:Name="grdStaffBusiness" Width="400" Height="235" HorizontalAlignment="Left" VerticalAlignment="Top" Margin="600,700,0,0"/>
-		<Grid x:Name="grdGrowth" Width="400" Height="235" HorizontalAlignment="Left" VerticalAlignment="Top" Margin="1100,700,0,0"/>
+		<Grid x:Name="grdAppTypes" Width="500" Height="245" HorizontalAlignment="Left" VerticalAlignment="Top" Margin="100,100,0,0"/>
+		<Grid x:Name="grdStaffBusiness" Width="500" Height="245" HorizontalAlignment="Left" VerticalAlignment="Top" Margin="100,400,0,0"/>
+		<Grid x:Name="grdGrowth" Width="500" Height="245" HorizontalAlignment="Left" VerticalAlignment="Top" Margin="100,700,0,0"/>
 	</Grid>
 </Window>

@@ -31,14 +31,30 @@ namespace A2_Project
 
 		private static void GenerateGraph(Grid grid, int[] data, string[] headers)
 		{
-			
+			int max = data.Max();
+			for (double i = 0; i <= 1; i += 0.2)
+			{
+				int height = (int)SlideRule(max * i, 2);
+				TextBlock tbl = new TextBlock
+				{
+					Text = height + " -",
+					Margin = new Thickness(0, 0, 0, (float)height / max * 200f + 28f),
+					Width = 100,
+					Foreground = Brushes.White,
+					TextWrapping = TextWrapping.Wrap,
+					VerticalAlignment = VerticalAlignment.Bottom,
+					HorizontalAlignment = HorizontalAlignment.Left
+				};
+				grid.Children.Add(tbl);
+			}
+
 			for (int i = 0; i < data.Length; i++)
 			{
 				Rectangle newRect = new Rectangle
 				{
 					Width = 400f / data.Length,
-					Height = (float)data[i] / data.Max() * 200f,
-					Margin = new Thickness(i * (400f / data.Length), 0, 0, 35),
+					Height = (float)data[i] / max * 200f,
+					Margin = new Thickness(i * (400f / data.Length) + 40, 0, 0, 35),
 					Fill = Brushes.White,
 					Stroke = Brushes.Black,
 					StrokeThickness = 2,
@@ -49,19 +65,31 @@ namespace A2_Project
 
 				if (headers != Array.Empty<string>())
 				{
-					TextBlock label = new TextBlock
+					TextBlock header = new TextBlock
 					{
 						Text = headers[i],
-						Margin = new Thickness(i * (400f / data.Length), 0, 0, 0),
+						Margin = new Thickness(i * (400f / data.Length) + 60, 0, 0, 0),
 						Width = 100,
 						Foreground = Brushes.White,
 						TextWrapping = TextWrapping.Wrap,
 						VerticalAlignment = VerticalAlignment.Bottom,
 						HorizontalAlignment = HorizontalAlignment.Left
 					};
-					grid.Children.Add(label);
+					grid.Children.Add(header);
 				}
 			}
+		}
+
+		public static double SlideRule(double value, int sigdigits)
+		{
+			if (value == 0.0) return value;
+			bool neg = value < 0;
+			if (neg) value = -value;
+			double m10 = Math.Log10(value);
+			double scale = Math.Pow(10, Math.Floor(m10) - sigdigits + 1);
+			value = Math.Round(value / scale) * scale;
+			if (neg) value = -value;
+			return value;
 		}
 
 		private void GraphAppTypes()
