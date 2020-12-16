@@ -148,6 +148,7 @@ namespace A2_Project
 				growth.Add(Convert.ToInt32(GetStringsWithQuery("SELECT COUNT(ClientID) FROM [Client] WHERE ClientJoinDate <= '" + startDate.AddDays(i).ToString("yyyy-MM-dd") + "';")[0]));
 			}
 			counts = growth.ToArray();
+			headers = new string[] { startDate.ToString("dd/MM/yyyy"), endDate.ToString("dd/MM/yyyy") };
 		}
 
 		public List<int> GetGrowthOverTime()

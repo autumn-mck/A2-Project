@@ -29,8 +29,10 @@ namespace A2_Project
 			GraphGrowth();
 		}
 
-		private static void GenerateGraph(Grid grid, int[] data, string[] headers)
+		private static void GenerateBarGraph(Grid grid, int[] data, string[] headers, string title)
 		{
+			GenerateTitle(grid, title);
+
 			int max = data.Max();
 			for (double i = 0; i <= 1; i += 0.2)
 			{
@@ -38,16 +40,60 @@ namespace A2_Project
 				TextBlock tbl = new TextBlock
 				{
 					Text = height + " -",
-					Margin = new Thickness(0, 0, 0, (float)height / max * 200f + 28f),
-					Width = 100,
+					Margin = new Thickness(0, 0, 463, (float)height / max * 200f + 28f),
 					Foreground = Brushes.White,
 					TextWrapping = TextWrapping.Wrap,
 					VerticalAlignment = VerticalAlignment.Bottom,
-					HorizontalAlignment = HorizontalAlignment.Left
+					HorizontalAlignment = HorizontalAlignment.Right
 				};
 				grid.Children.Add(tbl);
 			}
 
+			GenerateBars(grid, data, max);
+			LabelXAxis(grid, data, headers);
+		}
+
+		private static void LabelXAxis(Grid grid, int[] data, string[] headers)
+		{
+			if (headers.Length == data.Length)
+			{
+				for (int i = 0; i < data.Length; i++)
+				{
+					TextBlock header = new TextBlock
+					{
+						Text = headers[i],
+						Margin = new Thickness(i * (400f / data.Length) + 40 + 10, 236, 0, 0),
+						Width = 400f / data.Length - 20,
+						Foreground = Brushes.White,
+						TextWrapping = TextWrapping.Wrap,
+						TextAlignment = TextAlignment.Center,
+						VerticalAlignment = VerticalAlignment.Top,
+						HorizontalAlignment = HorizontalAlignment.Left
+					};
+					grid.Children.Add(header);
+				}
+			}
+			else if (headers.Length == 2)
+			{
+				for (int i = 0; i < headers.Length; i++)
+				{
+					TextBlock header = new TextBlock
+					{
+						Text = headers[i],
+						Margin = new Thickness(i * (400f / (headers.Length - 1)) + 40 - i * 60, 246, 0, 0),
+						Foreground = Brushes.White,
+						TextWrapping = TextWrapping.Wrap,
+						TextAlignment = TextAlignment.Left,
+						VerticalAlignment = VerticalAlignment.Top,
+						HorizontalAlignment = HorizontalAlignment.Left
+					};
+					grid.Children.Add(header);
+				}
+			}
+		}
+
+		private static void GenerateBars(Grid grid, int[] data, int max)
+		{
 			for (int i = 0; i < data.Length; i++)
 			{
 				Rectangle newRect = new Rectangle
@@ -57,27 +103,27 @@ namespace A2_Project
 					Margin = new Thickness(i * (400f / data.Length) + 40, 0, 0, 35),
 					Fill = Brushes.White,
 					Stroke = Brushes.Black,
-					StrokeThickness = 2,
+					StrokeThickness = 1,
 					VerticalAlignment = VerticalAlignment.Bottom,
 					HorizontalAlignment = HorizontalAlignment.Left
 				};
 				grid.Children.Add(newRect);
-
-				if (headers != Array.Empty<string>())
-				{
-					TextBlock header = new TextBlock
-					{
-						Text = headers[i],
-						Margin = new Thickness(i * (400f / data.Length) + 60, 0, 0, 0),
-						Width = 100,
-						Foreground = Brushes.White,
-						TextWrapping = TextWrapping.Wrap,
-						VerticalAlignment = VerticalAlignment.Bottom,
-						HorizontalAlignment = HorizontalAlignment.Left
-					};
-					grid.Children.Add(header);
-				}
 			}
+		}
+
+		private static void GenerateTitle(Grid grid, string title)
+		{
+			TextBlock tblTitle = new TextBlock
+			{
+				Text = title,
+				Margin = new Thickness(0, 0, 0, 0),
+				Foreground = Brushes.White,
+				FontSize = 20,
+				TextWrapping = TextWrapping.Wrap,
+				VerticalAlignment = VerticalAlignment.Top,
+				HorizontalAlignment = HorizontalAlignment.Center
+			};
+			grid.Children.Add(tblTitle);
 		}
 
 		public static double SlideRule(double value, int sigdigits)
@@ -97,7 +143,7 @@ namespace A2_Project
 			int[] typesCount = Array.Empty<int>();
 			string[] types = Array.Empty<string>();
 			dbAccess.GetCountOfAppointmentTypes(ref typesCount, ref types);
-			GenerateGraph(grdAppTypes, typesCount, types);
+			GenerateBarGraph(grdAppTypes, typesCount, types, "Appointment Types");
 		}
 
 		private void GraphStaffBusiness()
@@ -105,7 +151,7 @@ namespace A2_Project
 			int[] typesCount = Array.Empty<int>();
 			string[] types = Array.Empty<string>();
 			dbAccess.GetBusinessOfStaff(ref typesCount, ref types);
-			GenerateGraph(grdStaffBusiness, typesCount, types);
+			GenerateBarGraph(grdStaffBusiness, typesCount, types, "Staff time spent working");
 		}
 
 		private void GraphGrowth()
@@ -113,7 +159,7 @@ namespace A2_Project
 			int[] typesCount = Array.Empty<int>();
 			string[] types = Array.Empty<string>();
 			dbAccess.GetGrowthOverTime(ref typesCount, ref types);
-			GenerateGraph(grdGrowth, typesCount, types);
+			GenerateBarGraph(grdGrowth, typesCount, types, "Customers over time");
 		}
 	}
 }
