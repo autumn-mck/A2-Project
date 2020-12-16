@@ -27,6 +27,9 @@ namespace A2_Project
 			GraphAppTypes();
 			GraphStaffBusiness();
 			GraphGrowth();
+			GraphAppByDayOfWeek();
+			GraphAppByMonth();
+			GraphAppCancelRate();
 		}
 
 		private static void GenerateBarGraph(Grid grid, int[] data, string[] xAxisLabels, string title)
@@ -49,19 +52,38 @@ namespace A2_Project
 
 		private static void LabelYAxis(Grid grid, int max)
 		{
-			for (double i = 0; i <= 1; i += 0.2)
+			if (max > 10)
 			{
-				int height = (int)RoundToSigFigs(max * i, 2);
-				TextBlock tbl = new TextBlock
+				for (double i = 0; i <= 1; i += 0.2)
 				{
-					Text = height + " -",
-					Margin = new Thickness(0, 0, 463, (float)height / max * 200f + 28f),
-					Foreground = Brushes.White,
-					TextWrapping = TextWrapping.Wrap,
-					VerticalAlignment = VerticalAlignment.Bottom,
-					HorizontalAlignment = HorizontalAlignment.Right
-				};
-				grid.Children.Add(tbl);
+					int height = (int)RoundToSigFigs(max * i, 2);
+					TextBlock tbl = new TextBlock
+					{
+						Text = height + " -",
+						Margin = new Thickness(0, 0, 463, (float)height / max * 200f + 28f),
+						Foreground = Brushes.White,
+						TextWrapping = TextWrapping.Wrap,
+						VerticalAlignment = VerticalAlignment.Bottom,
+						HorizontalAlignment = HorizontalAlignment.Right
+					};
+					grid.Children.Add(tbl);
+				}
+			}
+			else
+			{
+				for (int i = 0; i <= max; i++)
+				{
+					TextBlock tbl = new TextBlock
+					{
+						Text = i + "% -",
+						Margin = new Thickness(0, 0, 463, (float)i / max * 200f + 28f),
+						Foreground = Brushes.White,
+						TextWrapping = TextWrapping.Wrap,
+						VerticalAlignment = VerticalAlignment.Bottom,
+						HorizontalAlignment = HorizontalAlignment.Right
+					};
+					grid.Children.Add(tbl);
+				}
 			}
 		}
 
@@ -71,7 +93,7 @@ namespace A2_Project
 			{
 				for (int i = 0; i < data.Length; i++)
 				{
-					TextBlock header = new TextBlock
+					TextBlock label = new TextBlock
 					{
 						Text = labels[i],
 						Margin = new Thickness(i * (400f / data.Length) + 40 + 10, 236, 0, 0),
@@ -82,7 +104,13 @@ namespace A2_Project
 						VerticalAlignment = VerticalAlignment.Top,
 						HorizontalAlignment = HorizontalAlignment.Left
 					};
-					grid.Children.Add(header);
+
+					if (label.Width < 24)
+					{
+						label.Width = 24;
+						label.Margin = new Thickness(i * (400f / data.Length) + 35 + 10, 236, 0, 0);
+					}
+					grid.Children.Add(label);
 				}
 			}
 			else if (labels.Length == 2) // TODO: Currently only works with 2 labels.
@@ -132,10 +160,10 @@ namespace A2_Project
 					Margin = new Thickness(0, 0, 0, 0),
 					StrokeThickness = 2,
 					Stroke = Brushes.White,
-					X1 = 400f + 30f - i * (400f / data.Length),
-					X2 = 400f + 30f - (i + 1) * (400f / data.Length),
-					Y1 = (float)data[i] / max * 200f + 45f,
-					Y2 = (float)data[i + 1] / max * 200f + 45f,
+					X1 = 40f + i * (400f / data.Length),
+					X2 = 40f + (i + 1) * (400f / data.Length),
+					Y1 = 200f - ((float)data[i] / max * 200f) + 45f,
+					Y2 = 200f - ((float)data[i + 1] / max * 200f) + 45f,
 					HorizontalAlignment = HorizontalAlignment.Left
 				};
 				grid.Children.Add(line);
@@ -185,12 +213,36 @@ namespace A2_Project
 			GenerateBarGraph(grdStaffBusiness, typesCount, types, "Staff time spent working");
 		}
 
+		private void GraphAppByDayOfWeek()
+		{
+			int[] typesCount = Array.Empty<int>();
+			string[] types = Array.Empty<string>();
+			dbAccess.GetAppsByDayOfWeek(ref typesCount, ref types);
+			GenerateBarGraph(grdDaysOfWeek, typesCount, types, "Appointments by day of week");
+		}
+
+		private void GraphAppByMonth()
+		{
+			int[] typesCount = Array.Empty<int>();
+			string[] types = Array.Empty<string>();
+			dbAccess.GetBookingsInMonths(ref typesCount, ref types);
+			GenerateBarGraph(grdAppByMonth, typesCount, types, "Appointments by month");
+		}
+
 		private void GraphGrowth()
 		{
 			int[] typesCount = Array.Empty<int>();
 			string[] types = Array.Empty<string>();
 			dbAccess.GetGrowthOverTime(ref typesCount, ref types);
 			GenerateLineGraph(grdGrowth, typesCount, types, "Customers over time");
+		}
+
+		private void GraphAppCancelRate()
+		{
+			int[] typesCount = Array.Empty<int>();
+			string[] types = Array.Empty<string>();
+			dbAccess.GetAppCancelRate(ref typesCount, ref types);
+			GenerateLineGraph(grdAppCancelRate, typesCount, types, "Appointment cancel rate over time");
 		}
 	}
 }

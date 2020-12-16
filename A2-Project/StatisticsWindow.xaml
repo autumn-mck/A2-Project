@@ -10,5 +10,8 @@
 		<Grid x:Name="grdAppTypes" Width="500" Height="270" HorizontalAlignment="Left" VerticalAlignment="Top" Margin="50,50,0,0"/>
 		<Grid x:Name="grdStaffBusiness" Width="500" Height="270" HorizontalAlignment="Left" VerticalAlignment="Top" Margin="50,400,0,0"/>
 		<Grid x:Name="grdGrowth" Width="500" Height="280" HorizontalAlignment="Left" VerticalAlignment="Top" Margin="50,750,0,0"/>
+		<Grid x:Name="grdDaysOfWeek" Width="500" Height="270" HorizontalAlignment="Left" VerticalAlignment="Top" Margin="600,50,0,0"/>
+		<Grid x:Name="grdAppByMonth" Width="500" Height="270" HorizontalAlignment="Left" VerticalAlignment="Top" Margin="600,400,0,0"/>
+		<Grid x:Name="grdAppCancelRate" Width="500" Height="270" HorizontalAlignment="Left" VerticalAlignment="Top" Margin="600,750,0,0"/>
 	</Grid>
 </Window>
