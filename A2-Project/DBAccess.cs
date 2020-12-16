@@ -139,10 +139,10 @@ namespace A2_Project
 
 		public void GetGrowthOverTime(ref int[] counts, ref string[] headers)
 		{
-			List<int> growth = new List<int>();
 			DateTime startDate = Convert.ToDateTime(GetStringsWithQuery("SELECT MIN(ClientJoinDate) FROM Client")[0]);
 			DateTime endDate = Convert.ToDateTime(GetStringsWithQuery("SELECT MAX(ClientJoinDate) FROM Client")[0]);
 			int diff = (int)(endDate - startDate).TotalDays;
+			List<int> growth = new List<int>();
 			for (int i = 0; i < diff; i += 50)
 			{
 				growth.Add(Convert.ToInt32(GetStringsWithQuery("SELECT COUNT(ClientID) FROM [Client] WHERE ClientJoinDate <= '" + startDate.AddDays(i).ToString("yyyy-MM-dd") + "';")[0]));

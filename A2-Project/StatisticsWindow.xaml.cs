@@ -19,7 +19,7 @@ namespace A2_Project
 	/// </summary>
 	public partial class StatisticsWindow : Window
 	{
-		DBAccess dbAccess;
+		private readonly DBAccess dbAccess;
 		public StatisticsWindow(DBAccess _dbAccess)
 		{
 			InitializeComponent();
@@ -32,35 +32,26 @@ namespace A2_Project
 		private static void GenerateBarGraph(Grid grid, int[] data, string[] xAxisLabels, string title)
 		{
 			GenerateTitle(grid, title);
-
 			int max = data.Max();
-			for (double i = 0; i <= 1; i += 0.2)
-			{
-				int height = (int)SlideRule(max * i, 2);
-				TextBlock tbl = new TextBlock
-				{
-					Text = height + " -",
-					Margin = new Thickness(0, 0, 463, (float)height / max * 200f + 28f),
-					Foreground = Brushes.White,
-					TextWrapping = TextWrapping.Wrap,
-					VerticalAlignment = VerticalAlignment.Bottom,
-					HorizontalAlignment = HorizontalAlignment.Right
-				};
-				grid.Children.Add(tbl);
-			}
-
-			GenerateBars(grid, data, max);
 			LabelXAxis(grid, data, xAxisLabels);
+			LabelYAxis(grid, max);
+			GenerateBars(grid, data, max);
 		}
 
 		private static void GenerateLineGraph(Grid grid, int[] data, string[] xAxisLabels, string title)
 		{
 			GenerateTitle(grid, title);
-
 			int max = data.Max();
+			LabelXAxis(grid, data, xAxisLabels);
+			LabelYAxis(grid, max);
+			GenerateLines(grid, data, max);
+		}
+
+		private static void LabelYAxis(Grid grid, int max)
+		{
 			for (double i = 0; i <= 1; i += 0.2)
 			{
-				int height = (int)SlideRule(max * i, 2);
+				int height = (int)RoundToSigFigs(max * i, 2);
 				TextBlock tbl = new TextBlock
 				{
 					Text = height + " -",
@@ -72,9 +63,6 @@ namespace A2_Project
 				};
 				grid.Children.Add(tbl);
 			}
-
-			GenerateLines(grid, data, max);
-			LabelXAxis(grid, data, xAxisLabels);
 		}
 
 		private static void LabelXAxis(Grid grid, int[] data, string[] labels)
@@ -169,13 +157,13 @@ namespace A2_Project
 			grid.Children.Add(tblTitle);
 		}
 
-		public static double SlideRule(double value, int sigdigits)
+		public static double RoundToSigFigs(double value, int sigDigits)
 		{
 			if (value == 0.0) return value;
 			bool neg = value < 0;
 			if (neg) value = -value;
 			double m10 = Math.Log10(value);
-			double scale = Math.Pow(10, Math.Floor(m10) - sigdigits + 1);
+			double scale = Math.Pow(10, Math.Floor(m10) - sigDigits + 1);
 			value = Math.Round(value / scale) * scale;
 			if (neg) value = -value;
 			return value;
