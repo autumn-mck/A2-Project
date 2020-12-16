@@ -29,7 +29,7 @@ namespace A2_Project
 			GraphGrowth();
 		}
 
-		private static void GenerateBarGraph(Grid grid, int[] data, string[] headers, string title)
+		private static void GenerateBarGraph(Grid grid, int[] data, string[] xAxisLabels, string title)
 		{
 			GenerateTitle(grid, title);
 
@@ -50,18 +50,42 @@ namespace A2_Project
 			}
 
 			GenerateBars(grid, data, max);
-			LabelXAxis(grid, data, headers);
+			LabelXAxis(grid, data, xAxisLabels);
 		}
 
-		private static void LabelXAxis(Grid grid, int[] data, string[] headers)
+		private static void GenerateLineGraph(Grid grid, int[] data, string[] xAxisLabels, string title)
 		{
-			if (headers.Length == data.Length)
+			GenerateTitle(grid, title);
+
+			int max = data.Max();
+			for (double i = 0; i <= 1; i += 0.2)
+			{
+				int height = (int)SlideRule(max * i, 2);
+				TextBlock tbl = new TextBlock
+				{
+					Text = height + " -",
+					Margin = new Thickness(0, 0, 463, (float)height / max * 200f + 28f),
+					Foreground = Brushes.White,
+					TextWrapping = TextWrapping.Wrap,
+					VerticalAlignment = VerticalAlignment.Bottom,
+					HorizontalAlignment = HorizontalAlignment.Right
+				};
+				grid.Children.Add(tbl);
+			}
+
+			GenerateLines(grid, data, max);
+			LabelXAxis(grid, data, xAxisLabels);
+		}
+
+		private static void LabelXAxis(Grid grid, int[] data, string[] labels)
+		{
+			if (labels.Length == data.Length)
 			{
 				for (int i = 0; i < data.Length; i++)
 				{
 					TextBlock header = new TextBlock
 					{
-						Text = headers[i],
+						Text = labels[i],
 						Margin = new Thickness(i * (400f / data.Length) + 40 + 10, 236, 0, 0),
 						Width = 400f / data.Length - 20,
 						Foreground = Brushes.White,
@@ -73,14 +97,14 @@ namespace A2_Project
 					grid.Children.Add(header);
 				}
 			}
-			else if (headers.Length == 2)
+			else if (labels.Length == 2) // TODO: Currently only works with 2 labels.
 			{
-				for (int i = 0; i < headers.Length; i++)
+				for (int i = 0; i < labels.Length; i++)
 				{
 					TextBlock header = new TextBlock
 					{
-						Text = headers[i],
-						Margin = new Thickness(i * (400f / (headers.Length - 1)) + 40 - i * 60, 246, 0, 0),
+						Text = labels[i],
+						Margin = new Thickness(i * (400f / (labels.Length - 1)) + 40 - i * 60, 246, 0, 0),
 						Foreground = Brushes.White,
 						TextWrapping = TextWrapping.Wrap,
 						TextAlignment = TextAlignment.Left,
@@ -108,6 +132,25 @@ namespace A2_Project
 					HorizontalAlignment = HorizontalAlignment.Left
 				};
 				grid.Children.Add(newRect);
+			}
+		}
+
+		private static void GenerateLines(Grid grid, int[] data, int max)
+		{
+			for (int i = 0; i < data.Length - 1; i++)
+			{
+				Line line = new Line
+				{
+					Margin = new Thickness(0, 0, 0, 0),
+					StrokeThickness = 2,
+					Stroke = Brushes.White,
+					X1 = 400f + 30f - i * (400f / data.Length),
+					X2 = 400f + 30f - (i + 1) * (400f / data.Length),
+					Y1 = (float)data[i] / max * 200f + 45f,
+					Y2 = (float)data[i + 1] / max * 200f + 45f,
+					HorizontalAlignment = HorizontalAlignment.Left
+				};
+				grid.Children.Add(line);
 			}
 		}
 
@@ -159,7 +202,7 @@ namespace A2_Project
 			int[] typesCount = Array.Empty<int>();
 			string[] types = Array.Empty<string>();
 			dbAccess.GetGrowthOverTime(ref typesCount, ref types);
-			GenerateBarGraph(grdGrowth, typesCount, types, "Customers over time");
+			GenerateLineGraph(grdGrowth, typesCount, types, "Customers over time");
 		}
 	}
 }
