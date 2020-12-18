@@ -52,7 +52,7 @@ namespace A2_Project
 		{
 			int lclMenuDir = menuDirection;
 			menuDirection = -menuDirection;
-			double tMax = 0.25; // The time taken for the transition in seconds
+			double tMax = 0.2; // The time taken for the transition in seconds
 			double a = 220; // The amplitude of the movement
 			double tPassed = 0; // The time passed since the start of the animation
 			double prevT = 0; // The time passed the previous time the loop completed
