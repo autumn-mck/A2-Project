@@ -9,9 +9,12 @@
 	<Grid Height="1080" Width="1876">
 		<Grid x:Name="grdAppTypes" Width="500" Height="270" HorizontalAlignment="Left" VerticalAlignment="Top" Margin="50,50,0,0"/>
 		<Grid x:Name="grdStaffBusiness" Width="500" Height="270" HorizontalAlignment="Left" VerticalAlignment="Top" Margin="50,400,0,0"/>
-		<Grid x:Name="grdGrowth" Width="500" Height="280" HorizontalAlignment="Left" VerticalAlignment="Top" Margin="50,750,0,0"/>
+		<Grid x:Name="grdGrowth" Width="500" Height="270" HorizontalAlignment="Left" VerticalAlignment="Top" Margin="50,750,0,0"/>
 		<Grid x:Name="grdDaysOfWeek" Width="500" Height="270" HorizontalAlignment="Left" VerticalAlignment="Top" Margin="600,50,0,0"/>
 		<Grid x:Name="grdAppByMonth" Width="500" Height="270" HorizontalAlignment="Left" VerticalAlignment="Top" Margin="600,400,0,0"/>
 		<Grid x:Name="grdAppCancelRate" Width="500" Height="270" HorizontalAlignment="Left" VerticalAlignment="Top" Margin="600,750,0,0"/>
+		<Grid x:Name="grdRepeatCustomers" Width="500" Height="270" HorizontalAlignment="Left" VerticalAlignment="Top" Margin="1150,50,0,0"/>
+		<Grid x:Name="grdDogTypes" Width="500" Height="270" HorizontalAlignment="Left" VerticalAlignment="Top" Margin="1150,400,0,0"/>
+		<Grid x:Name="grdIncome" Width="500" Height="270" HorizontalAlignment="Left" VerticalAlignment="Top" Margin="1150,750,0,0"/>
 	</Grid>
 </Window>

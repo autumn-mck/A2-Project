@@ -78,7 +78,7 @@ INSERT INTO [Staff] VALUES (
 
 CREATE TABLE [AppointmentType] (
 	AppointmentTypeID INT NOT NULL PRIMARY KEY,
-	BaseTimeTaken INT NOT NULL,
+	BaseTimeTaken DECIMAL NOT NULL,
 	BasePrice DECIMAL NOT NULL,
 	[Description] VARCHAR(100) NOT NULL
 );
@@ -86,21 +86,21 @@ CREATE TABLE [AppointmentType] (
 INSERT INTO [AppointmentType] VALUES (
 	0,
 	1,
-	1,
+	35,
 	'Wash, Shampoo & Brush'
 );
 
 INSERT INTO [AppointmentType] VALUES (
 	1,
-	1,
-	1,
+	1.5,
+	40,
 	'Wash, Shampoo, Brush & Trim'
 );
 
 INSERT INTO [AppointmentType] VALUES (
 	2,
-	1,
-	1,
+	2,
+	50,
 	'Wash, Shampoo, Brush & Full Cut'
 );
 
