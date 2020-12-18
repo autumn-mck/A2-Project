@@ -20,6 +20,7 @@ namespace A2_Project
 	public partial class StatisticsWindow : Window
 	{
 		private readonly DBAccess dbAccess;
+		private static Random random = new Random();
 		public StatisticsWindow(DBAccess _dbAccess)
 		{
 			InitializeComponent();
@@ -30,36 +31,74 @@ namespace A2_Project
 			GraphAppByDayOfWeek();
 			GraphAppByMonth();
 			GraphAppCancelRate();
+			GraphCustReturn();
+			GraphDogTypes();
+			GraphIncome();
 		}
 
-		private static void GenerateBarGraph(Grid grid, int[] data, string[] xAxisLabels, string title)
+		private static void GenerateBarGraph(GetData getData, Grid grid, string title, string prefix = "", string suffix = "")
 		{
-			GenerateTitle(grid, title);
-			int max = data.Max();
-			LabelXAxis(grid, data, xAxisLabels);
-			LabelYAxis(grid, max);
+			int[][] data = new int[1][];
+			string[] xAxisLabels = Array.Empty<string>();
+			getData(ref data, ref xAxisLabels);
+
+			int max = GetMax(data);
+			LabelGraph(grid, data[0].Length, xAxisLabels, title, prefix, suffix, max);
 			GenerateBars(grid, data, max);
 		}
 
-		private static void GenerateLineGraph(Grid grid, int[] data, string[] xAxisLabels, string title)
+		private static void GenerateLineGraph(GetData getData, Grid grid, string title, string prefix = "", string suffix = "")
 		{
-			GenerateTitle(grid, title);
-			int max = data.Max();
-			LabelXAxis(grid, data, xAxisLabels);
-			LabelYAxis(grid, max);
-			GenerateLines(grid, data, max);
+			int[][] data = new int[1][];
+			string[] xAxisLabels = Array.Empty<string>();
+			getData(ref data, ref xAxisLabels);
+
+			int max = GetMax(data);
+			LabelGraph(grid, data[0].Length, xAxisLabels, title, prefix, suffix, max);
+			GenerateLines(grid, data, max, true);
 		}
 
-		private static void LabelYAxis(Grid grid, int max)
+		private static void LabelGraph(Grid grid, int length, string[] xAxisLabels, string title, string prefix, string suffix, int max)
 		{
-			if (max > 10)
+			GenerateTitle(grid, title);
+			LabelXAxis(grid, length, xAxisLabels);
+			LabelYAxis(grid, max, prefix, suffix);
+		}
+
+		private static int GetMax(int[][] arr)
+		{
+			List<int> maxes = new List<int>();
+			foreach (int[] inArr in arr)
+			{
+				maxes.Add(inArr.Max());
+			}
+			return maxes.Max();
+		}
+
+		private static void DrawFullArea(Grid grid)
+		{
+			Rectangle newRect = new Rectangle
+			{
+				Width = 400f,
+				Height = 200f,
+				Margin = new Thickness(40, 0, 0, 35),
+				Fill = new SolidColorBrush(Color.FromRgb(10, 10, 10)),
+				VerticalAlignment = VerticalAlignment.Bottom,
+				HorizontalAlignment = HorizontalAlignment.Left
+			};
+			grid.Children.Add(newRect);
+		}
+
+		private static void LabelYAxis(Grid grid, int max, string prefix, string suffix)
+		{
+			if (max > 20)
 			{
 				for (double i = 0; i <= 1; i += 0.2)
 				{
 					int height = (int)RoundToSigFigs(max * i, 2);
 					TextBlock tbl = new TextBlock
 					{
-						Text = height + " -",
+						Text = prefix + height + suffix + " -",
 						Margin = new Thickness(0, 0, 463, (float)height / max * 200f + 28f),
 						Foreground = Brushes.White,
 						TextWrapping = TextWrapping.Wrap,
@@ -71,11 +110,11 @@ namespace A2_Project
 			}
 			else
 			{
-				for (int i = 0; i <= max; i++)
+				for (int i = 0; i <= max; i += 2)
 				{
 					TextBlock tbl = new TextBlock
 					{
-						Text = i + "% -",
+						Text = prefix + i + suffix + " -",
 						Margin = new Thickness(0, 0, 463, (float)i / max * 200f + 28f),
 						Foreground = Brushes.White,
 						TextWrapping = TextWrapping.Wrap,
@@ -87,17 +126,17 @@ namespace A2_Project
 			}
 		}
 
-		private static void LabelXAxis(Grid grid, int[] data, string[] labels)
+		private static void LabelXAxis(Grid grid, int length, string[] labels)
 		{
-			if (labels.Length == data.Length)
+			if (labels.Length == length)
 			{
-				for (int i = 0; i < data.Length; i++)
+				for (int i = 0; i < length; i++)
 				{
 					TextBlock label = new TextBlock
 					{
 						Text = labels[i],
-						Margin = new Thickness(i * (400f / data.Length) + 40 + 10, 236, 0, 0),
-						Width = 400f / data.Length - 20,
+						Margin = new Thickness(i * (400f / length) + 40 + 10, 236, 0, 0),
+						Width = 400f / length - 20,
 						Foreground = Brushes.White,
 						TextWrapping = TextWrapping.Wrap,
 						TextAlignment = TextAlignment.Center,
@@ -108,65 +147,83 @@ namespace A2_Project
 					if (label.Width < 24)
 					{
 						label.Width = 24;
-						label.Margin = new Thickness(i * (400f / data.Length) + 35 + 10, 236, 0, 0);
+						label.Margin = new Thickness(i * (400f / length) + 35 + 10, 236, 0, 0);
 					}
 					grid.Children.Add(label);
 				}
 			}
-			else if (labels.Length == 2) // TODO: Currently only works with 2 labels.
+			else
 			{
 				for (int i = 0; i < labels.Length; i++)
 				{
 					TextBlock header = new TextBlock
 					{
 						Text = labels[i],
-						Margin = new Thickness(i * (400f / (labels.Length - 1)) + 40 - i * 60, 246, 0, 0),
+						Margin = new Thickness(i * (400f / (labels.Length - 1)) + 55 - 15 * i / (labels.Length - 1), 240, 0, 0),
 						Foreground = Brushes.White,
-						TextWrapping = TextWrapping.Wrap,
+						FontSize = 11,
 						TextAlignment = TextAlignment.Left,
 						VerticalAlignment = VerticalAlignment.Top,
 						HorizontalAlignment = HorizontalAlignment.Left
 					};
+					header.RenderTransform = new RotateTransform(90, 0, 0);
 					grid.Children.Add(header);
 				}
 			}
 		}
 
-		private static void GenerateBars(Grid grid, int[] data, int max)
+		private static void GenerateBars(Grid grid, int[][] data, int max)
 		{
-			for (int i = 0; i < data.Length; i++)
+			DrawFullArea(grid);
+			if (data.Length == 1)
 			{
-				Rectangle newRect = new Rectangle
+				int[] arr = data[0];
+				for (int i = 0; i < arr.Length; i++)
 				{
-					Width = 400f / data.Length,
-					Height = (float)data[i] / max * 200f,
-					Margin = new Thickness(i * (400f / data.Length) + 40, 0, 0, 35),
-					Fill = Brushes.White,
-					Stroke = Brushes.Black,
-					StrokeThickness = 1,
-					VerticalAlignment = VerticalAlignment.Bottom,
-					HorizontalAlignment = HorizontalAlignment.Left
-				};
-				grid.Children.Add(newRect);
+					Rectangle newRect = new Rectangle
+					{
+						Width = 400f / arr.Length,
+						Height = (float)arr[i] / max * 200f,
+						Margin = new Thickness(i * (400f / arr.Length) + 40, 0, 0, 35),
+						Fill = Brushes.White,
+						Stroke = Brushes.Black,
+						StrokeThickness = 1,
+						VerticalAlignment = VerticalAlignment.Bottom,
+						HorizontalAlignment = HorizontalAlignment.Left
+					};
+					grid.Children.Add(newRect);
+				}
 			}
 		}
 
-		private static void GenerateLines(Grid grid, int[] data, int max)
+		private static void GenerateLines(Grid grid, int[][] data, int max, bool isColoured)
 		{
-			for (int i = 0; i < data.Length - 1; i++)
+			DrawFullArea(grid);
+			foreach (int[] inArr in data)
 			{
-				Line line = new Line
+				Color colour;
+				if (isColoured)
 				{
-					Margin = new Thickness(0, 0, 0, 0),
-					StrokeThickness = 2,
-					Stroke = Brushes.White,
-					X1 = 40f + i * (400f / data.Length),
-					X2 = 40f + (i + 1) * (400f / data.Length),
-					Y1 = 200f - ((float)data[i] / max * 200f) + 45f,
-					Y2 = 200f - ((float)data[i + 1] / max * 200f) + 45f,
-					HorizontalAlignment = HorizontalAlignment.Left
-				};
-				grid.Children.Add(line);
+					Byte[] b = new Byte[3];
+					random.NextBytes(b);
+					colour = Color.FromRgb(b[0], b[1], b[2]);
+				}
+				else colour = Colors.White;
+				for (int i = 0; i < inArr.Length - 1; i++)
+				{
+					Line line = new Line
+					{
+						Margin = new Thickness(0, 0, 0, 0),
+						StrokeThickness = 2,
+						Stroke = new SolidColorBrush(colour),
+						X1 = 40f + i * (400f / (inArr.Length - 1)),
+						X2 = 40f + (i + 1) * (400f / (inArr.Length - 1)),
+						Y1 = 200f - ((float)inArr[i] / max * 200f) + 35f,
+						Y2 = 200f - ((float)inArr[i + 1] / max * 200f) + 35f,
+						HorizontalAlignment = HorizontalAlignment.Left
+					};
+					grid.Children.Add(line);
+				}
 			}
 		}
 
@@ -197,52 +254,60 @@ namespace A2_Project
 			return value;
 		}
 
+		private delegate void GetData(ref int[][] data, ref string[] xAxisLabels);
+
 		private void GraphAppTypes()
 		{
-			int[] typesCount = Array.Empty<int>();
-			string[] types = Array.Empty<string>();
-			dbAccess.GetCountOfAppointmentTypes(ref typesCount, ref types);
-			GenerateBarGraph(grdAppTypes, typesCount, types, "Appointment Types");
+			GetData getData = new GetData(dbAccess.GetCountOfAppointmentTypes);
+			GenerateBarGraph(getData, grdAppTypes, "Appointment Types");
 		}
 
 		private void GraphStaffBusiness()
 		{
-			int[] typesCount = Array.Empty<int>();
-			string[] types = Array.Empty<string>();
-			dbAccess.GetBusinessOfStaff(ref typesCount, ref types);
-			GenerateBarGraph(grdStaffBusiness, typesCount, types, "Staff time spent working");
+			GetData getData = new GetData(dbAccess.GetBusinessOfStaff);
+			GenerateBarGraph(getData, grdStaffBusiness, "Staff Time Spent Working");
 		}
 
 		private void GraphAppByDayOfWeek()
 		{
-			int[] typesCount = Array.Empty<int>();
-			string[] types = Array.Empty<string>();
-			dbAccess.GetAppsByDayOfWeek(ref typesCount, ref types);
-			GenerateBarGraph(grdDaysOfWeek, typesCount, types, "Appointments by day of week");
+			GetData getData = new GetData(dbAccess.GetAppsByDayOfWeek);
+			GenerateBarGraph(getData, grdDaysOfWeek, "Appointments By Day Of Week");
 		}
 
 		private void GraphAppByMonth()
 		{
-			int[] typesCount = Array.Empty<int>();
-			string[] types = Array.Empty<string>();
-			dbAccess.GetBookingsInMonths(ref typesCount, ref types);
-			GenerateBarGraph(grdAppByMonth, typesCount, types, "Appointments by month");
+			GetData getData = new GetData(dbAccess.GetBookingsInMonths);
+			GenerateBarGraph(getData, grdAppByMonth, "Appointments By Month");
 		}
 
 		private void GraphGrowth()
 		{
-			int[] typesCount = Array.Empty<int>();
-			string[] types = Array.Empty<string>();
-			dbAccess.GetGrowthOverTime(ref typesCount, ref types);
-			GenerateLineGraph(grdGrowth, typesCount, types, "Customers over time");
+			GetData getData = new GetData(dbAccess.GetGrowthOverTime);
+			GenerateLineGraph(getData, grdGrowth, "Clients Over Time");
 		}
 
 		private void GraphAppCancelRate()
 		{
-			int[] typesCount = Array.Empty<int>();
-			string[] types = Array.Empty<string>();
-			dbAccess.GetAppCancelRate(ref typesCount, ref types);
-			GenerateLineGraph(grdAppCancelRate, typesCount, types, "Appointment cancel rate over time");
+			GetData getData = new GetData(dbAccess.GetAppCancelRate);
+			GenerateLineGraph(getData, grdAppCancelRate, "Appointment Cancel Rate Over Time", "", "%");
+		}
+
+		private void GraphCustReturn()
+		{
+			GetData getData = new GetData(dbAccess.GetCustReturns);
+			GenerateLineGraph(getData, grdRepeatCustomers, "Return Customers");
+		}
+
+		private void GraphDogTypes()
+		{
+			GetData getData = new GetData(dbAccess.GetDogTypesOverTime);
+			GenerateLineGraph(getData, grdDogTypes, "Dog Types");
+		}
+
+		private void GraphIncome()
+		{
+			GetData getData = new GetData(dbAccess.GetIncomeLastYear);
+			GenerateBarGraph(getData, grdIncome, "Income", "£");
 		}
 	}
 }

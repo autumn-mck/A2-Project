@@ -44,8 +44,7 @@ namespace A2_Project
 
 		private static bool IsValidEmail(string email)
 		{
-			// TODO: Untested
-			string pattern = @"\b[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,}\b";
+			string pattern = @"^[^@\s]+@[^@\s]+\.[^@\s]+$";
 			Regex regex = new Regex(pattern);
 			return regex.IsMatch(email);
 		}
@@ -73,11 +72,11 @@ namespace A2_Project
 							{
 								// TODO: Create the account
 								tblOutput.Text = "Account created!";
-								txtName.Text = "";
-								txtEmail.Text = "";
-								txtPhoneNo.Text = "";
-								pswPassword.Password = "";
-								pswRePassword.Password = "";
+								//txtName.Text = "";
+								//txtEmail.Text = "";
+								//txtPhoneNo.Text = "";
+								//pswPassword.Password = "";
+								//pswRePassword.Password = "";
 							}
 							else tblOutput.Text = "Username already taken!";
 						}
