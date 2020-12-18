@@ -2,6 +2,7 @@
 using System.Text.RegularExpressions;
 using System.Windows;
 using System.Windows.Input;
+using System.Windows.Media;
 
 namespace A2_Project
 {
@@ -51,14 +52,14 @@ namespace A2_Project
 
 		private bool IsPhoneNoValid(string phoneNo)
 		{
-			// TODO: Untested
-			string regexStr = @"/^\(? ([0 - 9]{ 3})\)?[-. ]?([0 - 9]{ 3})[-. ]?([0 - 9]{ 4})$/";
+			string regexStr = @"^(?:(?:\(?(?:0(?:0|11)\)?[\s-]?\(?|\+)44\)?[\s-]?(?:\(?0\)?[\s-]?)?)|(?:\(?0))(?:(?:\d{5}\)?[\s-]?\d{4,5})|(?:\d{4}\)?[\s-]?(?:\d{5}|\d{3}[\s-]?\d{3}))|(?:\d{3}\)?[\s-]?\d{3}[\s-]?\d{3,4})|(?:\d{2}\)?[\s-]?\d{4}[\s-]?\d{4}))(?:[\s-]?(?:x|ext\.?|\#)\d{3,4})?$";
 			Regex regex = new Regex(regexStr);
 			return regex.IsMatch(phoneNo);
 		}
 
 		private void BtnRegister_Click(object sender, RoutedEventArgs e)
 		{
+			tblOutput.Foreground = new SolidColorBrush(Color.FromRgb(182, 24, 39));
 			if (txtName.Text != "")
 			{
 				try
@@ -68,17 +69,22 @@ namespace A2_Project
 					{
 						if (txtEmail.Text == "" || IsValidEmail(txtEmail.Text))
 						{
-							if (true/*TODO: Decide if name should be unique, and if so, check the name is not taken before creating the account*/)
+							if (txtPhoneNo.Text == "" || IsPhoneNoValid(txtPhoneNo.Text))
 							{
-								// TODO: Create the account
-								tblOutput.Text = "Account created!";
-								//txtName.Text = "";
-								//txtEmail.Text = "";
-								//txtPhoneNo.Text = "";
-								//pswPassword.Password = "";
-								//pswRePassword.Password = "";
+								if (true/*TODO: Decide if name should be unique, and if so, check the name is not taken before creating the account*/)
+								{
+									// TODO: Create the account
+									tblOutput.Text = "Account created!";
+									tblOutput.Foreground = new SolidColorBrush(Color.FromRgb(241, 241, 241));
+									//txtName.Text = "";
+									//txtEmail.Text = "";
+									//txtPhoneNo.Text = "";
+									//pswPassword.Password = "";
+									//pswRePassword.Password = "";
+								}
+								else tblOutput.Text = "Username already taken!";
 							}
-							else tblOutput.Text = "Username already taken!";
+							else tblOutput.Text = "Invalid phone number!";
 						}
 						else tblOutput.Text = "Invalid email address!";
 					}
