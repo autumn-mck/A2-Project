@@ -43,13 +43,13 @@
 			<Label x:Name="lblRePassword" Content="Re-enter your password:" HorizontalAlignment="Left" Margin="211,670,0,0"/>
 			<Label x:Name="lblEmail" Content="(Optional) Email:" HorizontalAlignment="Left" Margin="1146,510,0,0"/>
 			<Label x:Name="lblPhoneNo" Content="(Optional) Phone number:" HorizontalAlignment="Left" Margin="1146,337,0,0"/>
-			<TextBox x:Name="txtName" HorizontalAlignment="Left" Margin="211,429,0,0" TabIndex="1"/>
-			<TextBox x:Name="txtPhoneNo" HorizontalAlignment="Left" Margin="1146,429,0,0" TabIndex="4"/>
-			<TextBox x:Name="txtEmail" HorizontalAlignment="Left" Margin="1148,584,0,0" TabIndex="5"/>
-			<PasswordBox x:Name="pswPassword" HorizontalAlignment="Left" Margin="211,584,0,0" TabIndex="2"/>
-			<PasswordBox x:Name="pswRePassword" HorizontalAlignment="Left" Margin="211,749,0,0" TabIndex="3"/>
+			<TextBox x:Name="txtName" HorizontalAlignment="Left" Margin="211,429,0,0" TextChanged="TxtBox_TextChanged" TabIndex="1"/>
+			<TextBox x:Name="txtPhoneNo" HorizontalAlignment="Left" Margin="1146,429,0,0" TextChanged="TxtBox_TextChanged" TabIndex="4"/>
+			<TextBox x:Name="txtEmail" HorizontalAlignment="Left" Margin="1148,584,0,0" TextChanged="TxtBox_TextChanged" TabIndex="5"/>
+			<PasswordBox x:Name="pswPassword" HorizontalAlignment="Left" Margin="211,584,0,0" PasswordChanged="PswBox_PasswordChanged" TabIndex="2"/>
+			<PasswordBox x:Name="pswRePassword" HorizontalAlignment="Left" Margin="211,749,0,0" PasswordChanged="PswBox_PasswordChanged" TabIndex="3"/>
 			<Button x:Name="btnRegister" Content="Register Account" HorizontalAlignment="Center" Margin="0,749,0,0" VerticalAlignment="Top" Width="262" Height="50" FontSize="30" TabIndex="7" Click="BtnRegister_Click"/>
-			<CheckBox x:Name="checkBox" Content="Use 2FA?" HorizontalAlignment="Left" Margin="1249,761,0,0" VerticalAlignment="Top" Foreground="White" RenderTransformOrigin="0.5,0.5" TabIndex="6">
+			<CheckBox x:Name="cbx2FA" Content="Use 2FA?" HorizontalAlignment="Left" Margin="1249,761,0,0" VerticalAlignment="Top" Foreground="White" RenderTransformOrigin="0.5,0.5" TabIndex="6">
 				<CheckBox.RenderTransform>
 					<ScaleTransform ScaleX="4" ScaleY="4"/>
 				</CheckBox.RenderTransform>

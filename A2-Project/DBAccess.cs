@@ -127,6 +127,12 @@ namespace A2_Project
 			return GetStringsWithQuery("SELECT C.CONSTRAINT_TYPE FROM INFORMATION_SCHEMA.TABLE_CONSTRAINTS AS C JOIN INFORMATION_SCHEMA.KEY_COLUMN_USAGE AS K ON C.TABLE_NAME = K.TABLE_NAME AND C.CONSTRAINT_CATALOG = K.CONSTRAINT_CATALOG AND C.CONSTRAINT_SCHEMA = K.CONSTRAINT_SCHEMA AND C.CONSTRAINT_NAME = K.CONSTRAINT_NAME WHERE C.TABLE_NAME = '" + tableName + "';");
 		}
 
+		public bool IsNameTaken(string name)
+		{
+			// TODO: StaffName should be enforced as unique
+			return GetStringsWithQuery("SELECT COUNT(StaffID) FROM [Staff] WHERE [Staff].StaffName = '" + name + "';")[0] == "0";
+		}
+
 		#region Graphs
 		public void GetCountOfAppointmentTypes(ref int[][] data, ref string[] headers)
 		{
@@ -294,6 +300,16 @@ namespace A2_Project
 				"Product" => "UPDATE Product SET ProductName = '" + data[1] + "', ProductPrice = " + data[2] + " WHERE ProductID = " + data[0] + ";",
 				_ => "",
 			};
+		}
+
+		public void CreateStaffAccount(string staffName, string staffPassword, string staffEmail, string staffPhoneNo, bool uses2FA)
+		{
+			string str;
+			if (uses2FA) str = "1";
+			else str = "0";
+			Db.Cmd = Db.Conn.CreateCommand();
+			Db.Cmd.CommandText = $"INSERT INTO [Staff] VALUES ((SELECT Max(StaffID) FROM [Staff]) + 1, '{staffName}', '{staffPassword}', '{staffEmail}', '{staffPhoneNo}', {str});";
+			Db.Cmd.ExecuteNonQuery();
 		}
 		#endregion Set Requests
 

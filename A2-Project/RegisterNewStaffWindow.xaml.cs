@@ -13,6 +13,10 @@ namespace A2_Project
 	{
 		private readonly DBAccess dbAccess;
 		// TODO: Should probably store staff phone no.
+
+		private static readonly SolidColorBrush isValidBrush = new SolidColorBrush(Color.FromRgb(241, 241, 241));
+		private static readonly SolidColorBrush isInvalidBrush = new SolidColorBrush(Color.FromRgb(182, 24, 39));
+
 		public RegisterNewStaffWindow(DBAccess _dbAccess)
 		{
 			InitializeComponent();
@@ -50,16 +54,15 @@ namespace A2_Project
 			return regex.IsMatch(email);
 		}
 
-		private bool IsPhoneNoValid(string phoneNo)
+		private static bool IsPhoneNoValid(string phoneNo)
 		{
 			string regexStr = @"^(?:(?:\(?(?:0(?:0|11)\)?[\s-]?\(?|\+)44\)?[\s-]?(?:\(?0\)?[\s-]?)?)|(?:\(?0))(?:(?:\d{5}\)?[\s-]?\d{4,5})|(?:\d{4}\)?[\s-]?(?:\d{5}|\d{3}[\s-]?\d{3}))|(?:\d{3}\)?[\s-]?\d{3}[\s-]?\d{3,4})|(?:\d{2}\)?[\s-]?\d{4}[\s-]?\d{4}))(?:[\s-]?(?:x|ext\.?|\#)\d{3,4})?$";
 			Regex regex = new Regex(regexStr);
 			return regex.IsMatch(phoneNo);
 		}
 
-		private void BtnRegister_Click(object sender, RoutedEventArgs e)
+		private string IsInputValid()
 		{
-			tblOutput.Foreground = new SolidColorBrush(Color.FromRgb(182, 24, 39));
 			if (txtName.Text != "")
 			{
 				try
@@ -71,39 +74,69 @@ namespace A2_Project
 						{
 							if (txtPhoneNo.Text == "" || IsPhoneNoValid(txtPhoneNo.Text))
 							{
-								if (true/*TODO: Decide if name should be unique, and if so, check the name is not taken before creating the account*/)
+								if (IsNameTaken(txtName.Text))
 								{
-									// TODO: Create the account
-									tblOutput.Text = "Account created!";
-									tblOutput.Foreground = new SolidColorBrush(Color.FromRgb(241, 241, 241));
-									//txtName.Text = "";
-									//txtEmail.Text = "";
-									//txtPhoneNo.Text = "";
-									//pswPassword.Password = "";
-									//pswRePassword.Password = "";
+									return "";
 								}
-								else tblOutput.Text = "Username already taken!";
+								else return "Name already taken!";
 							}
-							else tblOutput.Text = "Invalid phone number!";
+							else return "Invalid phone number!";
 						}
-						else tblOutput.Text = "Invalid email address!";
+						else return "Invalid email address!";
 					}
-					else 
+					else
 					{
-						tblOutput.Text = ispassValid;
+						return ispassValid;
 					}
 				}
 				catch (Exception ex)
 				{
-					tblOutput.Text = ex.Message;
+					return ex.Message;
 				}
 			}
-			else tblOutput.Text = "Please enter a name!";
+			else return "Please enter a name!";
 		}
 
-		private void TxtBox_KeyDown(object sender, KeyEventArgs e)
+		private void BtnRegister_Click(object sender, RoutedEventArgs e)
 		{
-			// Update issues after keydown
+			string str = IsInputValid();
+			if (str == "")
+			{
+				tblOutput.Text = "Account created!";
+				tblOutput.Foreground = isValidBrush;
+				txtName.Text = "";
+				txtEmail.Text = "";
+				txtPhoneNo.Text = "";
+				pswPassword.Password = "";
+				pswRePassword.Password = "";
+				dbAccess.CreateStaffAccount(txtName.Text, pswPassword.Password, txtEmail.Text, txtPhoneNo.Text, (bool)cbx2FA.IsChecked);
+			}
+			else
+			{
+				tblOutput.Foreground = isInvalidBrush;
+				tblOutput.Text = str;
+			}
+		}
+
+		private bool IsNameTaken(string name)
+		{
+			return dbAccess.IsNameTaken(name);
+		}
+
+		private void UpdateOutput()
+		{
+			tblOutput.Foreground = isInvalidBrush;
+			tblOutput.Text = IsInputValid();
+		}
+
+		private void TxtBox_TextChanged(object sender, System.Windows.Controls.TextChangedEventArgs e)
+		{
+			UpdateOutput();
+		}
+
+		private void PswBox_PasswordChanged(object sender, RoutedEventArgs e)
+		{
+			UpdateOutput();
 		}
 	}
 }
