@@ -44,7 +44,7 @@ INSERT INTO [Staff] VALUES (
 	1,
 	'Jon',
 	'5e0524de4400e6875b14c07da5731796166037f54bc87043ab9abd98c3d33036',
-	'',
+	'not.a@real.email',
 	'07700 900747',
 	0
 );

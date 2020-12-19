@@ -39,9 +39,7 @@ namespace A2_Project
 			if (txtLogUser.Text == "" || pswLogPassword.Password == "") { }
 			if (IsLoginDataCorrect(txtLogUser.Text, pswLogPassword.Password))
 			{
-				// TODO: For now, 2FA is used if the user has an email address. This should be moved to a separate option in future.
-				email = dbAccess.DoesUse2FA(txtLogUser.Text);
-				if (email == "")
+				if (!dbAccess.DoesUse2FA(txtLogUser.Text, ref email))
 				{
 					FinishLoggingIn();
 				}

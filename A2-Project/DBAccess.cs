@@ -115,10 +115,11 @@ namespace A2_Project
 			return GetListStringsWithQuery("SELECT * FROM Appointment WHERE CONVERT(DATE, AppointmentDateTime) = '" + day.ToString("yyyy-MM-dd") + "';");
 		}
 
-		// TODO: StaffName is not currently guaranteed to be unique
-		public string DoesUse2FA(string username)
+		public bool DoesUse2FA(string username, ref string email)
 		{
-			return GetStringsWithQuery("SELECT [StaffEmail] FROM [Staff] WHERE [Staff].StaffName = '" + username + "';")[0];
+			bool uses2FA = GetStringsWithQuery("SELECT StaffUses2FA FROM [Staff] WHERE [Staff].StaffName = '" + username + "';")[0] == "True";
+			if (uses2FA) email = GetStringsWithQuery("SELECT [StaffEmail] FROM [Staff] WHERE [Staff].StaffName = '" + username + "';")[0];
+			return uses2FA;
 		}
 
 		public List<string> GetIsPrimaryKey(string tableName)
