@@ -98,7 +98,7 @@ namespace A2_Project
 		/// </summary>
 		public List<string> GetHeadersFromTable(string tableName)
 		{
-			return GetStringsWithQuery("SELECT COLUMN_NAME FROM INFORMATION_SCHEMA.COLUMNS WHERE TABLE_NAME = '" + tableName + "' ORDER BY ORDINAL_POSITION;");
+			return GetStringsWithQuery("SELECT COLUMN_NAME FROM INFORMATION_SCHEMA.COLUMNS WHERE TABLE_NAME = '" + tableName + "';");
 		}
 
 		/// <summary>
@@ -131,6 +131,20 @@ namespace A2_Project
 		{
 			// TODO: StaffName should be enforced as unique
 			return GetStringsWithQuery("SELECT COUNT(StaffID) FROM [Staff] WHERE [Staff].StaffName = '" + name + "';")[0] == "0";
+		}
+
+		public List<List<string>> GetContactsByClientID(string clientID)
+		{
+			return GetListStringsWithQuery("SELECT * FROM [Contact] WHERE ClientID = " + clientID + ";");
+		}
+
+		public bool IsColumnPrimaryKey(string columnName, string tableName)
+		{
+			string query = "SELECT K.TABLE_NAME, K.COLUMN_NAME, K.CONSTRAINT_NAME " +
+			"FROM INFORMATION_SCHEMA.TABLE_CONSTRAINTS AS C JOIN INFORMATION_SCHEMA.KEY_COLUMN_USAGE AS K " +
+			"ON C.TABLE_NAME = K.TABLE_NAME AND C.CONSTRAINT_CATALOG = K.CONSTRAINT_CATALOG AND C.CONSTRAINT_SCHEMA = K.CONSTRAINT_SCHEMA " +
+			$"AND C.CONSTRAINT_NAME = K.CONSTRAINT_NAME WHERE C.CONSTRAINT_TYPE = 'PRIMARY KEY' AND K.COLUMN_NAME = '{columnName}' AND K.TABLE_NAME = '{tableName}';";
+			return (GetListStringsWithQuery(query).Count > 0);
 		}
 
 		#region Graphs
