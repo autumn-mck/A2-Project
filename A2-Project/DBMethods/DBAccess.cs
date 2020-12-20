@@ -72,7 +72,6 @@ namespace A2_Project.DBMethods
 			return results;
 		}
 
-		#region Set Requests
 		/// <summary>
 		/// Updates the specified table with the given data.
 		/// Note: Does not currently manage creating new entries
@@ -90,6 +89,7 @@ namespace A2_Project.DBMethods
 		private static string GenerateText(string table, List<string> data)
 		{
 			// Code from a previous project that will be adapted to this one
+			// Was used to update the given table with the given data.
 			return table switch
 			{
 				"Customer" => "UPDATE Customer SET CustomerName = '" + data[1] + "' WHERE CustomerID = " + data[0] + ";",
@@ -99,6 +99,5 @@ namespace A2_Project.DBMethods
 				_ => "",
 			};
 		}
-		#endregion Set Requests
 	}
 }

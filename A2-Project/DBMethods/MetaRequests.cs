@@ -6,6 +6,9 @@ using System.Threading.Tasks;
 
 namespace A2_Project.DBMethods
 {
+	/// <summary>
+	/// SQL Requests that return information about tables or columns themselves
+	/// </summary>
 	public static class MetaRequests
 	{
 		/// <summary>

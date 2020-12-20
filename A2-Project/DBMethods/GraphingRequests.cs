@@ -22,6 +22,9 @@ namespace A2_Project.DBMethods
 			headers = DBAccess.GetStringsWithQuery("SELECT StaffName FROM [Staff] ORDER BY StaffID;").ToArray();
 		}
 
+		/// <summary>
+		/// Gets the number of clients over time
+		/// </summary>
 		public static void GetGrowthOverTime(ref int[][] data, ref string[] headers)
 		{
 			DateTime startDate = Convert.ToDateTime(DBAccess.GetStringsWithQuery("SELECT MIN(ClientJoinDate) FROM Client")[0]);
@@ -36,6 +39,9 @@ namespace A2_Project.DBMethods
 			headers = InterpolateDates(startDate, diff);
 		}
 
+		/// <summary>
+		/// Gets the number of appointments on each day of the week
+		/// </summary>
 		public static void GetAppsByDayOfWeek(ref int[][] data, ref string[] headers)
 		{
 			data[0] = new int[7];
@@ -44,6 +50,11 @@ namespace A2_Project.DBMethods
 			headers = new string[] { "Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun" };
 		}
 
+		/// <summary>
+		/// Gets the number of appointments in each month of the year
+		/// </summary>
+		/// <param name="data"></param>
+		/// <param name="headers"></param>
 		public static void GetBookingsInMonths(ref int[][] data, ref string[] headers)
 		{
 			data[0] = new int[12];
@@ -54,6 +65,9 @@ namespace A2_Project.DBMethods
 			headers = months;
 		}
 
+		/// <summary>
+		/// Gets a rolling average of what % of appointments have been cancelled over time
+		/// </summary>
 		public static void GetAppCancelRate(ref int[][] data, ref string[] headers)
 		{
 			DateTime startDate = Convert.ToDateTime(DBAccess.GetStringsWithQuery("SELECT MIN(AppointmentDateTime) FROM Appointment")[0]);
@@ -92,6 +106,7 @@ namespace A2_Project.DBMethods
 			headers = InterpolateDates(startDate, diff);
 		}
 
+		// TODO: Remove. Returns far too much information to ever be readable or useful
 		public static void GetDogTypesOverTime(ref int[][] counts, ref string[] headers)
 		{
 			DateTime startDate = Convert.ToDateTime(DBAccess.GetStringsWithQuery("SELECT MIN(ClientJoinDate) FROM Client")[0]);
@@ -136,6 +151,10 @@ namespace A2_Project.DBMethods
 			data[0] = income.ToArray();
 		}
 
+		/// <summary>
+		/// Returns 7 dates linearly between the startDate and end date.
+		/// diff represents the difference between the start date and the end date in days
+		/// </summary>
 		private static string[] InterpolateDates(DateTime startDate, int diff)
 		{
 			List<string> dates = new List<string>();
