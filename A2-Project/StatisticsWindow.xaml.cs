@@ -19,12 +19,10 @@ namespace A2_Project
 	/// </summary>
 	public partial class StatisticsWindow : Window
 	{
-		private readonly DBAccess dbAccess;
 		private static Random random = new Random();
-		public StatisticsWindow(DBAccess _dbAccess)
+		public StatisticsWindow()
 		{
 			InitializeComponent();
-			dbAccess = _dbAccess;
 			GraphAppTypes();
 			GraphStaffBusiness();
 			GraphGrowth();
@@ -258,55 +256,55 @@ namespace A2_Project
 
 		private void GraphAppTypes()
 		{
-			GetData getData = new GetData(dbAccess.GetCountOfAppointmentTypes);
+			GetData getData = new GetData(DBMethods.GraphingRequests.GetCountOfAppointmentTypes);
 			GenerateBarGraph(getData, grdAppTypes, "Appointment Types");
 		}
 
 		private void GraphStaffBusiness()
 		{
-			GetData getData = new GetData(dbAccess.GetBusinessOfStaff);
+			GetData getData = new GetData(DBMethods.GraphingRequests.GetBusinessOfStaff);
 			GenerateBarGraph(getData, grdStaffBusiness, "Staff Time Spent Working");
 		}
 
 		private void GraphAppByDayOfWeek()
 		{
-			GetData getData = new GetData(dbAccess.GetAppsByDayOfWeek);
+			GetData getData = new GetData(DBMethods.GraphingRequests.GetAppsByDayOfWeek);
 			GenerateBarGraph(getData, grdDaysOfWeek, "Appointments By Day Of Week");
 		}
 
 		private void GraphAppByMonth()
 		{
-			GetData getData = new GetData(dbAccess.GetBookingsInMonths);
+			GetData getData = new GetData(DBMethods.GraphingRequests.GetBookingsInMonths);
 			GenerateBarGraph(getData, grdAppByMonth, "Appointments By Month");
 		}
 
 		private void GraphGrowth()
 		{
-			GetData getData = new GetData(dbAccess.GetGrowthOverTime);
+			GetData getData = new GetData(DBMethods.GraphingRequests.GetGrowthOverTime);
 			GenerateLineGraph(getData, grdGrowth, "Clients Over Time");
 		}
 
 		private void GraphAppCancelRate()
 		{
-			GetData getData = new GetData(dbAccess.GetAppCancelRate);
+			GetData getData = new GetData(DBMethods.GraphingRequests.GetAppCancelRate);
 			GenerateLineGraph(getData, grdAppCancelRate, "Appointment Cancel Rate Over Time", "", "%");
 		}
 
 		private void GraphCustReturn()
 		{
-			GetData getData = new GetData(dbAccess.GetCustReturns);
+			GetData getData = new GetData(DBMethods.GraphingRequests.GetCustReturns);
 			GenerateLineGraph(getData, grdRepeatCustomers, "Return Customers");
 		}
 
 		private void GraphDogTypes()
 		{
-			GetData getData = new GetData(dbAccess.GetDogTypesOverTime);
+			GetData getData = new GetData(DBMethods.GraphingRequests.GetDogTypesOverTime);
 			GenerateLineGraph(getData, grdDogTypes, "Dog Types");
 		}
 
 		private void GraphIncome()
 		{
-			GetData getData = new GetData(dbAccess.GetIncomeLastYear);
+			GetData getData = new GetData(DBMethods.GraphingRequests.GetIncomeLastYear);
 			GenerateBarGraph(getData, grdIncome, "Income", "£");
 		}
 	}

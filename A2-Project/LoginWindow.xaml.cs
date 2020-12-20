@@ -12,14 +12,12 @@ namespace A2_Project
 	public partial class LoginWindow : Window
 	{
 		private int attemptsLeft = 3;
-		private readonly DBAccess dbAccess;
 		private string authKey;
 		private string email;
 
-		public LoginWindow(DBAccess _dbAccess)
+		public LoginWindow()
 		{
 			InitializeComponent();
-			dbAccess = _dbAccess;
 		}
 
 		private void TryLogin()
@@ -39,7 +37,7 @@ namespace A2_Project
 			if (txtLogUser.Text == "" || pswLogPassword.Password == "") { }
 			if (IsLoginDataCorrect(txtLogUser.Text, pswLogPassword.Password))
 			{
-				if (!dbAccess.DoesUse2FA(txtLogUser.Text, ref email))
+				if (!DBMethods.LogRegRequests.DoesUse2FA(txtLogUser.Text, ref email))
 				{
 					FinishLoggingIn();
 				}
@@ -71,7 +69,7 @@ namespace A2_Project
 		/// </summary>
 		public bool IsLoginDataCorrect(string _name, string _password)
 		{
-			return dbAccess.IsLoginDataCorrect(_name, _password);
+			return DBMethods.LogRegRequests.IsLoginDataCorrect(_name, _password);
 		}
 
 		private void BtnLogIn_Click(object sender, RoutedEventArgs e)

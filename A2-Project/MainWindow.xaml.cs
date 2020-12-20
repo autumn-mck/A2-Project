@@ -17,7 +17,6 @@ namespace A2_Project
 		public string CurrentUser { get; set; }
 
 		private readonly Database db;
-		private readonly DBAccess dBAccess;
 
 		private RegisterNewStaffWindow regWindow;
 		private CalanderTest calWindow;
@@ -33,7 +32,7 @@ namespace A2_Project
 			db = new Database();
 
 			// Lets the user know if there is an error connecting to the database
-			if (db.Connect()) dBAccess = new DBAccess(db);
+			if (db.Connect()) DBMethods.DBAccess.Db = db;
 			else MessageBox.Show("Database Connection Unsuccessful.", "Error");
 			grdAccounts.MouseDown += GrdAccounts_MouseDown;
 			grdCalander.MouseDown += GrdCalander_MouseDown;
@@ -41,7 +40,7 @@ namespace A2_Project
 			grdAddStaff.MouseDown += GrdAddStaff_MouseDown;
 			grdViewStats.MouseDown += GrdViewStats_MouseDown;
 
-			login = new LoginWindow(dBAccess);
+			login = new LoginWindow();
 			lblContents.Content = login.Content;
 		}
 
@@ -105,35 +104,35 @@ namespace A2_Project
 		private void GrdCalander_MouseDown(object sender, MouseButtonEventArgs e)
 		{
 			if (calWindow == null)
-				calWindow = new CalanderTest(dBAccess) { Owner = this };
+				calWindow = new CalanderTest() { Owner = this };
 			lblContents.Content = calWindow.Content;
 		}
 
 		private void GrdAccounts_MouseDown(object sender, MouseButtonEventArgs e)
 		{
 			if (clientManagement == null)
-				clientManagement = new ClientManagement(dBAccess) { Owner = this };
+				clientManagement = new ClientManagement() { Owner = this };
 			lblContents.Content = clientManagement.Content;
 		}
 
 		private void GrdInvoices_MouseDown(object sender, MouseButtonEventArgs e)
 		{
 			if (invoiceTesting == null)
-				invoiceTesting = new InvoiceTesting(dBAccess) { Owner = this };
+				invoiceTesting = new InvoiceTesting() { Owner = this };
 			lblContents.Content = invoiceTesting.Content;
 		}
 
 		private void GrdAddStaff_MouseDown(object sender, MouseButtonEventArgs e)
 		{
 			if (regWindow == null)
-				regWindow = new RegisterNewStaffWindow(dBAccess) { Owner = this };
+				regWindow = new RegisterNewStaffWindow() { Owner = this };
 			lblContents.Content = regWindow.Content;
 		}
 
 		private void GrdViewStats_MouseDown(object sender, MouseButtonEventArgs e)
 		{
 			if (statsWindow == null)
-				statsWindow = new StatisticsWindow(dBAccess) { Owner = this };
+				statsWindow = new StatisticsWindow() { Owner = this };
 			lblContents.Content = statsWindow.Content;
 		}
 		#endregion MouseDown Events

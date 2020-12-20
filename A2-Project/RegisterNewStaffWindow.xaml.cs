@@ -11,16 +11,14 @@ namespace A2_Project
 	/// </summary>
 	public partial class RegisterNewStaffWindow : Window
 	{
-		private readonly DBAccess dbAccess;
 		// TODO: Should probably store staff phone no.
 
 		private static readonly SolidColorBrush isValidBrush = new SolidColorBrush(Color.FromRgb(241, 241, 241));
 		private static readonly SolidColorBrush isInvalidBrush = new SolidColorBrush(Color.FromRgb(182, 24, 39));
 
-		public RegisterNewStaffWindow(DBAccess _dbAccess)
+		public RegisterNewStaffWindow()
 		{
 			InitializeComponent();
-			dbAccess = _dbAccess;
 		}
 
 		/// <summary>
@@ -109,7 +107,7 @@ namespace A2_Project
 				txtPhoneNo.Text = "";
 				pswPassword.Password = "";
 				pswRePassword.Password = "";
-				dbAccess.CreateStaffAccount(txtName.Text, pswPassword.Password, txtEmail.Text, txtPhoneNo.Text, (bool)cbx2FA.IsChecked);
+				DBMethods.LogRegRequests.CreateStaffAccount(txtName.Text, pswPassword.Password, txtEmail.Text, txtPhoneNo.Text, (bool)cbx2FA.IsChecked);
 			}
 			else
 			{
@@ -120,7 +118,7 @@ namespace A2_Project
 
 		private bool IsNameTaken(string name)
 		{
-			return dbAccess.IsNameTaken(name);
+			return DBMethods.LogRegRequests.IsNameTaken(name);
 		}
 
 		private void UpdateOutput()

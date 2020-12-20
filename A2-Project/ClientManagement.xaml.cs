@@ -13,20 +13,18 @@ namespace A2_Project
 	/// </summary>
 	public partial class ClientManagement : Window
 	{
-		private readonly DBAccess dbAccess;
 		private DataTable table;
 		private List<string> tableHeaders;
 		private List<List<string>> originalData;
 
 		List<UIElement> display = new List<UIElement>();
 
-		public ClientManagement(DBAccess _dbAccess)
+		public ClientManagement()
 		{
 			InitializeComponent();
-			dbAccess = _dbAccess;
 
-			List<List<string>> data = dbAccess.GetAllFromTable("Contact");
-			DtgMethods.CreateTable(data, "Contact", dbAccess, ref dtgContacts, ref tableHeaders, ref table);
+			List<List<string>> data = DBMethods.MetaRequests.GetAllFromTable("Contact");
+			DtgMethods.CreateTable(data, "Contact", ref dtgContacts, ref tableHeaders, ref table);
 			List<string> colSearch = new List<string> { "All Columns" };
 			colSearch.AddRange(tableHeaders);
 			cmbColumn.SelectedIndex = 0;
@@ -44,7 +42,7 @@ namespace A2_Project
 					VerticalAlignment = VerticalAlignment.Top
 				};
 				grd.Children.Add(lbl);
-				if (dbAccess.IsColumnPrimaryKey(tableHeaders[i], "Contact"))
+				if (DBMethods.MetaRequests.IsColumnPrimaryKey(tableHeaders[i], "Contact"))
 				{
 					lbl = new Label()
 					{
@@ -100,7 +98,7 @@ namespace A2_Project
 
 		private void Search()
 		{
-			DtgMethods.UpdateSearch(originalData, cmbColumn.SelectedIndex, tbxSearch.Text, "Contact", dbAccess, ref dtgContacts, ref tableHeaders, ref table);
+			DtgMethods.UpdateSearch(originalData, cmbColumn.SelectedIndex, tbxSearch.Text, "Contact", ref dtgContacts, ref tableHeaders, ref table);
 		}
 
 		private void Dtg_AutoGeneratingColumn(object sender, DataGridAutoGeneratingColumnEventArgs e)
@@ -132,7 +130,7 @@ namespace A2_Project
 				DataRowView drv = (DataRowView)dtgContacts.SelectedItems[0];
 				string contactID = (string)drv.Row.ItemArray[1];
 				dtgContactsToClient.Columns.Clear(); // TODO: Why is this needed here, but not elsewhere????
-				DtgMethods.CreateTable(dbAccess.GetContactsByClientID(contactID), "Contact", dbAccess, ref dtgContactsToClient, ref tableHeaders, ref table);
+				DtgMethods.CreateTable(DBMethods.MiscRequests.GetContactsByClientID(contactID), "Contact", ref dtgContactsToClient, ref tableHeaders, ref table);
 				dtgContactsToClient.SelectedIndex = 0;
 			}
 			catch { }

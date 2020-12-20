@@ -7,7 +7,7 @@ namespace A2_Project
 	public static class DtgMethods
 	{
 		public static List<List<string>> UpdateSearch(List<List<string>> originalData, int selectedIndex, string searchTerm,
-		string tableName, DBAccess dbAccess, ref DataGrid dtg, ref List<string> tableHeaders, ref DataTable table, bool shouldReset = true)
+		string tableName, ref DataGrid dtg, ref List<string> tableHeaders, ref DataTable table, bool shouldReset = true)
 		{
 			if (originalData == null) return null;
 			int columnSearch = selectedIndex;
@@ -31,16 +31,16 @@ namespace A2_Project
 					if (ls[columnSearch - 1].Contains(searchTerm)) searched.Add(ls);
 				}
 			}
-			CreateTable(searched, tableName, dbAccess, ref dtg, ref tableHeaders, ref table, shouldReset);
+			CreateTable(searched, tableName, ref dtg, ref tableHeaders, ref table, shouldReset);
 			return searched;
 		}
 
-		public static void CreateTable(List<List<string>> data, string tableName, DBAccess dbAccess, ref DataGrid dtg, ref List<string> tableHeaders, ref DataTable table, bool shouldReset = false)
+		public static void CreateTable(List<List<string>> data, string tableName, ref DataGrid dtg, ref List<string> tableHeaders, ref DataTable table, bool shouldReset = false)
 		{
 			if (data == null) return;
 			table = new DataTable();
 			if (shouldReset) dtg.DataContext = table.DefaultView;
-			tableHeaders = dbAccess.GetHeadersFromTable(tableName);
+			tableHeaders = DBMethods.MetaRequests.GetHeadersFromTable(tableName);
 			foreach (string str in tableHeaders)
 				table.Columns.Add(str);
 			for (int i = 0; i < data.Count; i++)
