@@ -23,14 +23,12 @@ namespace A2_Project
 		private object currentlySelected;
 		private bool toExit = false;
 		private Point diff;
-		private readonly DBAccess dbAccess;
 
-		public CalanderTest(DBAccess _dbAccess)
+		public CalanderTest()
 		{
 			InitializeComponent();
 			Thread thread = new Thread(Loop);
 			thread.Start();
-			dbAccess = _dbAccess;
 		}
 
 		/// <summary>
@@ -108,7 +106,7 @@ namespace A2_Project
 			for (int i = 1; i < days; i++)
 			{
 				DateTime startOfMonth = picked.AddDays(-picked.Day + i);
-				List<List<string>> results = dbAccess.GetAllAppointmentsOnDay(startOfMonth);
+				List<List<string>> results = DBMethods.MiscRequests.GetAllAppointmentsOnDay(startOfMonth);
 				int count = 0;
 				foreach (List<string> ls in results)
 				{

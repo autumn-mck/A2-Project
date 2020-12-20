@@ -13,16 +13,14 @@ namespace A2_Project
 	/// </summary>
 	public partial class InvoiceTesting : Window
 	{
-		private readonly DBAccess dbAccess;
 		private DataTable table;
 		private List<string> tableHeaders;
 		private List<List<string>> data;
 
-		public InvoiceTesting(DBAccess _dbAccess)
+		public InvoiceTesting()
 		{
 			InitializeComponent();
-			dbAccess = _dbAccess;
-			cmbTables.ItemsSource = dbAccess.GetTableNames();
+			cmbTables.ItemsSource = DBMethods.MetaRequests.GetTableNames();
 			cmbTables.SelectedIndex = 0;
 		}
 
@@ -38,8 +36,8 @@ namespace A2_Project
 
 		private void CmbTables_SelectionChanged(object sender, SelectionChangedEventArgs e)
 		{
-			List<List<string>> data = dbAccess.GetAllFromTable(cmbTables.SelectedItem.ToString());
-			DtgMethods.CreateTable(data, cmbTables.SelectedItem.ToString(), dbAccess, ref dtgTest, ref tableHeaders, ref table);
+			List<List<string>> data = DBMethods.MetaRequests.GetAllFromTable(cmbTables.SelectedItem.ToString());
+			DtgMethods.CreateTable(data, cmbTables.SelectedItem.ToString(), ref dtgTest, ref tableHeaders, ref table);
 			List<string> colSearch = new List<string> { "All Columns" };
 			colSearch.AddRange(tableHeaders);
 			cmbColumn.SelectedIndex = 0;
@@ -68,7 +66,7 @@ namespace A2_Project
 
 		private void Search()
 		{
-			DtgMethods.UpdateSearch(data, cmbColumn.SelectedIndex, tbxSearch.Text, cmbTables.Text, dbAccess, ref dtgTest, ref tableHeaders, ref table, false);
+			DtgMethods.UpdateSearch(data, cmbColumn.SelectedIndex, tbxSearch.Text, cmbTables.Text, ref dtgTest, ref tableHeaders, ref table, false);
 		}
 	}
 }
