@@ -11,14 +11,18 @@ namespace A2_Project
 {
 	public static class EmailManagement
 	{
-		private static void SendEmail(string recipient, string body)
+		/// <summary>
+		/// Sends an email
+		/// </summary>
+		/// <param name="recipient">Who the email should be sent to</param>
+		/// <param name="body">The body of the email as HTML</param>
+		private static void SendEmail(string recipient, string subject, string body)
 		{
 			MailMessage message = new MailMessage();
 			SmtpClient smtp = new SmtpClient();
 			message.From = new MailAddress("atempmailfortestingcsharp@gmail.com", "JD Dog Care");
-			//message.To.Add(new MailAddress("jamesomckee@icloud.com"));
 			message.To.Add(new MailAddress(recipient));
-			message.Subject = "Authentication Email";
+			message.Subject = subject;
 			message.IsBodyHtml = true;
 			message.Body = body;
 			smtp.Port = 587;
@@ -31,8 +35,12 @@ namespace A2_Project
 		}
 
 		#region 2FA
+		/// <summary>
+		/// Generates a random string of characters of size "size", default 8
+		/// </summary>
 		private static string Generate2FAKey(int size = 8)
 		{
+			// The selection of characters to be used to generate the key
 			char[] chars = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ1234567890".ToCharArray();
 			byte[] data = new byte[4 * size];
 			using (RNGCryptoServiceProvider crypto = new RNGCryptoServiceProvider())
@@ -51,21 +59,29 @@ namespace A2_Project
 			return result.ToString();
 		}
 
+		/// <summary>
+		/// Sends an email containing a randomly generated key to act as 2FA
+		/// </summary>
+		/// <returns>The key that was generated</returns>
 		public static string Send2FAEmail(string recipient)
 		{
+			// TODO: Body of 2FA email should be proper HTML, and contain more than just the key itself
 			string key = Generate2FAKey();
-			SendEmail(recipient, key);
+			SendEmail(recipient, "Authentication Email", key);
 			return key;
 		}
 		#endregion 2FA
 
 		#region Invoices
-		public static void SendInvoiceEmail(string recipient, DataTable table, string[] headers)
+		/// <summary>
+		/// Sends the contents of the DataTable as an email
+		/// </summary>
+		public static void SendInvoiceEmail(string recipient, DataTable table, string[] tableHeaders)
 		{
-			SendEmail(recipient, GenerateInvoiceHTML(TableToStringArrays(table), headers));
+			SendEmail(recipient, GenerateInvoiceHTML(DataTableToStringArrays(table), tableHeaders), "Monthly Invoice");
 		}
 
-		private static string[][] TableToStringArrays(DataTable table)
+		private static string[][] DataTableToStringArrays(DataTable table)
 		{
 			List<string[]> data = new List<string[]>();
 			foreach (DataRow r in table.Rows)
@@ -75,6 +91,9 @@ namespace A2_Project
 			return data.ToArray();
 		}
 
+		/// <summary>
+		/// Generates the body HTML for an invoice email
+		/// </summary>
 		private static string GenerateInvoiceHTML(string[][] tableArr, string[] headers)
 		{
 			string header = @"

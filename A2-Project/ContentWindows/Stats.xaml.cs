@@ -13,6 +13,7 @@ namespace A2_Project.ContentWindows
 	/// </summary>
 	public partial class Stats : Window
 	{
+		// Used for generating random colours for some graphs
 		private static Random random = new Random();
 
 		public Stats()
@@ -195,13 +196,9 @@ namespace A2_Project.ContentWindows
 			foreach (int[] inArr in data)
 			{
 				Color colour;
-				if (isColoured)
-				{
-					Byte[] b = new Byte[3];
-					random.NextBytes(b);
-					colour = Color.FromRgb(b[0], b[1], b[2]);
-				}
+				if (isColoured) colour = GenerateRandomColour();
 				else colour = Colors.White;
+
 				for (int i = 0; i < inArr.Length - 1; i++)
 				{
 					Line line = new Line
@@ -218,6 +215,13 @@ namespace A2_Project.ContentWindows
 					grid.Children.Add(line);
 				}
 			}
+		}
+
+		private static Color GenerateRandomColour()
+		{
+			Byte[] b = new Byte[3];
+			random.NextBytes(b);
+			return Color.FromRgb(b[0], b[1], b[2]);
 		}
 
 		private static void GenerateTitle(Grid grid, string title)

@@ -12,13 +12,17 @@ namespace A2_Project
 	/// </summary>
 	public partial class MainWindow : Window
 	{
+		// Represents the direction the sidebar should go in when next animating. Oscillates between 1 and -1.
 		private int menuDirection = 1;
+		// Used to ensure any extra threads properly stop when the application is closing
 		private bool toExit = false;
 
+		// The name of the currently logged in user
 		public string CurrentUser { get; set; }
 
 		private readonly Database db;
 
+		// The content windows used for displaying things inside the main window
 		private RegStaff regWindow;
 		private Calander calWindow;
 		private InvoiceManagement invoiceManWindow;
@@ -35,12 +39,15 @@ namespace A2_Project
 			// Lets the user know if there is an error connecting to the database
 			if (db.Connect()) DBMethods.DBAccess.Db = db;
 			else MessageBox.Show("Database Connection Unsuccessful.", "Error");
+
+			// DEBUG: Allows easy access to the content windows. Currently in place to make testing easier
 			grdAccounts.MouseDown += GrdAccounts_MouseDown;
 			grdCalander.MouseDown += GrdCalander_MouseDown;
 			grdInvoices.MouseDown += GrdInvoices_MouseDown;
 			grdAddStaff.MouseDown += GrdAddStaff_MouseDown;
 			grdViewStats.MouseDown += GrdViewStats_MouseDown;
 
+			// Tries to get the user to log in
 			loginWindow = new Login();
 			lblContents.Content = loginWindow.Content;
 		}
@@ -50,6 +57,7 @@ namespace A2_Project
 		/// </summary>
 		private void MenuTransition()
 		{
+			// A local copy of the menuDirection must be kept, as otherwise clicking the expand button repeatedly would cause errors
 			int lclMenuDir = menuDirection;
 			menuDirection = -menuDirection;
 			double tMax = 0.2; // The time taken for the transition in seconds
@@ -60,6 +68,7 @@ namespace A2_Project
 			stopwatch.Start();
 			while (!toExit && (tPassed = stopwatch.Elapsed.TotalSeconds) < tMax)
 			{
+				// Sinusoidal animation
 				Dispatcher.Invoke(() => grdMenuButtons.Width += Math.Sin(tPassed / tMax * Math.PI / 2) * lclMenuDir * a - Math.Sin(prevT / tMax * Math.PI / 2) * lclMenuDir * a);
 				prevT = tPassed;
 				Thread.Sleep(10);
@@ -67,6 +76,9 @@ namespace A2_Project
 			stopwatch.Stop();
 		}
 
+		/// <summary>
+		/// Allows the user to access all content windows whenever they have logged in
+		/// </summary>
 		public void HasLoggedIn()
 		{
 			lblContents.Content = null;
@@ -92,6 +104,7 @@ namespace A2_Project
 
 		private void Window_ContentRendered(object sender, EventArgs e)
 		{
+			// This allows the login window to report back to the main window when the user has logged in
 			loginWindow.Owner = this;
 		}
 
@@ -101,6 +114,7 @@ namespace A2_Project
 			Thread thread = new Thread(MenuTransition);
 			thread.Start();
 		}
+
 		// TODO: See if the following methods can be simplified
 		private void GrdCalander_MouseDown(object sender, MouseButtonEventArgs e)
 		{

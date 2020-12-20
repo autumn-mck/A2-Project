@@ -5,7 +5,6 @@ namespace A2_Project.DBMethods
 {
 	public static class MiscRequests
 	{
-		// TODO: AppointmentTime should be called DateTime
 		public static List<List<string>> GetAllAppointmentsOnDay(DateTime day)
 		{
 			return DBAccess.GetListStringsWithQuery("SELECT * FROM Appointment WHERE CONVERT(DATE, AppointmentDateTime) = '" + day.ToString("yyyy-MM-dd") + "';");

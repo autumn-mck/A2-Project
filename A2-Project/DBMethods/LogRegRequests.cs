@@ -20,7 +20,6 @@ namespace A2_Project.DBMethods
 			return DBAccess.GetStringsWithQuery("SELECT COUNT(StaffID) FROM [Staff] WHERE [Staff].StaffName = '" + name + "';")[0] == "0";
 		}
 
-
 		public static void CreateStaffAccount(string staffName, string staffPassword, string staffEmail, string staffPhoneNo, bool uses2FA)
 		{
 			string str;

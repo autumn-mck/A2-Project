@@ -6,6 +6,9 @@ namespace A2_Project
 {
 	public static class DtgMethods
 	{
+	/// <summary>
+	/// Searches through originalData by searchTerm and displays it on dtg
+	/// </summary>
 		public static List<List<string>> UpdateSearch(List<List<string>> originalData, int selectedIndex, string searchTerm,
 		string tableName, ref DataGrid dtg, ref List<string> tableHeaders, ref DataTable table, bool shouldReset = true)
 		{
@@ -35,6 +38,9 @@ namespace A2_Project
 			return searched;
 		}
 
+		/// <summary>
+		/// Updates dtg to contain data
+		/// </summary>
 		public static void CreateTable(List<List<string>> data, string tableName, ref DataGrid dtg, ref List<string> tableHeaders, ref DataTable table, bool shouldReset = false)
 		{
 			if (data == null) return;
