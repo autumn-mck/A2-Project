@@ -15,10 +15,32 @@ namespace A2_Project.ContentWindows
 	{
 		// Used for generating random colours for some graphs
 		private static Random random = new Random();
+		private static DateTime minDate = DateTime.Parse("01/01/1753");
 
 		public Stats()
 		{
 			InitializeComponent();
+			cmbTimescale.ItemsSource = new string[] { "All Time", "Last 4 Years", "Last 2 Years", "Last Year", "Last 6 Months", "Last 3 Months", "Last 4 Weeks", "Last Week" };
+			cmbTimescale.SelectedIndex = 0;
+			cmbTimescale.SelectionChanged += CmbTimescale_SelectionChanged;
+			GraphAllGraphs();
+		}
+
+		private void ClearAllGraphs()
+		{
+			grdAppByMonth.Children.Clear();
+			grdAppCancelRate.Children.Clear();
+			grdAppTypes.Children.Clear();
+			grdDaysOfWeek.Children.Clear();
+			grdDogTypes.Children.Clear();
+			grdGrowth.Children.Clear();
+			grdIncome.Children.Clear();
+			grdRepeatCustomers.Children.Clear();
+			grdStaffBusiness.Children.Clear();
+		}
+
+		private void GraphAllGraphs()
+		{
 			GraphAppTypes();
 			GraphStaffBusiness();
 			GraphGrowth();
@@ -34,7 +56,8 @@ namespace A2_Project.ContentWindows
 		{
 			int[][] data = new int[1][];
 			string[] xAxisLabels = Array.Empty<string>();
-			getData(ref data, ref xAxisLabels);
+			// TODO: await?
+			getData(ref data, ref xAxisLabels, minDate);
 
 			int max = GetMax(data);
 			LabelGraph(grid, data[0].Length, xAxisLabels, title, prefix, suffix, max);
@@ -45,7 +68,7 @@ namespace A2_Project.ContentWindows
 		{
 			int[][] data = new int[1][];
 			string[] xAxisLabels = Array.Empty<string>();
-			getData(ref data, ref xAxisLabels);
+			getData(ref data, ref xAxisLabels, minDate);
 
 			int max = GetMax(data);
 			LabelGraph(grid, data[0].Length, xAxisLabels, title, prefix, suffix, max);
@@ -101,6 +124,19 @@ namespace A2_Project.ContentWindows
 					};
 					grid.Children.Add(tbl);
 				}
+			}
+			else if (max == 0)
+			{
+				TextBlock tbl = new TextBlock
+				{
+					Text = prefix + 0 + suffix + " -",
+					Margin = new Thickness(0, 0, 463, 28f),
+					Foreground = Brushes.White,
+					TextWrapping = TextWrapping.Wrap,
+					VerticalAlignment = VerticalAlignment.Bottom,
+					HorizontalAlignment = HorizontalAlignment.Right
+				};
+				grid.Children.Add(tbl);
 			}
 			else
 			{
@@ -160,7 +196,7 @@ namespace A2_Project.ContentWindows
 						VerticalAlignment = VerticalAlignment.Top,
 						HorizontalAlignment = HorizontalAlignment.Left
 					};
-					header.RenderTransform = new RotateTransform(90, 0, 0);
+					header.RenderTransform = new RotateTransform(30, 0, 0);
 					grid.Children.Add(header);
 				}
 			}
@@ -198,6 +234,23 @@ namespace A2_Project.ContentWindows
 				Color colour;
 				if (isColoured) colour = GenerateRandomColour();
 				else colour = Colors.White;
+
+				if (max == 0)
+				{
+					Line line = new Line
+					{
+						Margin = new Thickness(0, 0, 0, 0),
+						StrokeThickness = 2,
+						Stroke = new SolidColorBrush(colour),
+						X1 = 40f,
+						X2 = 40f + 400f,
+						Y1 = 200f + 35f,
+						Y2 = 200f + 35f,
+						HorizontalAlignment = HorizontalAlignment.Left
+					};
+					grid.Children.Add(line);
+					break;
+				}
 
 				for (int i = 0; i < inArr.Length - 1; i++)
 				{
@@ -251,7 +304,7 @@ namespace A2_Project.ContentWindows
 			return value;
 		}
 
-		private delegate void GetData(ref int[][] data, ref string[] xAxisLabels);
+		private delegate void GetData(ref int[][] data, ref string[] xAxisLabels, DateTime min);
 
 		private void GraphAppTypes()
 		{
@@ -305,6 +358,23 @@ namespace A2_Project.ContentWindows
 		{
 			GetData getData = new GetData(DBMethods.GraphingRequests.GetIncomeLastYear);
 			GenerateBarGraph(getData, grdIncome, "Income", "£");
+		}
+
+		private void CmbTimescale_SelectionChanged(object sender, SelectionChangedEventArgs e)
+		{
+			switch (cmbTimescale.SelectedIndex)
+			{
+				case 0: minDate = DateTime.Parse("01/01/1753"); break;
+				case 1: minDate = DateTime.Now.AddMonths(-48); break;
+				case 2: minDate = DateTime.Now.AddMonths(-24); break;
+				case 3: minDate = DateTime.Now.AddMonths(-12); break;
+				case 4: minDate = DateTime.Now.AddMonths(-6); break;
+				case 5: minDate = DateTime.Now.AddMonths(-3); break;
+				case 6: minDate = DateTime.Now.AddMonths(-1); break;
+				case 7: minDate = DateTime.Now.AddDays(-7); break;
+			}
+			ClearAllGraphs();
+			GraphAllGraphs();
 		}
 	}
 }
