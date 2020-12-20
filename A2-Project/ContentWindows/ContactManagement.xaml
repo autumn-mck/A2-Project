@@ -1,11 +1,11 @@
-﻿<Window x:Class="A2_Project.ClientManagement"
+﻿<Window x:Class="A2_Project.ContentWindows.ContactManagement"
 		xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
 		xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
 		xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
 		xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
-		xmlns:local="clr-namespace:A2_Project"
+		xmlns:local="clr-namespace:A2_Project.ContentWindows"
 		mc:Ignorable="d"
-		Title="ClientManagement" Height="1080" Width="1876" Background="#111111">
+		Title="ContactManagement" Height="1080" Width="1876" Background="#111111">
 	<Grid x:Name="grd" Height="1080" Width="1876">
 		<Grid.Resources>
 			<Style TargetType="Label">

@@ -2,27 +2,34 @@
 using System.Collections.Generic;
 using System.Data;
 using System.Linq;
+using System.Text;
+using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls;
+using System.Windows.Data;
+using System.Windows.Documents;
+using System.Windows.Input;
 using System.Windows.Media;
+using System.Windows.Media.Imaging;
+using System.Windows.Shapes;
 
-namespace A2_Project
+namespace A2_Project.ContentWindows
 {
 	/// <summary>
-	/// Interaction logic for InvoiceTesting.xaml
+	/// Interaction logic for InvoiceManagement.xaml
 	/// </summary>
-	public partial class InvoiceTesting : Window
+	public partial class InvoiceManagement : Window
 	{
-		private DataTable table;
-		private List<string> tableHeaders;
-		private List<List<string>> data;
-
-		public InvoiceTesting()
+		public InvoiceManagement()
 		{
 			InitializeComponent();
 			cmbTables.ItemsSource = DBMethods.MetaRequests.GetTableNames();
 			cmbTables.SelectedIndex = 0;
 		}
+
+		private DataTable table;
+		private List<string> tableHeaders;
+		private List<List<string>> data;
 
 		private void BtnPrint_Click(object sender, RoutedEventArgs e)
 		{

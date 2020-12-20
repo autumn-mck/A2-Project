@@ -1,11 +1,11 @@
-﻿<Window x:Class="A2_Project.RegisterNewStaffWindow"
+﻿<Window x:Class="A2_Project.ContentWindows.RegStaff"
         xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
-        xmlns:local="clr-namespace:A2_Project"
+        xmlns:local="clr-namespace:A2_Project.ContentWindows"
         mc:Ignorable="d"
-        Title="RegisterNewStaffWindow" Height="1080" Width="1876" Background="#151515">
+        Title="RegStaff" Height="1080" Width="1876" Background="#151515">
 	<Grid>
 		<Grid.Resources>
 			<Style TargetType="TextBox">

@@ -1,7 +1,9 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Text;
 using System.Threading;
+using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Data;
@@ -11,20 +13,21 @@ using System.Windows.Media;
 using System.Windows.Media.Imaging;
 using System.Windows.Shapes;
 
-namespace A2_Project
+namespace A2_Project.ContentWindows
 {
 	/// <summary>
-	/// Interaction logic for CalanderTest.xaml
+	/// Interaction logic for Calander.xaml
 	/// </summary>
-	public partial class CalanderTest : Window
+	public partial class Calander : Window
 	{
+
 		private Point diffMouseAndElem;
 		private bool mouseDown = false;
 		private object currentlySelected;
 		private bool toExit = false;
 		private Point diff;
 
-		public CalanderTest()
+		public Calander()
 		{
 			InitializeComponent();
 			Thread thread = new Thread(Loop);

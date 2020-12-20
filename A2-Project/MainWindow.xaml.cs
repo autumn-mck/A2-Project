@@ -3,6 +3,7 @@ using System.Diagnostics;
 using System.Threading;
 using System.Windows;
 using System.Windows.Input;
+using A2_Project.ContentWindows;
 
 namespace A2_Project
 {
@@ -18,12 +19,12 @@ namespace A2_Project
 
 		private readonly Database db;
 
-		private RegisterNewStaffWindow regWindow;
-		private CalanderTest calWindow;
-		private InvoiceTesting invoiceTesting;
-		private ClientManagement clientManagement;
-		private StatisticsWindow statsWindow;
-		private readonly LoginWindow login;
+		private RegStaff regWindow;
+		private Calander calWindow;
+		private InvoiceManagement invoiceManWindow;
+		private ContactManagement contactManWindow;
+		private Stats statsWindow;
+		private readonly Login loginWindow;
 
 		public MainWindow()
 		{
@@ -40,8 +41,8 @@ namespace A2_Project
 			grdAddStaff.MouseDown += GrdAddStaff_MouseDown;
 			grdViewStats.MouseDown += GrdViewStats_MouseDown;
 
-			login = new LoginWindow();
-			lblContents.Content = login.Content;
+			loginWindow = new Login();
+			lblContents.Content = loginWindow.Content;
 		}
 
 		/// <summary>
@@ -84,14 +85,14 @@ namespace A2_Project
 		{
 			if (regWindow != null) regWindow.Close();
 			if (calWindow != null) calWindow.Close();
-			if (invoiceTesting != null) invoiceTesting.Close();
-			if (login != null) login.Close();
+			if (invoiceManWindow != null) invoiceManWindow.Close();
+			if (loginWindow != null) loginWindow.Close();
 			toExit = true;
 		}
 
 		private void Window_ContentRendered(object sender, EventArgs e)
 		{
-			login.Owner = this;
+			loginWindow.Owner = this;
 		}
 
 		#region MouseDown Events
@@ -104,35 +105,35 @@ namespace A2_Project
 		private void GrdCalander_MouseDown(object sender, MouseButtonEventArgs e)
 		{
 			if (calWindow == null)
-				calWindow = new CalanderTest() { Owner = this };
+				calWindow = new Calander() { Owner = this };
 			lblContents.Content = calWindow.Content;
 		}
 
 		private void GrdAccounts_MouseDown(object sender, MouseButtonEventArgs e)
 		{
-			if (clientManagement == null)
-				clientManagement = new ClientManagement() { Owner = this };
-			lblContents.Content = clientManagement.Content;
+			if (contactManWindow == null)
+				contactManWindow = new ContactManagement() { Owner = this };
+			lblContents.Content = contactManWindow.Content;
 		}
 
 		private void GrdInvoices_MouseDown(object sender, MouseButtonEventArgs e)
 		{
-			if (invoiceTesting == null)
-				invoiceTesting = new InvoiceTesting() { Owner = this };
-			lblContents.Content = invoiceTesting.Content;
+			if (invoiceManWindow == null)
+				invoiceManWindow = new InvoiceManagement() { Owner = this };
+			lblContents.Content = invoiceManWindow.Content;
 		}
 
 		private void GrdAddStaff_MouseDown(object sender, MouseButtonEventArgs e)
 		{
 			if (regWindow == null)
-				regWindow = new RegisterNewStaffWindow() { Owner = this };
+				regWindow = new RegStaff() { Owner = this };
 			lblContents.Content = regWindow.Content;
 		}
 
 		private void GrdViewStats_MouseDown(object sender, MouseButtonEventArgs e)
 		{
 			if (statsWindow == null)
-				statsWindow = new StatisticsWindow() { Owner = this };
+				statsWindow = new Stats() { Owner = this };
 			lblContents.Content = statsWindow.Content;
 		}
 		#endregion MouseDown Events
