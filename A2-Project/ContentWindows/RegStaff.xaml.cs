@@ -1,22 +1,19 @@
 ﻿using System;
 using System.Text.RegularExpressions;
 using System.Windows;
-using System.Windows.Input;
 using System.Windows.Media;
 
-namespace A2_Project
+namespace A2_Project.ContentWindows
 {
 	/// <summary>
-	/// Interaction logic for RegisterNewStaffWindow.xaml
+	/// Interaction logic for RegStaff.xaml
 	/// </summary>
-	public partial class RegisterNewStaffWindow : Window
+	public partial class RegStaff : Window
 	{
-		// TODO: Should probably store staff phone no.
-
 		private static readonly SolidColorBrush isValidBrush = new SolidColorBrush(Color.FromRgb(241, 241, 241));
 		private static readonly SolidColorBrush isInvalidBrush = new SolidColorBrush(Color.FromRgb(182, 24, 39));
 
-		public RegisterNewStaffWindow()
+		public RegStaff()
 		{
 			InitializeComponent();
 		}

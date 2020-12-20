@@ -12,15 +12,16 @@ using System.Windows.Media;
 using System.Windows.Media.Imaging;
 using System.Windows.Shapes;
 
-namespace A2_Project
+namespace A2_Project.ContentWindows
 {
 	/// <summary>
-	/// Interaction logic for StatisticsWindow.xaml
+	/// Interaction logic for Stats.xaml
 	/// </summary>
-	public partial class StatisticsWindow : Window
+	public partial class Stats : Window
 	{
 		private static Random random = new Random();
-		public StatisticsWindow()
+
+		public Stats()
 		{
 			InitializeComponent();
 			GraphAppTypes();

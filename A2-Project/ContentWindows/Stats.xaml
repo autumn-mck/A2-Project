@@ -1,11 +1,11 @@
-﻿<Window x:Class="A2_Project.StatisticsWindow"
+﻿<Window x:Class="A2_Project.ContentWindows.Stats"
         xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
-        xmlns:local="clr-namespace:A2_Project"
+        xmlns:local="clr-namespace:A2_Project.ContentWindows"
         mc:Ignorable="d"
-        Title="StatisticsWindow" Height="1080" Width="1876" Background="#151515">
+        Title="Stats" Height="1080" Width="1876" Background="#151515">
 	<Grid Height="1080" Width="1876">
 		<Grid x:Name="grdAppTypes" Width="500" Height="270" HorizontalAlignment="Left" VerticalAlignment="Top" Margin="50,50,0,0"/>
 		<Grid x:Name="grdStaffBusiness" Width="500" Height="270" HorizontalAlignment="Left" VerticalAlignment="Top" Margin="50,400,0,0"/>

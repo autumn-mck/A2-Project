@@ -1,24 +1,32 @@
 ﻿using System;
-using System.Security.Cryptography;
+using System.Collections.Generic;
+using System.Linq;
 using System.Text;
+using System.Threading.Tasks;
 using System.Windows;
+using System.Windows.Controls;
+using System.Windows.Data;
+using System.Windows.Documents;
+using System.Windows.Input;
 using System.Windows.Media;
+using System.Windows.Media.Imaging;
+using System.Windows.Shapes;
 
-namespace A2_Project
+namespace A2_Project.ContentWindows
 {
 	/// <summary>
-	/// Interaction logic for LoginWindow.xaml
+	/// Interaction logic for Login.xaml
 	/// </summary>
-	public partial class LoginWindow : Window
+	public partial class Login : Window
 	{
-		private int attemptsLeft = 3;
-		private string authKey;
-		private string email;
-
-		public LoginWindow()
+		public Login()
 		{
 			InitializeComponent();
 		}
+
+		private int attemptsLeft = 3;
+		private string authKey;
+		private string email;
 
 		private void TryLogin()
 		{
@@ -54,7 +62,7 @@ namespace A2_Project
 					btnLogIn.Click -= BtnLogIn_Click;
 					btnLogIn.Click += ResendCode_Click;
 					authKey = EmailManagement.Send2FAEmail(email);
-					
+
 				}
 			}
 			else
