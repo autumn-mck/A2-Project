@@ -51,5 +51,11 @@ namespace A2_Project.DBMethods
 			$"AND C.CONSTRAINT_NAME = K.CONSTRAINT_NAME WHERE C.CONSTRAINT_TYPE = 'PRIMARY KEY' AND K.COLUMN_NAME = '{columnName}' AND K.TABLE_NAME = '{tableName}';";
 			return (DBAccess.GetListStringsWithQuery(query).Count > 0);
 		}
+
+		public static List<List<string>> GetColumnData(string tableName)
+		{
+			string query = $"SELECT Data_Type, Character_Maximum_Length FROM INFORMATION_SCHEMA.COLUMNS WHERE Table_Name = '{tableName}';";
+			return DBAccess.GetListStringsWithQuery(query);
+		}
 	}
 }
