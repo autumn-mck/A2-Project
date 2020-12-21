@@ -47,7 +47,7 @@ namespace A2_Project.DBMethods
 		{
 			data[0] = new int[7];
 			for (int i = 0; i < data[0].Length; i++)
-				data[0][i] = Convert.ToInt32(DBAccess.GetStringsWithQuery("SELECT COUNT(AppointmentID) FROM [Appointment] WHERE DATEPART(WEEKDAY, AppointmentDateTime) = " + (i + 1) + $" AND AppointmentDateTime BETWEEN '{minDate:yyyy-MM-dd}' AND '{DateTime.Now:yyyy-MM-dd}';")[0]);
+				data[0][i] = Convert.ToInt32(DBAccess.GetStringsWithQuery("SET DATEFIRST 1; SELECT COUNT(AppointmentID) FROM [Appointment] WHERE DATEPART(WEEKDAY, AppointmentDateTime) = " + (i + 1) + $" AND AppointmentDateTime BETWEEN '{minDate:yyyy-MM-dd}' AND '{DateTime.Now:yyyy-MM-dd}';")[0]);
 			headers = new string[] { "Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun" };
 		}
 

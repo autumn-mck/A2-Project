@@ -1,4 +1,12 @@
-﻿CREATE TABLE [Client] (
+﻿DROP TABLE Appointment;
+DROP TABLE GroomingRoom;
+DROP TABLE AppointmentType;
+DROP TABLE Staff;
+DROP TABLE Dog;
+DROP TABLE Contact;
+DROP TABLE Client;
+
+CREATE TABLE [Client] (
 	ClientID INT NOT NULL PRIMARY KEY,
 	ClientNotes VARCHAR(100),
 	ClientJoinDate DATE
@@ -150,11 +158,3 @@ CREATE TABLE [Appointment] (
 	InvoicesSent INT NOT NULL,
 	GroomingRoomID INT NOT NULL FOREIGN KEY REFERENCES [GroomingRoom]
 );
-
---DROP TABLE Appointment;
---DROP TABLE GroomingRoom;
---DROP TABLE AppointmentType;
---DROP TABLE Staff;
---DROP TABLE Dog;
---DROP TABLE Contact;
---DROP TABLE Client;

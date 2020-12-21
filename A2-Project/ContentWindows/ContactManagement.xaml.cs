@@ -13,10 +13,13 @@ namespace A2_Project.ContentWindows
 	/// </summary>
 	public partial class ContactManagement : Window
 	{
+		private List<List<string>> columnData;
+
 		public ContactManagement()
 		{
 			InitializeComponent();
 
+			columnData = DBMethods.MetaRequests.GetColumnData("Contact");
 			List<List<string>> data = DBMethods.MetaRequests.GetAllFromTable("Contact");
 			DtgMethods.CreateTable(data, "Contact", ref dtgContacts, ref tableHeaders, ref table);
 			List<string> colSearch = new List<string> { "All Columns" };
@@ -25,17 +28,19 @@ namespace A2_Project.ContentWindows
 			cmbColumn.ItemsSource = colSearch;
 			originalData = data;
 
-
+			double offset = 40;
 			for (int i = 0; i < tableHeaders.Count; i++)
 			{
 				Label lbl = new Label()
 				{
 					Content = tableHeaders[i],
-					Margin = new Thickness(900, i * 75 + 40, 0, 0),
+					Margin = new Thickness(900, offset, 0, 0),
 					HorizontalAlignment = HorizontalAlignment.Left,
 					VerticalAlignment = VerticalAlignment.Top
 				};
 				grd.Children.Add(lbl);
+				offset += 35;
+
 				if (DBMethods.MetaRequests.IsColumnPrimaryKey(tableHeaders[i], "Contact"))
 				{
 					lbl = new Label()
@@ -45,6 +50,7 @@ namespace A2_Project.ContentWindows
 						HorizontalAlignment = HorizontalAlignment.Left,
 						VerticalAlignment = VerticalAlignment.Top
 					};
+					offset += 34;
 					display.Add(lbl);
 					grd.Children.Add(lbl);
 				}
@@ -52,13 +58,25 @@ namespace A2_Project.ContentWindows
 				{
 					TextBox tbx = new TextBox()
 					{
-						Width = 300,
+						Width = double.NaN,
+						MinWidth = 200,
+						MaxWidth = 350,
 						Height = 34,
-						Margin = new Thickness(905, i * 75 + 75, 0, 0),
+						Margin = new Thickness(905, offset, 0, 0),
 						FontSize = 24,
+						TextWrapping = TextWrapping.Wrap,
 						HorizontalAlignment = HorizontalAlignment.Left,
 						VerticalAlignment = VerticalAlignment.Top
 					};
+					//i * 75 + 75
+					if (columnData[i][0] == "varchar")
+					{
+						if (Convert.ToInt32(columnData[i][1]) > 50)
+						{
+							tbx.Height *= 2;
+						}
+					}
+					offset += tbx.Height;
 					display.Add(tbx);
 					grd.Children.Add(tbx);
 				}
@@ -83,6 +101,7 @@ namespace A2_Project.ContentWindows
 			string[] strArr = v.Row.ItemArray.Cast<string>().ToArray();
 			if (strArr.Contains("F")) r.Background = Brushes.PaleVioletRed;
 			else r.Background = (SolidColorBrush)new BrushConverter().ConvertFrom("#252526");
+			if (Convert.ToInt32(strArr[1]) % 2 == 0) r.Background = (SolidColorBrush)new BrushConverter().ConvertFrom("#111111");
 			r.Foreground = (SolidColorBrush)new BrushConverter().ConvertFrom("#EEEEEE");
 		}
 
@@ -128,10 +147,14 @@ namespace A2_Project.ContentWindows
 			try
 			{
 				DataRowView drv = (DataRowView)dtgContacts.SelectedItems[0];
-				string contactID = (string)drv.Row.ItemArray[1];
+				string contactID = (string)drv.Row.ItemArray[0];
+				string clientID = (string)drv.Row.ItemArray[1];
 				dtgContactsToClient.Columns.Clear(); // TODO: Why is this needed here, but not elsewhere????
-				DtgMethods.CreateTable(DBMethods.MiscRequests.GetContactsByClientID(contactID), "Contact", ref dtgContactsToClient, ref tableHeaders, ref table);
-				dtgContactsToClient.SelectedIndex = 0;
+				List<List<string>> data = DBMethods.MiscRequests.GetContactsByClientID(clientID);
+				DtgMethods.CreateTable(data, "Contact", ref dtgContactsToClient, ref tableHeaders, ref table);
+				for (int i = 0; i < data.Count; i++)
+					if (data[i][0] == contactID)
+						dtgContactsToClient.SelectedIndex = i;
 			}
 			catch { }
 		}
