@@ -10,6 +10,7 @@ CREATE TABLE [Contact] (
 	ClientName VARCHAR(30) NOT NULL,
 	ClientEmail VARCHAR(40),
 	ClientAddress VARCHAR(100),
+	ClientPostcode VARCHAR(10),
 	ClientPhoneNo VARCHAR(20)
 );
 
@@ -26,6 +27,7 @@ CREATE TABLE [Staff] (
 	StaffID INT NOT NULL PRIMARY KEY,
 	StaffName VARCHAR(20) NOT NULL,
 	StaffPassword VARCHAR(64) NOT NULL,
+	PasswordSalt VARCHAR(32),
 	StaffEmail VARCHAR(128),
 	StaffPhoneNo VARCHAR(15), 
 	StaffUses2FA BIT NOT NULL
@@ -35,6 +37,7 @@ INSERT INTO [Staff] VALUES (
 	0,
 	'Dianne',
 	'9693a6491db493c87133af8dc801dd04b6c73ca2fdf92a6443d5e5066992d1f3',
+	'',
 	'atempmailfortestingcsharp@gmail.com',
 	'07700 900730',
 	1
@@ -44,6 +47,7 @@ INSERT INTO [Staff] VALUES (
 	1,
 	'Jon',
 	'5e0524de4400e6875b14c07da5731796166037f54bc87043ab9abd98c3d33036',
+	'',
 	'not.a@real.email',
 	'07700 900747',
 	0
@@ -54,6 +58,7 @@ INSERT INTO [Staff] VALUES (
 	'Elaine',
 	'5e0524de4400e6875b14c07da5731796166037f54bc87043ab9abd98c3d33036',
 	'',
+	'',
 	'07700 900835',
 	0
 );
@@ -63,6 +68,7 @@ INSERT INTO [Staff] VALUES (
 	'Richard',
 	'5e0524de4400e6875b14c07da5731796166037f54bc87043ab9abd98c3d33036',
 	'',
+	'',
 	'07700 900042',
 	0
 );
@@ -71,6 +77,7 @@ INSERT INTO [Staff] VALUES (
 	4,
 	'Jane',
 	'5e0524de4400e6875b14c07da5731796166037f54bc87043ab9abd98c3d33036',
+	'',
 	'',
 	'07700 900276',
 	0
