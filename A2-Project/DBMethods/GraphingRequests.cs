@@ -32,7 +32,7 @@ namespace A2_Project.DBMethods
 			DateTime endDate = Convert.ToDateTime(DBAccess.GetStringsWithQuery("SELECT MAX(ClientJoinDate) FROM Client")[0]);
 			int diff = (int)(endDate - startDate).TotalDays;
 			List<int> growth = new List<int>();
-			for (int i = 0; i < diff; i += 50)
+			for (double i = 0; i < diff; i += diff / 75.0)
 			{
 				growth.Add(Convert.ToInt32(DBAccess.GetStringsWithQuery("SELECT COUNT(ClientID) FROM [Client] WHERE ClientJoinDate <= '" + startDate.AddDays(i).ToString("yyyy-MM-dd") + "';")[0]));
 			}

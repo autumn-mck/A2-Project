@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Media;
@@ -72,7 +73,7 @@ namespace A2_Project.ContentWindows
 
 			int max = GetMax(data);
 			LabelGraph(grid, data[0].Length, xAxisLabels, title, prefix, suffix, max);
-			GenerateLines(grid, data, max, true);
+			GenerateLines(grid, data, max, data.Length > 1);
 		}
 
 		private static void LabelGraph(Grid grid, int length, string[] xAxisLabels, string title, string prefix, string suffix, int max)
@@ -357,7 +358,7 @@ namespace A2_Project.ContentWindows
 		private void GraphIncome()
 		{
 			GetData getData = new GetData(DBMethods.GraphingRequests.GetIncomeLastYear);
-			GenerateBarGraph(getData, grdIncome, "Income", "£");
+			GenerateBarGraph(getData, grdIncome, "Income (Last Year)", "£");
 		}
 
 		private void CmbTimescale_SelectionChanged(object sender, SelectionChangedEventArgs e)
