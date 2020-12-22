@@ -13,6 +13,35 @@
 				<Setter Property="FontSize" Value="24"/>
 				<Setter Property="Margin" Value="50, 0, 0, 0"/>
 			</Style>
+			<Style TargetType="DataGrid">
+				<Setter Property="RowHeaderWidth" Value="0"/>
+				<Setter Property="Background" Value="#151515"/>
+				<Setter Property="Foreground" Value="#F1F1F1"/>
+				<Setter Property="BorderBrush" Value="#111111"/>
+				<Setter Property="HorizontalGridLinesBrush" Value="Black"/>
+				<Setter Property="VerticalGridLinesBrush" Value="Black"/>
+				<Setter Property="ItemsSource" Value="{Binding}"/>
+				<Setter Property="IsReadOnly" Value="True"/>
+				<Setter Property="HorizontalAlignment" Value="Left"/>
+				<Setter Property="VerticalAlignment" Value="Top"/>
+				<Setter Property="SelectionUnit" Value="FullRow"/>
+				<Setter Property="SelectionMode" Value="Single"/>
+			</Style>
+			<Style TargetType="DataGridColumnHeader">
+				<Setter Property="Foreground" Value="#F1F1F1"/>
+				<Setter Property="Background" Value="#111111"/>
+			</Style>
+			<Style TargetType="ScrollBar">
+			<Setter Property="Foreground" Value="#686868"/>
+			<Setter Property="BorderBrush" Value="#4F4F4F"/>
+			<Setter Property="Background" Value="#3E3E41"/>
+			</Style>
+			<Style TargetType="{x:Type DataGridRow}">
+				<Style.Resources>
+					<SolidColorBrush x:Key="{x:Static SystemColors.HighlightBrushKey}" Color="#4040FF"/>
+					<SolidColorBrush x:Key="{x:Static SystemColors.HighlightTextBrushKey}" Color="#EEEEFF"/>
+				</Style.Resources>
+			</Style>
 		</Grid.Resources>
 		<Label x:Name="lblColumn" Content="Column:" HorizontalAlignment="Left" FontSize="30" Margin="10,10,0,0" VerticalAlignment="Top"/>
 		<ComboBox x:Name="cmbColumn" HorizontalAlignment="Left" Margin="165,29,0,0" VerticalAlignment="Top" Width="120" SelectionChanged="CmbColumn_SelectionChanged" RenderTransformOrigin="0.5,0.5">
@@ -24,66 +53,18 @@
 		<TextBox x:Name="tbxSearch" HorizontalAlignment="Left" FontSize="30" Margin="190,69,0,0" Text="TextBox" TextWrapping="Wrap"
 		VerticalAlignment="Top" MinWidth="100" TextChanged="TbxSearch_TextChanged"/>
 
-		<DataGrid Name="dtgContacts" 
-			RowHeaderWidth="0"
-			Background="#151515"
-			Foreground="White"
-			HorizontalGridLinesBrush="Black"
-			VerticalGridLinesBrush="Black"
-			BorderBrush="#111111"
+		<DataGrid Name="dtgContacts"
 			SelectedCellsChanged="DtgContacts_SelectedCellsChanged"
-			Width="860" Height="700" ItemsSource="{Binding}" IsReadOnly="True" AutoGeneratingColumn="Dtg_AutoGeneratingColumn"
-			HorizontalAlignment="Left" VerticalAlignment="Top" SelectionUnit="FullRow" SelectionMode="Single" LoadingRow="DtgTest_LoadingRow" Margin="10,120,0,0">
-			<DataGrid.ColumnHeaderStyle>
-				<Style TargetType="DataGridColumnHeader">
-					<Setter Property="Background" Value="#111111" />
-				</Style>
-			</DataGrid.ColumnHeaderStyle>
-			<DataGrid.Resources>
-				<Style TargetType="ScrollBar">
-					<Setter Property="Foreground" Value="#686868"/>
-					<Setter Property="BorderBrush" Value="#4F4F4F"/>
-					<Setter Property="Background" Value="#3E3E41"/>
-				</Style>
-				<Style TargetType="{x:Type DataGridRow}">
-					<Style.Resources>
-						<SolidColorBrush x:Key="{x:Static SystemColors.HighlightBrushKey}" Color="#4040FF"/>
-						<SolidColorBrush x:Key="{x:Static SystemColors.HighlightTextBrushKey}" Color="#EEEEFF"/>
-					</Style.Resources>
-				</Style>
-			</DataGrid.Resources>
-		</DataGrid>
+			Width="860" Height="700"
+			AutoGeneratingColumn="Dtg_AutoGeneratingColumn"
+			LoadingRow="DtgTest_LoadingRow" Margin="10,120,0,0"/>
 
-		<DataGrid Name="dtgContactsToClient" 
-			RowHeaderWidth="0"
-			Background="#151515"
-			Foreground="White"
-			HorizontalGridLinesBrush="Black"
-			VerticalGridLinesBrush="Black"
-			BorderBrush="#111111"
+
+		<DataGrid Name="dtgContactsToClient"
 			Width="860" Height="200"
 			SelectedCellsChanged="DtgContactsToClient_SelectedCellsChanged"
 			AutoGeneratingColumn="Dtg_AutoGeneratingColumn"
-			ItemsSource="{Binding}" IsReadOnly="True" 
-			HorizontalAlignment="Left" VerticalAlignment="Top" SelectionUnit="FullRow" SelectionMode="Single" LoadingRow="DtgTest_LoadingRow" Margin="10,825,0,0">
-			<DataGrid.ColumnHeaderStyle>
-				<Style TargetType="DataGridColumnHeader">
-					<Setter Property="Background" Value="#111111" />
-				</Style>
-			</DataGrid.ColumnHeaderStyle>
-			<DataGrid.Resources>
-				<Style TargetType="ScrollBar">
-					<Setter Property="Foreground" Value="#686868"/>
-					<Setter Property="BorderBrush" Value="#4F4F4F"/>
-					<Setter Property="Background" Value="#3E3E41"/>
-				</Style>
-				<Style TargetType="{x:Type DataGridRow}">
-					<Style.Resources>
-						<SolidColorBrush x:Key="{x:Static SystemColors.HighlightBrushKey}" Color="#4040FF"/>
-						<SolidColorBrush x:Key="{x:Static SystemColors.HighlightTextBrushKey}" Color="#EEEEFF"/>
-					</Style.Resources>
-				</Style>
-			</DataGrid.Resources>
-		</DataGrid>
+			LoadingRow="DtgTest_LoadingRow" Margin="10,825,0,0"/>
+
 	</Grid>
 </Window>
