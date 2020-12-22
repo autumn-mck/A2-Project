@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Data;
 using System.Linq;
+using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Media;
@@ -13,12 +14,20 @@ namespace A2_Project.ContentWindows
 	/// </summary>
 	public partial class ContactManagement : Window
 	{
+
+		private string[] selectedData;
+		private UIElement[] displayElements;
+
+		private DataTable table;
+		// TODO: Merge tableHeaders and columnData
+		private List<string> tableHeaders;
 		private List<List<string>> columnData;
+		private List<List<string>> originalData;
 
 		public ContactManagement()
 		{
 			InitializeComponent();
-
+			// TODO: Spaces in column names
 			columnData = DBMethods.MetaRequests.GetColumnData("Contact");
 			List<List<string>> data = DBMethods.MetaRequests.GetAllFromTable("Contact");
 			DtgMethods.CreateTable(data, "Contact", ref dtgContacts, ref tableHeaders, ref table);
@@ -29,7 +38,11 @@ namespace A2_Project.ContentWindows
 			originalData = data;
 
 			double offset = 40;
-			for (int i = 0; i < tableHeaders.Count; i++)
+			int count = tableHeaders.Count;
+			displayElements = new UIElement[count];
+			selectedData = new string[count];
+
+			for (int i = 0; i < count; i++)
 			{
 				Label lbl = new Label()
 				{
@@ -51,7 +64,7 @@ namespace A2_Project.ContentWindows
 						VerticalAlignment = VerticalAlignment.Top
 					};
 					offset += 34;
-					display.Add(lbl);
+					displayElements[i] = lbl;
 					grd.Children.Add(lbl);
 				}
 				else
@@ -76,18 +89,101 @@ namespace A2_Project.ContentWindows
 							tbx.Height *= 2;
 						}
 					}
-					offset += tbx.Height;
-					display.Add(tbx);
+					tbx.TextChanged += Tbx_TextChanged;
+					offset += tbx.Height + 10;
+					displayElements[i] = tbx;
 					grd.Children.Add(tbx);
 				}
 			}
+
+			Button btnSave = new Button()
+			{
+				Height = 37,
+				Width = 160,
+				FontSize = 24,
+				Content = "Save Changes",
+				Name = "btnSave",
+				Margin = new Thickness(905, offset, 0, 0),
+				HorizontalAlignment = HorizontalAlignment.Left,
+				VerticalAlignment = VerticalAlignment.Top
+			};
+			btnSave.Click += BtnSave_Click;
+			grd.Children.Add(btnSave);
+
+			Button btnRevert = new Button()
+			{
+				Height = btnSave.Height,
+				Width = btnSave.Width,
+				FontSize = btnSave.FontSize,
+				Content = "Revert Changes",
+				Name = "btnRevert",
+				Margin = new Thickness(btnSave.Margin.Left + 170, btnSave.Margin.Top, 0, 0),
+				HorizontalAlignment = btnSave.HorizontalAlignment,
+				VerticalAlignment = btnSave.VerticalAlignment
+			};
+			btnRevert.Click += BtnRevert_Click;
+			grd.Children.Add(btnRevert);
 		}
 
-		private DataTable table;
-		private List<string> tableHeaders;
-		private List<List<string>> originalData;
+		private void Tbx_TextChanged(object sender, TextChangedEventArgs e)
+		{
+			IsValid();
+		}
 
-		List<UIElement> display = new List<UIElement>();
+		private bool IsValid()
+		{
+			bool isValid = true;
+			for (int i = 0; i < tableHeaders.Count; i++)
+			{
+				if (displayElements[i] is TextBox tbx)
+				{
+					bool isInstanceValid = true;
+					if (tableHeaders[i].Contains("Email"))
+						isInstanceValid = RegExValidation.IsValidEmail(tbx.Text);
+					else if (tableHeaders[i].Contains("Postcode"))
+						isInstanceValid = RegExValidation.IsValidPostcode(tbx.Text);
+					else if (tableHeaders[i].Contains("PhoneNo"))
+						isInstanceValid = RegExValidation.IsValidPhoneNo(tbx.Text);
+					else if (columnData[i][0] == "int")
+						isInstanceValid = !string.IsNullOrEmpty(tbx.Text) && tbx.Text.All(Char.IsDigit);
+
+					// Note: No good way to validate names/addresses
+
+					if (isInstanceValid)
+						tbx.Background = Brushes.White;
+					else
+					{
+						tbx.Background = Brushes.Red;
+						isValid = false;
+					}
+				}
+			}
+			return isValid;
+		}
+
+		private async void BtnSave_Click(object sender, RoutedEventArgs e)
+		{
+			if (IsValid() && sender is Button b)
+			{
+				b.Content = "Changes saved!";
+				await Task.Delay(2000);
+				b.Content = "Save Changes";
+			}
+		}
+
+		private void BtnRevert_Click(object sender, RoutedEventArgs e)
+		{
+			ChangeSelectedData();
+		}
+
+		private void ChangeSelectedData()
+		{
+			for (int i = 0; i < selectedData.Length; i++)
+			{
+				if (displayElements[i] is Label l) l.Content = selectedData[i];
+				else if (displayElements[i] is TextBox t) t.Text = selectedData[i];
+			}
+		}
 
 		private void BtnEmail_Click(object sender, RoutedEventArgs e)
 		{
@@ -99,9 +195,10 @@ namespace A2_Project.ContentWindows
 			DataGridRow r = e.Row;
 			DataRowView v = (DataRowView)r.Item;
 			string[] strArr = v.Row.ItemArray.Cast<string>().ToArray();
-			if (strArr.Contains("F")) r.Background = Brushes.PaleVioletRed;
+
+			if (Convert.ToInt32(strArr[1]) % 2 == 0) r.Background = (SolidColorBrush)new BrushConverter().ConvertFrom("#161616");
 			else r.Background = (SolidColorBrush)new BrushConverter().ConvertFrom("#252526");
-			if (Convert.ToInt32(strArr[1]) % 2 == 0) r.Background = (SolidColorBrush)new BrushConverter().ConvertFrom("#111111");
+
 			r.Foreground = (SolidColorBrush)new BrushConverter().ConvertFrom("#EEEEEE");
 		}
 
@@ -161,12 +258,8 @@ namespace A2_Project.ContentWindows
 
 		private void DtgContactsToClient_SelectedCellsChanged(object sender, SelectedCellsChangedEventArgs e)
 		{
-			string[] selected = ((DataRowView)dtgContactsToClient.SelectedItems[0]).Row.ItemArray.OfType<string>().ToArray(); ;
-			for (int i = 0; i < selected.Length; i++)
-			{
-				if (display[i] is Label l) l.Content = selected[i];
-				else if (display[i] is TextBox t) t.Text = selected[i];
-			}
+			selectedData = ((DataRowView)dtgContactsToClient.SelectedItems[0]).Row.ItemArray.OfType<string>().ToArray();
+			ChangeSelectedData();
 		}
 	}
 }

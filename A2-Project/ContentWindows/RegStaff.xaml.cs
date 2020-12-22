@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Text.RegularExpressions;
 using System.Windows;
 using System.Windows.Media;
 
@@ -42,20 +41,6 @@ namespace A2_Project.ContentWindows
 			return issues;
 		}
 
-		private static bool IsValidEmail(string email)
-		{
-			string pattern = @"^[^@\s]+@[^@\s]+\.[^@\s]+$";
-			Regex regex = new Regex(pattern);
-			return regex.IsMatch(email);
-		}
-
-		private static bool IsPhoneNoValid(string phoneNo)
-		{
-			string regexStr = @"^(?:(?:\(?(?:0(?:0|11)\)?[\s-]?\(?|\+)44\)?[\s-]?(?:\(?0\)?[\s-]?)?)|(?:\(?0))(?:(?:\d{5}\)?[\s-]?\d{4,5})|(?:\d{4}\)?[\s-]?(?:\d{5}|\d{3}[\s-]?\d{3}))|(?:\d{3}\)?[\s-]?\d{3}[\s-]?\d{3,4})|(?:\d{2}\)?[\s-]?\d{4}[\s-]?\d{4}))(?:[\s-]?(?:x|ext\.?|\#)\d{3,4})?$";
-			Regex regex = new Regex(regexStr);
-			return regex.IsMatch(phoneNo);
-		}
-
 		private string IsInputValid()
 		{
 			if (txtName.Text != "")
@@ -65,9 +50,9 @@ namespace A2_Project.ContentWindows
 					string ispassValid = IsValidPass(pswPassword.Password, pswRePassword.Password);
 					if (ispassValid == "")
 					{
-						if (txtEmail.Text == "" || IsValidEmail(txtEmail.Text))
+						if (txtEmail.Text == "" || RegExValidation.IsValidEmail(txtEmail.Text))
 						{
-							if (txtPhoneNo.Text == "" || IsPhoneNoValid(txtPhoneNo.Text))
+							if (txtPhoneNo.Text == "" || RegExValidation.IsValidPhoneNo(txtPhoneNo.Text))
 							{
 								if (IsNameTaken(txtName.Text))
 								{
