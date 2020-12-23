@@ -32,9 +32,9 @@
 				<Setter Property="Background" Value="#111111"/>
 			</Style>
 			<Style TargetType="ScrollBar">
-			<Setter Property="Foreground" Value="#686868"/>
-			<Setter Property="BorderBrush" Value="#4F4F4F"/>
-			<Setter Property="Background" Value="#3E3E41"/>
+				<Setter Property="Foreground" Value="#686868"/>
+				<Setter Property="BorderBrush" Value="#4F4F4F"/>
+				<Setter Property="Background" Value="#3E3E41"/>
 			</Style>
 			<Style TargetType="{x:Type DataGridRow}">
 				<Style.Resources>
@@ -43,14 +43,14 @@
 				</Style.Resources>
 			</Style>
 		</Grid.Resources>
-		<Label x:Name="lblColumn" Content="Column:" HorizontalAlignment="Left" FontSize="30" Margin="10,10,0,0" VerticalAlignment="Top"/>
-		<ComboBox x:Name="cmbColumn" HorizontalAlignment="Left" Margin="165,29,0,0" VerticalAlignment="Top" Width="120" SelectionChanged="CmbColumn_SelectionChanged" RenderTransformOrigin="0.5,0.5">
+		<Label x:Name="lblColumn" Content="Column:" HorizontalAlignment="Left" FontSize="30" Margin="321,14,0,0" VerticalAlignment="Top"/>
+		<ComboBox x:Name="cmbColumn" HorizontalAlignment="Left" Margin="476,33,0,0" VerticalAlignment="Top" Width="120" SelectionChanged="CmbColumn_SelectionChanged" RenderTransformOrigin="0.5,0.5">
 			<ComboBox.RenderTransform>
 				<ScaleTransform ScaleX="1.5" ScaleY="1.5"/>
 			</ComboBox.RenderTransform>
 		</ComboBox>
-		<Label x:Name="lblSearch" Content="Search term:" HorizontalAlignment="Left" FontSize="30" Margin="10,65,0,0" VerticalAlignment="Top"/>
-		<TextBox x:Name="tbxSearch" HorizontalAlignment="Left" FontSize="30" Margin="190,69,0,0" Text="TextBox" TextWrapping="Wrap"
+		<Label x:Name="lblSearch" Content="Search term:" HorizontalAlignment="Left" FontSize="30" Margin="321,69,0,0" VerticalAlignment="Top"/>
+		<TextBox x:Name="tbxSearch" HorizontalAlignment="Left" FontSize="30" Margin="501,73,0,0" Text="TextBox" TextWrapping="Wrap"
 		VerticalAlignment="Top" MinWidth="100" TextChanged="TbxSearch_TextChanged"/>
 
 		<DataGrid Name="dtgContacts"
@@ -65,6 +65,12 @@
 			SelectedCellsChanged="DtgContactsToClient_SelectedCellsChanged"
 			AutoGeneratingColumn="Dtg_AutoGeneratingColumn"
 			LoadingRow="DtgTest_LoadingRow" Margin="10,825,0,0"/>
+		<Label x:Name="lblSelTable" Content="Table:" HorizontalAlignment="Left" FontSize="30" Margin="10,14,0,0" VerticalAlignment="Top"/>
+		<ComboBox x:Name="cmbTable" HorizontalAlignment="Left" Margin="130,33,0,0" VerticalAlignment="Top" Width="120" SelectionChanged="CmbTable_SelectionChanged" RenderTransformOrigin="0.5,0.5">
+			<ComboBox.RenderTransform>
+				<ScaleTransform ScaleX="1.5" ScaleY="1.5"/>
+			</ComboBox.RenderTransform>
+		</ComboBox>
 
 	</Grid>
 </Window>

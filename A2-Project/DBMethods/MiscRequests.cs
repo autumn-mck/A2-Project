@@ -10,9 +10,9 @@ namespace A2_Project.DBMethods
 			return DBAccess.GetListStringsWithQuery("SELECT * FROM Appointment WHERE CONVERT(DATE, AppointmentDateTime) = '" + day.ToString("yyyy-MM-dd") + "';");
 		}
 
-		public static List<List<string>> GetContactsByClientID(string clientID)
+		public static List<List<string>> GetByColumnData(string table, string column, string toMatch, string[] headers)
 		{
-			return DBAccess.GetListStringsWithQuery("SELECT * FROM [Contact] WHERE ClientID = " + clientID + ";");
+			return DBAccess.GetListStringsWithQuery($"SELECT * FROM {table} WHERE {column} = '{toMatch}';", headers);
 		}
 
 		public static bool DoesMeetForeignKeyReq(DBObjects.ForeignKey fKey, string data)

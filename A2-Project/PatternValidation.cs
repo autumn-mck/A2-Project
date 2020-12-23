@@ -1,8 +1,9 @@
-﻿using System.Text.RegularExpressions;
+﻿using System;
+using System.Text.RegularExpressions;
 
 namespace A2_Project
 {
-	public static class RegExValidation
+	public static class PatternValidation
 	{
 		public static bool IsValidPhoneNo(string phoneNo)
 		{
@@ -24,6 +25,22 @@ namespace A2_Project
 			string pattern2 = @"^(([A-Z]{1,2}[0-9][A-Z0-9]?|ASCN|STHL|TDCU|BBND|[BFS]IQQ|PCRN|TKCA) ?[0-9][A-Z]{2}|BFPO ?[0-9]{1,4}|(KY[0-9]|MSR|VG|AI)[ -]?[0-9]{4}|[A-Z]{2} ?[0-9]{2}|GE ?CX|GIR ?0A{2}|SAN ?TA1)$";
 			Regex regex2 = new Regex(pattern2);
 			return regex2.IsMatch(postCode);
+		}
+
+		public static bool IsValidDogGender(string toTest)
+		{
+			return toTest == "M" || toTest == "F";
+		}
+
+		public static bool IsValidDate(string toTest)
+		{
+			bool isValid = DateTime.TryParse(toTest, out DateTime d);
+			return isValid && d.TimeOfDay.TotalSeconds == 0;
+		}
+
+		public static bool IsBit(string bit)
+		{
+			return bit is "True" or "False" or "1" or "0";
 		}
 	}
 }
