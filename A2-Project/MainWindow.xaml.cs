@@ -25,7 +25,6 @@ namespace A2_Project
 		// The content windows used for displaying things inside the main window
 		private RegStaff regWindow;
 		private Calander calWindow;
-		private InvoiceManagement invoiceManWindow;
 		private ContactManagement contactManWindow;
 		private Stats statsWindow;
 		private readonly Login loginWindow;
@@ -97,7 +96,6 @@ namespace A2_Project
 		{
 			if (regWindow != null) regWindow.Close();
 			if (calWindow != null) calWindow.Close();
-			if (invoiceManWindow != null) invoiceManWindow.Close();
 			if (loginWindow != null) loginWindow.Close();
 			toExit = true;
 		}
@@ -132,9 +130,7 @@ namespace A2_Project
 
 		private void GrdInvoices_MouseDown(object sender, MouseButtonEventArgs e)
 		{
-			if (invoiceManWindow == null)
-				invoiceManWindow = new InvoiceManagement() { Owner = this };
-			lblContents.Content = invoiceManWindow.Content;
+			// TODO: Add InvoiceManagement window
 		}
 
 		private void GrdAddStaff_MouseDown(object sender, MouseButtonEventArgs e)

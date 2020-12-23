@@ -1,8 +1,6 @@
-﻿using System;
+﻿using A2_Project.DBObjects;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace A2_Project.DBMethods
 {
@@ -27,22 +25,6 @@ namespace A2_Project.DBMethods
 			return DBAccess.GetListStringsWithQuery("SELECT * FROM [" + tableName + "];");
 		}
 
-		/// <summary>
-		/// Gets the column headers of the specified table
-		/// </summary>
-		public static List<string> GetHeadersFromTable(string tableName)
-		{
-			return DBAccess.GetStringsWithQuery("SELECT COLUMN_NAME FROM INFORMATION_SCHEMA.COLUMNS WHERE TABLE_NAME = '" + tableName + "';");
-		}
-
-		/// <summary>
-		/// Gets the data-types of all columns in the specified table
-		/// </summary>
-		public static List<string> GetColumnsType(string tableName)
-		{
-			return DBAccess.GetStringsWithQuery("SELECT DATA_TYPE FROM INFORMATION_SCHEMA.COLUMNS WHERE TABLE_NAME = '" + tableName + "';");
-		}
-
 		public static bool IsColumnPrimaryKey(string columnName, string tableName)
 		{
 			string query = "SELECT K.CONSTRAINT_NAME " +
@@ -52,10 +34,42 @@ namespace A2_Project.DBMethods
 			return (DBAccess.GetListStringsWithQuery(query).Count > 0);
 		}
 
-		public static List<List<string>> GetColumnData(string tableName)
+		public static Column[] GetColumnDataFromTable(string tableName)
 		{
-			string query = $"SELECT Data_Type, Character_Maximum_Length FROM INFORMATION_SCHEMA.COLUMNS WHERE Table_Name = '{tableName}';";
+			List<List<string>> types = GetDataTypesFromTable(tableName);
+			ForeignKey[] foreignKeys = GetForeignReferences(tableName);
+			Column[] columns = new Column[types.Count];
+			for (int i = 0; i < types.Count; i++)
+			{
+				columns[i] = new Column(types[i][0])
+				{
+					Constraints = new Constraint(IsColumnPrimaryKey(types[i][0], tableName), types[i][1], types[i][2])
+				};
+
+				columns[i].Constraints.ForeignKey = foreignKeys.Where(x => x.ReferencedColumn == columns[i].Name).FirstOrDefault();
+			}
+			return columns;
+		}
+
+		public static List<List<string>> GetDataTypesFromTable(string tableName)
+		{
+			string query = $"SELECT Column_Name, Data_Type, Character_Maximum_Length FROM INFORMATION_SCHEMA.COLUMNS WHERE Table_Name = '{tableName}';";
 			return DBAccess.GetListStringsWithQuery(query);
+		}
+
+		public static ForeignKey[] GetForeignReferences(string tableName)
+		{
+			string query = $"SELECT obj.name AS FK_NAME, sch.name AS [schema_name], tab1.name AS [table], col1.name AS [column], tab2.name AS [referenced_table], " +
+			"col2.name AS [referenced_column] FROM sys.foreign_key_columns fkc INNER JOIN sys.objects obj ON obj.object_id = fkc.constraint_object_id " +
+			"INNER JOIN sys.tables tab1 ON tab1.object_id = fkc.parent_object_id INNER JOIN sys.schemas sch ON tab1.schema_id = sch.schema_id " +
+			"INNER JOIN sys.columns col1 ON col1.column_id = parent_column_id AND col1.object_id = tab1.object_id " +
+			"INNER JOIN sys.tables tab2 ON tab2.object_id = fkc.referenced_object_id INNER JOIN sys.columns col2 ON " +
+			$"col2.column_id = referenced_column_id AND col2.object_id = tab2.object_id WHERE tab1.name = '{tableName}';";
+			List<List<string>> results = DBAccess.GetListStringsWithQuery(query);
+			ForeignKey[] toReturn = new ForeignKey[results.Count];
+			for (int i = 0; i < results.Count; i++)
+				toReturn[i] = new ForeignKey(results[i][4], results[i][5]);
+			return toReturn;
 		}
 	}
 }
