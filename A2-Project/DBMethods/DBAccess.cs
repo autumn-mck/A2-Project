@@ -14,15 +14,17 @@ namespace A2_Project.DBMethods
 		/// <summary>
 		/// Returns the contents of SqlDataReader as a list of strings.
 		/// </summary>
-		public static List<string> GetStringsFromReader(SqlDataReader reader)
+		private static List<string> GetStringsFromReader(SqlDataReader reader, string[] headers)
 		{
 			List<string> results = new List<string>();
 			for (int i = 0; i < reader.FieldCount; i++)
 			{
 				object obj = reader.GetValue(i);
-				// Ensures dates are formatted correctly
-				/*if (obj is DateTime time) results.Add(time.ToString("dd/MM/yyyy"));
-				else*/
+				if (headers != null)
+				{
+					// Ensures dates are formatted correctly
+					if (obj is DateTime time && headers[i].Contains("DOB")) obj = time.ToString("dd/MM/yyyy");
+				}
 				results.Add(obj.ToString());
 			}
 			return results;
@@ -49,12 +51,12 @@ namespace A2_Project.DBMethods
 		/// <summary>
 		/// Returns a list of strings from the given query
 		/// </summary>
-		public static List<string> GetStringsWithQuery(string query)
+		public static List<string> GetStringsWithQuery(string query, string[] headers = null)
 		{
 			StandardSetup(query);
 			List<string> results = new List<string>();
 			while (Db.Rdr.Read())
-				results.Add(GetStringsFromReader(Db.Rdr)[0]);
+				results.Add(GetStringsFromReader(Db.Rdr, headers)[0]);
 			Db.Rdr.Close();
 			return results;
 		}
@@ -62,53 +64,25 @@ namespace A2_Project.DBMethods
 		/// <summary>
 		/// Returns a list of list of strings from the given query
 		/// </summary>
-		public static List<List<string>> GetListStringsWithQuery(string query)
+		public static List<List<string>> GetListStringsWithQuery(string query, string[] headers = null)
 		{
 			StandardSetup(query);
 			List<List<string>> results = new List<List<string>>();
 			while (Db.Rdr.Read())
-				results.Add(GetStringsFromReader(Db.Rdr));
+				results.Add(GetStringsFromReader(Db.Rdr, headers));
 			Db.Rdr.Close();
 			return results;
 		}
 
-		/// <summary>
-		/// Updates the specified table with the given data.
-		/// Note: Does not currently manage creating new entries
-		/// </summary>
-		public static void UpdateTable(string table, List<List<string>> data)
+		public static void UpdateTable(string table, string[] headers, string[] newData)
 		{
-			foreach (List<string> strArr in data)
-			{
-				Db.Cmd = Db.Conn.CreateCommand();
-				Db.Cmd.CommandText = GenerateText(table, strArr);
-				Db.Cmd.ExecuteNonQuery();
-			}
-		}
-
-		public static void UpdateTable(string table, List<string> headers, string[] newData)
-		{
-			string command = $"UPDATE {table} SET {headers[1]} = '{newData[1]}'";
-			for (int i = 2; i < headers.Count; i++)
+			string command = $"SET DATEFORMAT dmy; UPDATE {table} SET {headers[1]} = '{newData[1]}'";
+			for (int i = 2; i < headers.Length; i++)
 			{
 				command += $", {headers[i]} = '{newData[i]}'";
 			}
 			command += $" WHERE {headers[0]} = '{newData[0]}';";
 			ExecuteNonQuery(command);
-		}
-
-		private static string GenerateText(string table, List<string> data)
-		{
-			// Code from a previous project that will be adapted to this one
-			// Was used to update the given table with the given data.
-			return table switch
-			{
-				"Customer" => "UPDATE Customer SET CustomerName = '" + data[1] + "' WHERE CustomerID = " + data[0] + ";",
-				"Order" => "UPDATE [Order] SET OrderDate = '" + DateTime.Parse(data[1]).ToString("yyyy-MM-dd") + "', StaffID = " + data[2] + ", CustomerID = " + data[3] + " WHERE OrderID = " + data[0] + ";",
-				"OrderProduct" => "UPDATE OrderProduct SET ProductID = " + data[1] + ", Quantity = " + data[2] + " WHERE OrderID = " + data[0] + ";",
-				"Product" => "UPDATE Product SET ProductName = '" + data[1] + "', ProductPrice = " + data[2] + " WHERE ProductID = " + data[0] + ";",
-				_ => "",
-			};
 		}
 	}
 }

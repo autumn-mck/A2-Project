@@ -50,9 +50,9 @@ namespace A2_Project.ContentWindows
 					string ispassValid = IsValidPass(pswPassword.Password, pswRePassword.Password);
 					if (ispassValid == "")
 					{
-						if (txtEmail.Text == "" || RegExValidation.IsValidEmail(txtEmail.Text))
+						if (txtEmail.Text == "" || PatternValidation.IsValidEmail(txtEmail.Text))
 						{
-							if (txtPhoneNo.Text == "" || RegExValidation.IsValidPhoneNo(txtPhoneNo.Text))
+							if (txtPhoneNo.Text == "" || PatternValidation.IsValidPhoneNo(txtPhoneNo.Text))
 							{
 								if (IsNameTaken(txtName.Text))
 								{

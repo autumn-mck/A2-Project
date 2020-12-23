@@ -46,7 +46,11 @@ namespace A2_Project
 		{
 			if (data == null) return;
 			table = new DataTable();
-			if (shouldReset) dtg.DataContext = table.DefaultView;
+			if (shouldReset)
+			{
+				dtg.Columns.Clear();
+				dtg.DataContext = table.DefaultView;
+			}
 			foreach (string str in columns.Select(c => c.Name))
 				table.Columns.Add(str);
 			for (int i = 0; i < data.Count; i++)

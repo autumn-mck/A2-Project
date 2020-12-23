@@ -20,9 +20,10 @@ namespace A2_Project.DBMethods
 		/// <summary>
 		/// Gets all data from the specified table
 		/// </summary>
-		public static List<List<string>> GetAllFromTable(string tableName)
+		public static List<List<string>> GetAllFromTable(string tableName, string[] headers)
 		{
-			return DBAccess.GetListStringsWithQuery("SELECT * FROM [" + tableName + "];");
+			// TODO: Should be in MiscRequests
+			return DBAccess.GetListStringsWithQuery("SELECT * FROM [" + tableName + "];", headers);
 		}
 
 		public static bool IsColumnPrimaryKey(string columnName, string tableName)
