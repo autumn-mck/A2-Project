@@ -147,18 +147,25 @@ namespace A2_Project.ContentWindows
 			{
 				if (displayElements[i] is TextBox tbx)
 				{
-					bool isInstanceValid = true;
+					bool patternReq = true;
+					bool typeReq = true;
+					bool fKeyReq = true;
+
 					if (columns[i].Name.Contains("Email"))
-						isInstanceValid = RegExValidation.IsValidEmail(tbx.Text);
+						patternReq = RegExValidation.IsValidEmail(tbx.Text);
 					else if (columns[i].Name.Contains("Postcode"))
-						isInstanceValid = RegExValidation.IsValidPostcode(tbx.Text);
+						patternReq = RegExValidation.IsValidPostcode(tbx.Text);
 					else if (columns[i].Name.Contains("PhoneNo"))
-						isInstanceValid = RegExValidation.IsValidPhoneNo(tbx.Text);
-					else if (columns[i].Constraints.Type == "int")
-						isInstanceValid = !string.IsNullOrEmpty(tbx.Text) && tbx.Text.All(Char.IsDigit);
-					if (columns[i].Constraints.ForeignKey != null)
-						isInstanceValid = DBMethods.MiscRequests.DoesMeetForeignKeyReq(columns[i].Constraints.ForeignKey, tbx.Text);
+						patternReq = RegExValidation.IsValidPhoneNo(tbx.Text);
+
+					if (columns[i].Constraints.Type == "int")
+						typeReq = !string.IsNullOrEmpty(tbx.Text) && tbx.Text.All(Char.IsDigit);
+
+					if (columns[i].Constraints.ForeignKey != null && typeReq)
+						fKeyReq = DBMethods.MiscRequests.DoesMeetForeignKeyReq(columns[i].Constraints.ForeignKey, tbx.Text);
 					// Note: No good way to validate names/addresses
+
+					bool isInstanceValid = patternReq && typeReq && fKeyReq;
 
 					isValid = isValid && isInstanceValid;
 
