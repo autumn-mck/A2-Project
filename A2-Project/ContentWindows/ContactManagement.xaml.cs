@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Data;
+using System.Data.SqlClient;
 using System.Linq;
 using System.Threading.Tasks;
 using System.Windows;
@@ -18,27 +19,36 @@ namespace A2_Project.ContentWindows
 		private string[] selectedData;
 		private UIElement[] displayElements;
 
+		DBObjects.Column[] columns;
+
 		private DataTable table;
 		// TODO: Merge tableHeaders and columnData
-		private List<string> tableHeaders;
-		private List<List<string>> columnData;
+		//private List<string> tableHeaders;
+		//private List<List<string>> columnData;
 		private List<List<string>> originalData;
 
 		public ContactManagement()
 		{
 			InitializeComponent();
 			// TODO: Spaces in column names
-			columnData = DBMethods.MetaRequests.GetColumnData("Contact");
+			columns = DBMethods.MetaRequests.GetColumnDataFromTable("Contact");
+			//columnData = DBMethods.MetaRequests.GetDataTypesFromTable("Contact");
 			List<List<string>> data = DBMethods.MetaRequests.GetAllFromTable("Contact");
-			DtgMethods.CreateTable(data, "Contact", ref dtgContacts, ref tableHeaders, ref table);
+			DtgMethods.CreateTable(data, "Contact", ref dtgContacts, columns, ref table);
 			List<string> colSearch = new List<string> { "All Columns" };
-			colSearch.AddRange(tableHeaders);
+			colSearch.AddRange(columns.Select(c => c.Name));
 			cmbColumn.SelectedIndex = 0;
 			cmbColumn.ItemsSource = colSearch;
 			originalData = data;
 
+
+			GenerateElements();
+		}
+
+		private void GenerateElements()
+		{
 			double offset = 40;
-			int count = tableHeaders.Count;
+			int count = columns.Length;
 			displayElements = new UIElement[count];
 			selectedData = new string[count];
 
@@ -46,7 +56,7 @@ namespace A2_Project.ContentWindows
 			{
 				Label lbl = new Label()
 				{
-					Content = tableHeaders[i],
+					Content = columns[i].Name,
 					Margin = new Thickness(900, offset, 0, 0),
 					HorizontalAlignment = HorizontalAlignment.Left,
 					VerticalAlignment = VerticalAlignment.Top
@@ -54,7 +64,7 @@ namespace A2_Project.ContentWindows
 				grd.Children.Add(lbl);
 				offset += 35;
 
-				if (DBMethods.MetaRequests.IsColumnPrimaryKey(tableHeaders[i], "Contact"))
+				if (columns[i].Constraints.IsPrimaryKey)
 				{
 					lbl = new Label()
 					{
@@ -82,9 +92,9 @@ namespace A2_Project.ContentWindows
 						VerticalAlignment = VerticalAlignment.Top
 					};
 					//i * 75 + 75
-					if (columnData[i][0] == "varchar")
+					if (columns[i].Constraints.Type == "varchar")
 					{
-						if (Convert.ToInt32(columnData[i][1]) > 50)
+						if (Convert.ToInt32(columns[i].Constraints.MaxSize) > 50)
 						{
 							tbx.Height *= 2;
 						}
@@ -133,29 +143,29 @@ namespace A2_Project.ContentWindows
 		private bool IsValid()
 		{
 			bool isValid = true;
-			for (int i = 0; i < tableHeaders.Count; i++)
+			for (int i = 0; i < columns.Length; i++)
 			{
 				if (displayElements[i] is TextBox tbx)
 				{
 					bool isInstanceValid = true;
-					if (tableHeaders[i].Contains("Email"))
+					if (columns[i].Name.Contains("Email"))
 						isInstanceValid = RegExValidation.IsValidEmail(tbx.Text);
-					else if (tableHeaders[i].Contains("Postcode"))
+					else if (columns[i].Name.Contains("Postcode"))
 						isInstanceValid = RegExValidation.IsValidPostcode(tbx.Text);
-					else if (tableHeaders[i].Contains("PhoneNo"))
+					else if (columns[i].Name.Contains("PhoneNo"))
 						isInstanceValid = RegExValidation.IsValidPhoneNo(tbx.Text);
-					else if (columnData[i][0] == "int")
+					else if (columns[i].Constraints.Type == "int")
 						isInstanceValid = !string.IsNullOrEmpty(tbx.Text) && tbx.Text.All(Char.IsDigit);
-
+					if (columns[i].Constraints.ForeignKey != null)
+						isInstanceValid = DBMethods.MiscRequests.DoesMeetForeignKeyReq(columns[i].Constraints.ForeignKey, tbx.Text);
 					// Note: No good way to validate names/addresses
+
+					isValid = isValid && isInstanceValid;
 
 					if (isInstanceValid)
 						tbx.Background = Brushes.White;
 					else
-					{
 						tbx.Background = Brushes.Red;
-						isValid = false;
-					}
 				}
 			}
 			return isValid;
@@ -165,9 +175,38 @@ namespace A2_Project.ContentWindows
 		{
 			if (IsValid() && sender is Button b)
 			{
-				b.Content = "Changes saved!";
-				await Task.Delay(2000);
-				b.Content = "Save Changes";
+				string[] oldData = (string[])selectedData.Clone();
+				for (int i = 0; i < selectedData.Length; i++)
+				{
+					if (displayElements[i] is Label l) selectedData[i] = l.Content.ToString();
+					else if (displayElements[i] is TextBox t) selectedData[i] = t.Text;
+				}
+
+				bool succeeded;
+				try
+				{
+					DBMethods.DBAccess.UpdateTable("Contact", columns.Select(c => c.Name).ToList(), selectedData);
+					succeeded = true;
+				}
+				catch
+				{
+					succeeded = false;
+				}
+
+				if (succeeded)
+				{
+					((DataRowView)dtgContacts.SelectedCells[0].Item).Row.ItemArray = selectedData;
+					((DataRowView)dtgContactsToClient.SelectedCells[0].Item).Row.ItemArray = selectedData;
+
+					b.Content = "Changes saved!";
+					await Task.Delay(2000);
+					b.Content = "Save Changes";
+				}
+				else
+				{
+					selectedData = oldData;
+					MessageBox.Show("AAAAAAAAA");
+				}
 			}
 		}
 
@@ -187,7 +226,7 @@ namespace A2_Project.ContentWindows
 
 		private void BtnEmail_Click(object sender, RoutedEventArgs e)
 		{
-			EmailManagement.SendInvoiceEmail("atempmailfortestingcsharp@gmail.com", table, tableHeaders.ToArray());
+			EmailManagement.SendInvoiceEmail("atempmailfortestingcsharp@gmail.com", table, columns.Select(c => c.Name).ToArray());
 		}
 
 		private void DtgTest_LoadingRow(object sender, DataGridRowEventArgs e)
@@ -214,7 +253,7 @@ namespace A2_Project.ContentWindows
 
 		private void Search()
 		{
-			DtgMethods.UpdateSearch(originalData, cmbColumn.SelectedIndex, tbxSearch.Text, "Contact", ref dtgContacts, ref tableHeaders, ref table);
+			DtgMethods.UpdateSearch(originalData, cmbColumn.SelectedIndex, tbxSearch.Text, "Contact", ref dtgContacts, columns, ref table);
 		}
 
 		private void Dtg_AutoGeneratingColumn(object sender, DataGridAutoGeneratingColumnEventArgs e)
@@ -248,7 +287,7 @@ namespace A2_Project.ContentWindows
 				string clientID = (string)drv.Row.ItemArray[1];
 				dtgContactsToClient.Columns.Clear(); // TODO: Why is this needed here, but not elsewhere????
 				List<List<string>> data = DBMethods.MiscRequests.GetContactsByClientID(clientID);
-				DtgMethods.CreateTable(data, "Contact", ref dtgContactsToClient, ref tableHeaders, ref table);
+				DtgMethods.CreateTable(data, "Contact", ref dtgContactsToClient, columns, ref table);
 				for (int i = 0; i < data.Count; i++)
 					if (data[i][0] == contactID)
 						dtgContactsToClient.SelectedIndex = i;

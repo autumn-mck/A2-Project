@@ -1,5 +1,6 @@
 ﻿using System.Collections.Generic;
 using System.Data;
+using System.Linq;
 using System.Windows.Controls;
 
 namespace A2_Project
@@ -10,7 +11,7 @@ namespace A2_Project
 	/// Searches through originalData by searchTerm and displays it on dtg
 	/// </summary>
 		public static List<List<string>> UpdateSearch(List<List<string>> originalData, int selectedIndex, string searchTerm,
-		string tableName, ref DataGrid dtg, ref List<string> tableHeaders, ref DataTable table, bool shouldReset = true)
+		string tableName, ref DataGrid dtg, DBObjects.Column[] columns, ref DataTable table, bool shouldReset = true)
 		{
 			if (originalData == null) return null;
 			int columnSearch = selectedIndex;
@@ -34,20 +35,19 @@ namespace A2_Project
 					if (ls[columnSearch - 1].Contains(searchTerm)) searched.Add(ls);
 				}
 			}
-			CreateTable(searched, tableName, ref dtg, ref tableHeaders, ref table, shouldReset);
+			CreateTable(searched, tableName, ref dtg, columns, ref table, shouldReset);
 			return searched;
 		}
 
 		/// <summary>
 		/// Updates dtg to contain data
 		/// </summary>
-		public static void CreateTable(List<List<string>> data, string tableName, ref DataGrid dtg, ref List<string> tableHeaders, ref DataTable table, bool shouldReset = false)
+		public static void CreateTable(List<List<string>> data, string tableName, ref DataGrid dtg, DBObjects.Column[] columns, ref DataTable table, bool shouldReset = false)
 		{
 			if (data == null) return;
 			table = new DataTable();
 			if (shouldReset) dtg.DataContext = table.DefaultView;
-			tableHeaders = DBMethods.MetaRequests.GetHeadersFromTable(tableName);
-			foreach (string str in tableHeaders)
+			foreach (string str in columns.Select(c => c.Name))
 				table.Columns.Add(str);
 			for (int i = 0; i < data.Count; i++)
 				table.Rows.Add(data[i].ToArray());

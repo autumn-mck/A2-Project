@@ -86,6 +86,17 @@ namespace A2_Project.DBMethods
 			}
 		}
 
+		public static void UpdateTable(string table, List<string> headers, string[] newData)
+		{
+			string command = $"UPDATE {table} SET {headers[1]} = '{newData[1]}'";
+			for (int i = 2; i < headers.Count; i++)
+			{
+				command += $", {headers[i]} = '{newData[i]}'";
+			}
+			command += $" WHERE {headers[0]} = '{newData[0]}';";
+			ExecuteNonQuery(command);
+		}
+
 		private static string GenerateText(string table, List<string> data)
 		{
 			// Code from a previous project that will be adapted to this one
