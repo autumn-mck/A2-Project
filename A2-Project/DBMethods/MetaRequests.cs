@@ -38,7 +38,7 @@ namespace A2_Project.DBMethods
 		public static Column[] GetColumnDataFromTable(string tableName)
 		{
 			List<List<string>> types = GetDataTypesFromTable(tableName);
-			ForeignKey[] foreignKeys = GetForeignReferences(tableName);
+			ForeignKey[] foreignKeys = GetFKeyOfTable(tableName);
 			Column[] columns = new Column[types.Count];
 			for (int i = 0; i < types.Count; i++)
 			{
@@ -58,8 +58,21 @@ namespace A2_Project.DBMethods
 			return DBAccess.GetListStringsWithQuery(query);
 		}
 
-		public static ForeignKey[] GetForeignReferences(string tableName)
+		public static ForeignKey[] GetFKeyToTable(string tableName)
 		{
+			string query = "SELECT OBJECT_NAME(f.parent_object_id) TableName, COL_NAME(fc.parent_object_id, fc.parent_column_id) ColName " +
+			"FROM sys.foreign_keys AS f INNER JOIN sys.foreign_key_columns AS fc ON f.OBJECT_ID = fc.constraint_object_id " +
+			$"INNER JOIN sys.tables t ON t.OBJECT_ID = fc.referenced_object_id WHERE OBJECT_NAME(f.referenced_object_id) = '{tableName}';";
+			List<List<string>> results = DBAccess.GetListStringsWithQuery(query);
+			ForeignKey[] toReturn = new ForeignKey[results.Count];
+			for (int i = 0; i < results.Count; i++)
+				toReturn[i] = new ForeignKey(results[i][0], results[i][1]);
+			return toReturn;
+		}
+
+		public static ForeignKey[] GetFKeyOfTable(string tableName)
+		{
+			// TODO: Remove unnecessary data from queries
 			string query = $"SELECT obj.name AS FK_NAME, sch.name AS [schema_name], tab1.name AS [table], col1.name AS [column], tab2.name AS [referenced_table], " +
 			"col2.name AS [referenced_column] FROM sys.foreign_key_columns fkc INNER JOIN sys.objects obj ON obj.object_id = fkc.constraint_object_id " +
 			"INNER JOIN sys.tables tab1 ON tab1.object_id = fkc.parent_object_id INNER JOIN sys.schemas sch ON tab1.schema_id = sch.schema_id " +

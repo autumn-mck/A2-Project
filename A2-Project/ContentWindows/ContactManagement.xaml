@@ -11,7 +11,30 @@
 			<Style TargetType="Label">
 				<Setter Property="Foreground" Value="#D5D5D5"/>
 				<Setter Property="FontSize" Value="24"/>
-				<Setter Property="Margin" Value="50, 0, 0, 0"/>
+				<Setter Property="HorizontalAlignment" Value="Left"/>
+				<Setter Property="VerticalAlignment" Value="Top"/>
+			</Style>
+			<Style TargetType="TextBlock">
+				<Setter Property="Foreground" Value="#D5D5D5"/>
+				<Setter Property="FontSize" Value="18"/>
+				<Setter Property="HorizontalAlignment" Value="Left"/>
+				<Setter Property="VerticalAlignment" Value="Top"/>
+				<Setter Property="TextWrapping" Value="Wrap"/>
+			</Style>
+			<Style TargetType="TextBox">
+				<Setter Property="FontSize" Value="24"/>
+				<Setter Property="TextWrapping" Value="Wrap"/>
+				<Setter Property="HorizontalAlignment" Value="Left"/>
+				<Setter Property="VerticalAlignment" Value="Top"/>
+				<Setter Property="MinWidth" Value="200"/>
+				<Setter Property="MaxWidth" Value="250"/>
+			</Style>
+			<Style TargetType="Button">
+				<Setter Property="Height" Value="37"/>
+				<Setter Property="FontSize" Value="24"/>
+				<Setter Property="Width" Value="170"/>
+				<Setter Property="HorizontalAlignment" Value="Left"/>
+				<Setter Property="VerticalAlignment" Value="Top"/>
 			</Style>
 			<Style TargetType="DataGrid">
 				<Setter Property="RowHeaderWidth" Value="0"/>
@@ -59,6 +82,8 @@
 			AutoGeneratingColumn="Dtg_AutoGeneratingColumn"
 			LoadingRow="DtgTest_LoadingRow" Margin="10,120,0,0"/>
 
+		<TextBlock Name="tbcErr1" Text="ERROR" Margin="900, 700, 0, 0" MaxHeight="300"/>
+		<TextBlock Name="tbcErr2" Text="ERROR" Margin="1310, 700, 0, 0" MaxHeight="300"/>
 
 		<DataGrid Name="dtgContactsToClient"
 			Width="860" Height="200"
@@ -71,6 +96,14 @@
 				<ScaleTransform ScaleX="1.5" ScaleY="1.5"/>
 			</ComboBox.RenderTransform>
 		</ComboBox>
+
+		<Grid x:Name="grdFKeyErrorOuter" Width="550" Height="300" Background="#FFFFFF" Visibility="Hidden" Panel.ZIndex="1">
+			<Grid x:Name="grdFKeyErrorInner" Background="#111111" Margin="2,2,2,2">
+				<TextBlock x:Name="tblFKeyRefError" Text="Error message here" Margin="10,10,10,10" FontSize="30"/>
+				<Button x:Name="btnFkeyErrorAccept" Click="BtnFkeyErrorAccept_Click" Content="Accept" HorizontalAlignment="Center" VerticalAlignment="Bottom" Margin="200,0,0,10"/>
+				<Button x:Name="btnFkeyErrorDecline" Click="BtnFkeyErrorDecline_Click" Content="Decline" HorizontalAlignment="Center" VerticalAlignment="Bottom" Margin="-200,0,0,10"/>
+			</Grid>
+		</Grid>
 
 	</Grid>
 </Window>
