@@ -203,8 +203,18 @@ namespace A2_Project.ContentWindows
 
 		private void BtnAddNew_Click(object sender, RoutedEventArgs e)
 		{
+			EditToAdd();
+		}
+
+		private void EditToAdd()
+		{
+			grdEditMode.Visibility = Visibility.Hidden;
+			grdAddMode.Visibility = Visibility.Visible;
 			dtgContacts.SelectedIndex = -1;
 			dtgContactsToClient.SelectedIndex = -1;
+			dtgContacts.IsEnabled = false;
+			dtgContactsToClient.IsEnabled = false;
+
 			for (int i = 0; i < displayElements.Length; i++)
 			{
 				Control c = displayElements[i];
@@ -215,9 +225,36 @@ namespace A2_Project.ContentWindows
 					c = new TextBox()
 					{
 						Height = 34,
-						Margin = new Thickness(l.Margin.Left + 5, l.Margin.Top, 0, 0)
+						Margin = new Thickness(l.Margin.Left + 5, l.Margin.Top, 0, 0),
+						Tag = "Label"
 					};
 					((TextBox)c).TextChanged += Tbx_TextChanged;
+					displayElements[i] = c;
+					grd.Children.Add(c);
+				}
+			}
+		}
+
+		private void AddToEdit()
+		{
+			grdEditMode.Visibility = Visibility.Visible;
+			grdAddMode.Visibility = Visibility.Hidden;
+			dtgContacts.SelectedIndex = 0;
+			dtgContactsToClient.SelectedIndex = 0;
+			dtgContacts.IsEnabled = true;
+			dtgContactsToClient.IsEnabled = true;
+
+			for (int i = 0; i < displayElements.Length; i++)
+			{
+				Control c = displayElements[i];
+				if (c is TextBox t) t.Text = "";
+				if (c.Tag != null && c.Tag.ToString() == "Label")
+				{
+					grd.Children.Remove(c);
+					c = new Label()
+					{
+						Margin = new Thickness(c.Margin.Left - 5, c.Margin.Top, 0, 0)
+					};
 					displayElements[i] = c;
 					grd.Children.Add(c);
 				}
@@ -355,7 +392,6 @@ namespace A2_Project.ContentWindows
 			catch { }
 		}
 
-
 		private void ClearUI()
 		{
 			if (displayElements == null) return;
@@ -459,28 +495,24 @@ namespace A2_Project.ContentWindows
 			Button btnSave = new Button()
 			{
 				Content = "Save Changes",
-				Name = "btnSave",
 				Margin = new Thickness(0, 0, 0, 0)
 			};
 
 			Button btnRevert = new Button()
 			{
 				Content = "Revert Changes",
-				Name = "btnRevert",
 				Margin = new Thickness(180, 0, 0, 0)
 			};
 
 			Button btnAddNew = new Button()
 			{
 				Content = "Add New",
-				Name = "btnAddNew",
 				Margin = new Thickness(0, 45, 0, 0)
 			};
 
 			Button btnDeleteItem = new Button()
 			{
 				Content = "Delete Item",
-				Name = "btnDeleteItem",
 				Margin = new Thickness(180, 45, 0, 0)
 			};
 
@@ -492,6 +524,28 @@ namespace A2_Project.ContentWindows
 			grdEditMode.Children.Add(btnRevert);
 			grdEditMode.Children.Add(btnAddNew);
 			grdEditMode.Children.Add(btnDeleteItem);
+
+			Button btnInsertNew = new Button()
+			{
+				Content = "Add new item",
+				Margin = new Thickness(0, 0, 0, 0)
+			};
+
+			Button btnCancelAddition = new Button()
+			{
+				Content = "Cancel Addition",
+				Margin = new Thickness(180, 0, 0, 0)
+			};
+
+			btnInsertNew.Click += BtnSave_Click;
+			btnCancelAddition.Click += BtnCancelAddition_Click;
+			grdAddMode.Children.Add(btnInsertNew);
+			grdAddMode.Children.Add(btnCancelAddition);
+		}
+
+		private void BtnCancelAddition_Click(object sender, RoutedEventArgs e)
+		{
+			AddToEdit();
 		}
 
 		private void DisplayUI()
