@@ -23,7 +23,13 @@ namespace A2_Project.DBMethods
 				if (headers != null)
 				{
 					// Ensures dates are formatted correctly
-					if (obj is DateTime time && headers[i].Contains("DOB")) obj = time.ToString("dd/MM/yyyy");
+					if (obj is DateTime time)
+					{
+						string str = headers[i];
+						if (str.Contains("DOB")
+						|| str.Contains("Date") && !str.Contains("Time"))
+							obj = time.ToString("dd/MM/yyyy");
+					}
 				}
 				results.Add(obj.ToString());
 			}
@@ -74,14 +80,28 @@ namespace A2_Project.DBMethods
 			return results;
 		}
 
-		public static void UpdateTable(string table, string[] headers, string[] newData)
+		public static void UpdateTable(string table, string[] headers, string[] data, bool isNew)
 		{
-			string command = $"SET DATEFORMAT dmy; UPDATE {table} SET {headers[1]} = '{newData[1]}'";
-			for (int i = 2; i < headers.Length; i++)
+			string command;
+			if (!MiscRequests.IsPKeyFree(table, headers[0], data[0]))
 			{
-				command += $", {headers[i]} = '{newData[i]}'";
+				command = $"SET DATEFORMAT dmy; UPDATE {table} SET {headers[1]} = '{data[1]}'";
+				for (int i = 2; i < headers.Length; i++)
+				{
+					command += $", {headers[i]} = '{data[i]}'";
+				}
+				command += $" WHERE {headers[0]} = '{data[0]}';";
 			}
-			command += $" WHERE {headers[0]} = '{newData[0]}';";
+			else
+			{
+				command = $"SET DATEFORMAT dmy; INSERT INTO {table} VALUES (";
+				for (int i = 0; i < data.Length; i++)
+				{
+					command += $"'{data[i]}'";
+					if (i < data.Length - 1) command += ", ";
+				}
+				command += ");";
+			}
 			ExecuteNonQuery(command);
 		}
 	}

@@ -48,8 +48,8 @@ namespace A2_Project
 			table = new DataTable();
 			if (shouldReset)
 			{
+				//dtg.DataContext = table.DefaultView;
 				dtg.Columns.Clear();
-				dtg.DataContext = table.DefaultView;
 			}
 			foreach (string str in columns.Select(c => c.Name))
 				table.Columns.Add(str);

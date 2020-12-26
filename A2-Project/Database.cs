@@ -1,4 +1,6 @@
-﻿using System.Data.SqlClient;
+﻿using System;
+using System.Data.SqlClient;
+using System.IO;
 
 namespace A2_Project
 {
@@ -13,13 +15,17 @@ namespace A2_Project
 
 		public bool Connect()
 		{
+			string debugPath = Path.GetDirectoryName(Environment.CurrentDirectory);
+			string datadiretoryPath = Path.GetDirectoryName(debugPath);
+			AppDomain.CurrentDomain.SetData("DataDirectory", datadiretoryPath);
 			SqlConnectionStringBuilder scStrBuild = new SqlConnectionStringBuilder
 			{
 				DataSource = "(LocalDB)\\MSSQLLocalDB",
 				// TODO: An absolute file path should not be used here.
-				AttachDBFilename = "C:\\Users\\James\\Desktop\\Projects\\A2-Project\\A2-Project\\Database1.mdf",
+				//AttachDBFilename = "C:\\Users\\James\\Desktop\\Projects\\A2-Project\\A2-Project\\Database1.mdf",
 				IntegratedSecurity = true
 			};
+			scStrBuild.AttachDBFilename = "C:\\Users\\james\\Desktop\\Projects\\A2-Project\\A2-Project\\DogCareDB.mdf";
 			string scStr = scStrBuild.ToString();
 			Conn = new SqlConnection(scStr);
 			// Try to connect to the database. If a connection cannot be made, something has probably gone badly wrong
