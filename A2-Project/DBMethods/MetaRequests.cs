@@ -35,6 +35,13 @@ namespace A2_Project.DBMethods
 			return (DBAccess.GetListStringsWithQuery(query).Count > 0);
 		}
 
+		public static bool CanBeNull(string columnName, string tableName)
+		{
+			string query = $"SELECT is_nullable FROM sys.columns WHERE object_id = object_id('{tableName}') AND name = '{columnName}';";
+			string res = DBAccess.GetStringsWithQuery(query)[0];
+			return bool.Parse(res);
+		}
+
 		public static Column[] GetColumnDataFromTable(string tableName)
 		{
 			List<List<string>> types = GetDataTypesFromTable(tableName);
@@ -44,7 +51,7 @@ namespace A2_Project.DBMethods
 			{
 				columns[i] = new Column(types[i][0])
 				{
-					Constraints = new Constraint(IsColumnPrimaryKey(types[i][0], tableName), types[i][1], types[i][2])
+					Constraints = new Constraint(IsColumnPrimaryKey(types[i][0], tableName), CanBeNull(types[i][0], tableName), types[i][1], types[i][2])
 				};
 
 				columns[i].Constraints.ForeignKey = foreignKeys.Where(x => x.ReferencedColumn == columns[i].Name).FirstOrDefault();

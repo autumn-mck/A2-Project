@@ -83,7 +83,6 @@ namespace A2_Project.ContentWindows
 
 				if (displayElements[i] is TextBox)
 				{
-
 					// Check if the string meets a specific pattern
 					if (col.Name.Contains("Email"))
 					{
@@ -104,6 +103,13 @@ namespace A2_Project.ContentWindows
 					{
 						patternReq = PatternValidation.IsValidDogGender(str);
 						patternError = "Please enter a valid dog gender. (M/F)";
+					}
+
+					if (col.Constraints.CanBeNull && str == "") patternReq = true;
+					else if (!col.Constraints.CanBeNull && str == "")
+					{
+						patternReq = false;
+						patternError = "This value cannot be left empty!";
 					}
 
 					// Checks if the data meets the requirements for the type of data it should be
