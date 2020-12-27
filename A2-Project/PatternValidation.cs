@@ -14,6 +14,7 @@ namespace A2_Project
 
 		public static bool IsValidEmail(string email)
 		{
+			// https://www.youtube.com/watch?v=xxX81WmXjPg
 			string pattern = @"^[^@\s]+@[^@\s]+\.[^@\s]+$";
 			Regex regex = new Regex(pattern);
 			return regex.IsMatch(email);

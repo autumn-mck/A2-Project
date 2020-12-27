@@ -24,7 +24,7 @@ namespace A2_Project
 
 		// The content windows used for displaying things inside the main window
 		private RegStaff regWindow;
-		private Calander calWindow;
+		private CalandarView calWindow;
 		private ContactManagement contactManWindow;
 		private Stats statsWindow;
 		private readonly Login loginWindow;
@@ -117,7 +117,7 @@ namespace A2_Project
 		private void GrdCalander_MouseDown(object sender, MouseButtonEventArgs e)
 		{
 			if (calWindow == null)
-				calWindow = new Calander() { Owner = this };
+				calWindow = new CalandarView() { Owner = this };
 			lblContents.Content = calWindow.Content;
 		}
 
