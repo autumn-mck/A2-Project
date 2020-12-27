@@ -34,35 +34,38 @@ namespace A2_Project.ContentWindows
 			cmbTable.ItemsSource = DBMethods.MetaRequests.GetTableNames();
 			tableName = cmbTable.Items[0].ToString();
 			Setup();
-			CreateUI();
+			GenUI();
 			try { dtgContacts.SelectedIndex = 0; }
 			catch { }
 			cmbTable.SelectedIndex = 0;
 		}
 
-		private void Tbx_TextChanged(object sender, TextChangedEventArgs e)
-		{
-			IsValid();
-		}
-
+		/// <summary>
+		/// Returns true if the user entered data is valid
+		/// </summary>
 		private bool IsValid()
 		{
-			bool isValid = true;
+			bool isAllValid = true;
+
+			// Used to display error messages to the user
 			string errCol1 = "";
 			string errCol2 = "";
+
 			for (int i = 0; i < columns.Length; i++)
 			{
+				// TODO: Allow empty if null values allowed
+				// Gets the data to be validated in string form
 				string str = "";
 				if (displayElements[i] is TextBox tbx) str = tbx.Text;
-				else if (displayElements[i] is Label l) continue;
+				else if (displayElements[i] is Label) continue; // If the item to be checked is a label, it is not user editable, so it is assumed to already contain valid data.
+				else if (displayElements[i] is CheckBox) continue;
+
 				bool patternReq = true;
 				bool typeReq = true;
 				bool fKeyReq = true;
 				bool pKeyReq = true;
 
-				if (i == 0)
-				{ }
-
+				// Check if the string meets a specific pattern
 				string patternError = "";
 				DBObjects.Column col = columns[i];
 				if (col.Name.Contains("Email"))
@@ -86,15 +89,14 @@ namespace A2_Project.ContentWindows
 					patternError = "Please enter a valid dog gender. (M/F)";
 				}
 
+				// Checks if the data meets the requirements for the type of data it should be
 				switch (col.Constraints.Type)
 				{
 					case "int":
 						typeReq = !string.IsNullOrEmpty(str) && str.All(char.IsDigit);
 						break;
-					case "bit":
-						typeReq = PatternValidation.IsBit(str);
-						break;
 					case "datetime":
+						// TODO: DateTime.TryParse is not strict enough
 						typeReq = DateTime.TryParse(str, out DateTime d);
 						break;
 					case "date":
@@ -102,16 +104,20 @@ namespace A2_Project.ContentWindows
 						break;
 				}
 
+				// Checks if the data meets foreign key requirements if needed
 				if (col.Constraints.ForeignKey != null && typeReq)
 					fKeyReq = DBMethods.MiscRequests.DoesMeetForeignKeyReq(col.Constraints.ForeignKey, str);
+
+				// Checks if the data meets primary key requirements if needed
 				if (col.Constraints.IsPrimaryKey && typeReq)
 					pKeyReq = DBMethods.MiscRequests.IsPKeyFree(tableName, col.Name, str);
 
 				// Note: No good way to validate names/addresses
 
 				bool isInstanceValid = patternReq && typeReq && fKeyReq && pKeyReq;
-				isValid = isValid && isInstanceValid;
+				isAllValid = isAllValid && isInstanceValid;
 
+				// If the current part is invalid, let the user know what the issue is.
 				if (!isInstanceValid)
 				{
 					string instErr = $"\n{col.Name}: ";
@@ -131,10 +137,12 @@ namespace A2_Project.ContentWindows
 					if (!fKeyReq) instErr += $"References a non-existent {col.Constraints.ForeignKey.ReferencedTable}.";
 					if (!pKeyReq) instErr += "This ID is already taken!";
 
+					// Allows the error messages to be readable when there are more than 6 of them by dividing them into 2 columns
 					if (errCol1.Count(x => x == '\n') < 6) errCol1 += instErr;
 					else errCol2 += instErr;
 				}
 
+				// Allow the user to clearly see which data is incorrect
 				if (isInstanceValid)
 					displayElements[i].Background = Brushes.White;
 				else
@@ -142,74 +150,19 @@ namespace A2_Project.ContentWindows
 			}
 			tbcErr1.Text = errCol1;
 			tbcErr2.Text = errCol2;
-			return isValid;
+			return isAllValid;
 		}
 
-		private async void BtnSave_Click(object sender, RoutedEventArgs e)
-		{
-			if (IsValid() && sender is Button b)
-			{
-				string[] oldData = (string[])selectedData.Clone();
-				for (int i = 0; i < selectedData.Length; i++)
-				{
-					if (displayElements[i] is Label l) selectedData[i] = l.Content.ToString();
-					else if (displayElements[i] is TextBox t) selectedData[i] = t.Text;
-				}
-
-				bool succeeded;
-				bool isNew = DBMethods.MiscRequests.IsPKeyFree(tableName, columns[0].Name, selectedData[0]);
-				try
-				{
-					DBMethods.DBAccess.UpdateTable(tableName, columns.Select(c => c.Name).ToArray(), selectedData, isNew);
-					succeeded = true;
-				}
-				catch
-				{
-					succeeded = false;
-				}
-
-				if (succeeded)
-				{
-					if (!isNew)
-					{
-						((DataRowView)dtgContacts.SelectedCells[0].Item).Row.ItemArray = selectedData;
-						if (tableName == "Contact") ((DataRowView)dtgContactsToClient.SelectedCells[0].Item).Row.ItemArray = selectedData;
-
-						b.Content = "Changes saved!";
-						await Task.Delay(2000);
-						b.Content = "Save Changes";
-					}
-					else
-					{
-						currentData.Add(selectedData.ToList());
-						dataTable.Rows.Add(selectedData);
-						dtgContacts.ItemsSource = dataTable.DefaultView;
-						dtgContacts.SelectedIndex = dataTable.Rows.Count - 1;
-						dtgContacts.ScrollIntoView(dtgContacts.SelectedItem);
-					}
-				}
-				else
-				{
-					selectedData = oldData;
-					b.Content = "Error occurred!";
-				}
-			}
-		}
-
-		private void BtnRevert_Click(object sender, RoutedEventArgs e)
-		{
-			ChangeSelectedData();
-		}
-
-		private void BtnAddNew_Click(object sender, RoutedEventArgs e)
-		{
-			EditToAdd();
-		}
-
+		/// <summary>
+		/// Move from edit mode to add mode
+		/// </summary>
 		private void EditToAdd()
 		{
 			grdEditMode.Visibility = Visibility.Hidden;
 			grdAddMode.Visibility = Visibility.Visible;
+
+			// Deselect the selected item and disable the DataGrids to prevent new items from being selected
+			// TODO: Change so that DataGrids can still be scrolled through, but not selected?
 			dtgContacts.SelectedIndex = -1;
 			dtgContactsToClient.SelectedIndex = -1;
 			dtgContacts.IsEnabled = false;
@@ -218,7 +171,10 @@ namespace A2_Project.ContentWindows
 			for (int i = 0; i < displayElements.Length; i++)
 			{
 				Control c = displayElements[i];
+				// Reset the values in the controls
+				// TODO: Insert suggested values instead
 				if (c is TextBox t) t.Text = "";
+				// Any labels which were used to dis
 				else if (c is Label l)
 				{
 					grd.Children.Remove(l);
@@ -226,7 +182,7 @@ namespace A2_Project.ContentWindows
 					{
 						Height = 34,
 						Margin = new Thickness(l.Margin.Left + 5, l.Margin.Top, 0, 0),
-						Tag = "Label"
+						Tag = "Primary Key"
 					};
 					((TextBox)c).TextChanged += Tbx_TextChanged;
 					displayElements[i] = c;
@@ -235,20 +191,30 @@ namespace A2_Project.ContentWindows
 			}
 		}
 
+		/// <summary>
+		/// Move from add mode to edit mode
+		/// </summary>
 		private void AddToEdit()
 		{
 			grdEditMode.Visibility = Visibility.Visible;
 			grdAddMode.Visibility = Visibility.Hidden;
+
+			// TODO: This may cause errors
 			dtgContacts.SelectedIndex = 0;
 			dtgContactsToClient.SelectedIndex = 0;
+
+			// Re-enable the datagrids
 			dtgContacts.IsEnabled = true;
 			dtgContactsToClient.IsEnabled = true;
 
 			for (int i = 0; i < displayElements.Length; i++)
 			{
 				Control c = displayElements[i];
+				// Reset the displayed values
 				if (c is TextBox t) t.Text = "";
-				if (c.Tag != null && c.Tag.ToString() == "Label")
+				// If the element is to display a primary key, it should not be editable, so a label is used instead of a textbox
+				// TODO: Is that fixable?
+				if (c.Tag != null && c.Tag.ToString() == "Primary Key")
 				{
 					grd.Children.Remove(c);
 					c = new Label()
@@ -266,60 +232,41 @@ namespace A2_Project.ContentWindows
 			DeleteRow();
 		}
 
+		/// <summary>
+		/// Tries to delete the selected row
+		/// </summary>
 		private void DeleteRow(bool deleteRef = false)
 		{
+			// Get the selected row
 			DataRowView drv = (DataRowView)dtgContacts.SelectedItem;
 			if (drv == null) return;
+			// Try to remove the selected row from the database
 			try
 			{
 				DBMethods.MiscRequests.DeleteItem(tableName, columns[0].Name, drv.Row.ItemArray[0].ToString(), deleteRef);
 				dataTable.Rows.Remove(drv.Row);
 			}
+			// An exception is thrown if there are other items which reference the item to be deleted
 			catch (Exception ex)
 			{
+				// Allow the user to make the choice to delete the item and everything which references it (And everything that references the references, and so on)
+				// Or cancel the deletion
 				grdFKeyErrorOuter.Visibility = Visibility.Visible;
 				tblFKeyRefError.Text = ex.Message;
 			}
 		}
 
+		/// <summary>
+		/// Updates the data displayed to the user
+		/// </summary>
 		private void ChangeSelectedData()
 		{
 			for (int i = 0; i < selectedData.Length; i++)
 			{
 				if (displayElements[i] is Label l) l.Content = selectedData[i];
 				else if (displayElements[i] is TextBox t) t.Text = selectedData[i];
+				else if (displayElements[i] is CheckBox c) c.IsChecked = selectedData[i] == "True";
 			}
-		}
-
-		private void BtnEmail_Click(object sender, RoutedEventArgs e)
-		{
-			EmailManagement.SendInvoiceEmail("atempmailfortestingcsharp@gmail.com", dataTable, columns.Select(c => c.Name).ToArray());
-		}
-
-		private void DtgTest_LoadingRow(object sender, DataGridRowEventArgs e)
-		{
-			DataGridRow r = e.Row;
-			DataRowView v = (DataRowView)r.Item;
-			string[] strArr = v.Row.ItemArray.Cast<string>().ToArray();
-
-			if (tableName == "Contact")
-			{
-				if (Convert.ToInt32(strArr[1]) % 2 == 0) r.Background = (SolidColorBrush)new BrushConverter().ConvertFrom("#161616");
-				else r.Background = (SolidColorBrush)new BrushConverter().ConvertFrom("#252526");
-			}
-			else r.Background = (SolidColorBrush)new BrushConverter().ConvertFrom("#252526");
-
-			r.Foreground = (SolidColorBrush)new BrushConverter().ConvertFrom("#EEEEEE");
-		}
-
-		private void TbxSearch_TextChanged(object sender, TextChangedEventArgs e)
-		{
-			Search();
-		}
-
-		private void CmbColumn_SelectionChanged(object sender, SelectionChangedEventArgs e)
-		{
-			Search();
 		}
 
 		private void Search()
@@ -327,78 +274,25 @@ namespace A2_Project.ContentWindows
 			DtgMethods.UpdateSearch(currentData, cmbColumn.SelectedIndex, tbxSearch.Text, tableName, ref dtgContacts, columns, ref dataTable);
 		}
 
-		private void Dtg_AutoGeneratingColumn(object sender, DataGridAutoGeneratingColumnEventArgs e)
-		{
-			// Cancel the auto generated column
-			e.Cancel = true;
-			DataGridTextColumn dgTextC = (DataGridTextColumn)e.Column;
-			//Create a new template column 
-			DataGridTemplateColumn dgtc = new DataGridTemplateColumn();
-			DataTemplate dataTemplate = new DataTemplate(typeof(DataGridCell));
-			FrameworkElementFactory tb = new FrameworkElementFactory(typeof(TextBlock));
-			// Ensure the text wraps properly when the column is resized
-			tb.SetValue(TextBlock.TextWrappingProperty, TextWrapping.Wrap);
-			dataTemplate.VisualTree = tb;
-
-			dgtc.Header = dgTextC.Header;
-			dgtc.CellTemplate = dataTemplate;
-
-			tb.SetBinding(TextBlock.TextProperty, dgTextC.Binding);
-
-			// Add column back to data grid
-			if (sender is DataGrid dg) dg.Columns.Add(dgtc);
-		}
-
-		private void DtgContacts_SelectedCellsChanged(object sender, SelectedCellsChangedEventArgs e)
-		{
-			if (e.AddedCells.Count == 0) return;
-			if (tableName == "Contact")
-			{
-				try
-				{
-					DataRowView drv = (DataRowView)dtgContacts.SelectedItems[0];
-					string contactID = (string)drv.Row.ItemArray[0];
-					string clientID = (string)drv.Row.ItemArray[1];
-					List<List<string>> data = DBMethods.MiscRequests.GetByColumnData(tableName, "ClientID", clientID, columns.Select(c => c.Name).ToArray());
-					DataTable dt = new DataTable();
-					DtgMethods.CreateTable(data, tableName, ref dtgContactsToClient, columns, ref dt, true);
-					for (int i = 0; i < data.Count; i++)
-						if (data[i][0] == contactID)
-							dtgContactsToClient.SelectedIndex = i;
-				}
-				catch { }
-			}
-			else
-			{
-				selectedData = ((DataRowView)dtgContacts.SelectedItems[0]).Row.ItemArray.OfType<string>().ToArray();
-				ChangeSelectedData();
-			}
-		}
-
-		private void DtgContactsToClient_SelectedCellsChanged(object sender, SelectedCellsChangedEventArgs e)
-		{
-			if (e.AddedCells.Count == 0) return;
-			selectedData = ((DataRowView)dtgContactsToClient.SelectedItems[0]).Row.ItemArray.OfType<string>().ToArray();
-			ChangeSelectedData();
-		}
-
-		private void CmbTable_SelectionChanged(object sender, SelectionChangedEventArgs e)
-		{
-			tableName = cmbTable.SelectedItem.ToString();
-			ClearUI();
-			Setup();
-			CreateUI();
-			try { dtgContacts.SelectedIndex = 0; }
-			catch { }
-		}
-
+		#region Programmatic UI Generation
+		/// <summary>
+		/// Removes the UI Elements generated for the previous table
+		/// </summary>
 		private void ClearUI()
 		{
 			if (displayElements == null) return;
+			// Remove the user-editable controls
 			foreach (Control c in displayElements) grd.Children.Remove(c);
+			// Remove the column labels
 			foreach (FrameworkElement l in labelElements) grd.Children.Remove(l);
+			// Remove the grids used for displaying button options
+			grd.Children.Remove(grdAddMode);
+			grd.Children.Remove(grdEditMode);
 		}
 
+		/// <summary>
+		/// Setup for changing to a new table
+		/// </summary>
 		private void Setup()
 		{
 			// TODO: Spaces in column names
@@ -410,34 +304,47 @@ namespace A2_Project.ContentWindows
 
 			DtgMethods.CreateTable(currentData, tableName, ref dtgContacts, columns, ref dataTable, true);
 
+			// Allow the user to search through all columns or a specific column for the table
 			List<string> colSearch = new List<string> { "All Columns" };
 			colSearch.AddRange(columns.Select(c => c.Name));
 			cmbColumn.SelectedIndex = 0;
 			cmbColumn.ItemsSource = colSearch;
 		}
 
-		private void CreateUI()
+		private void GenUI()
 		{
 			int count = columns.Length;
 			displayElements = new Control[count];
 			labelElements = new FrameworkElement[count];
 			selectedData = new string[count];
-			GenerateUI(count);
-			DisplayUI();
-		}
 
-		private void GenerateUI(int count)
-		{
+			// A yOffset and xOffset are used to display all elements in the correct position
 			double yOffset = 40;
 			double xOffset = 0;
+			GenDataEntry(count, ref yOffset, ref xOffset);
+
+			// Display the already generated elements
+			foreach (UIElement e in labelElements) grd.Children.Add(e);
+			foreach (UIElement e in displayElements) grd.Children.Add(e);
+
+			GenAddEditBtns(yOffset, xOffset);
+		}
+
+		/// <summary>
+		/// Generate the items used for entering data
+		/// </summary>
+		private void GenDataEntry(int count, ref double yOffset, ref double xOffset)
+		{
 			for (int i = 0; i < count; i++)
 			{
+				// Split the items into multiple columns if needed
 				if (yOffset > 600)
 				{
 					yOffset = 40;
 					xOffset += 250;
 				}
 
+				// Generate the label used for displaying the column name
 				Label lbl = new Label()
 				{
 					Content = columns[i].Name,
@@ -447,6 +354,7 @@ namespace A2_Project.ContentWindows
 				yOffset += 35;
 
 				Control c;
+				// If the item displays a primary key, it is not editable by the user, so a label is used to display the data without it being editable
 				if (columns[i].Constraints.IsPrimaryKey)
 				{
 					c = new Label()
@@ -456,6 +364,17 @@ namespace A2_Project.ContentWindows
 					};
 					yOffset += 35;
 				}
+				// An sql bit is a boolean value, so a checkbox can be used to help prevent insertion of invalid data
+				else if (columns[i].Constraints.Type == "bit")
+				{
+					c = new CheckBox()
+					{
+						Margin = new Thickness(905 + xOffset, yOffset, 0, 0),
+						RenderTransform = new ScaleTransform(2, 2)
+					};
+					yOffset += 30;
+				}
+				// Otherwise, a text box is used to allow the user to enter data
 				else
 				{
 					c = new TextBox()
@@ -464,6 +383,9 @@ namespace A2_Project.ContentWindows
 						Margin = new Thickness(905 + xOffset, yOffset, 0, 0)
 					};
 					((TextBox)c).TextChanged += Tbx_TextChanged;
+
+					// If the text box has the potential of containing a lot of data, double its height to allow the text it contains to be easier to read.
+					// TODO: Enforce max length
 					if (columns[i].Constraints.Type == "varchar")
 						if (Convert.ToInt32(columns[i].Constraints.MaxSize) > 50)
 							c.Height *= 2;
@@ -471,8 +393,13 @@ namespace A2_Project.ContentWindows
 				}
 				displayElements[i] = c;
 			}
+		}
 
-			grd.Children.Remove(grdEditMode);
+		/// <summary>
+		/// Generate the buttons used in add mode and edit mode
+		/// </summary>
+		private void GenAddEditBtns(double yOffset, double xOffset)
+		{
 			grdEditMode = new Grid()
 			{
 				Margin = new Thickness(905 + xOffset, yOffset, 0, 0),
@@ -480,7 +407,6 @@ namespace A2_Project.ContentWindows
 				VerticalAlignment = VerticalAlignment.Top
 			};
 
-			grd.Children.Remove(grdAddMode);
 			grdAddMode = new Grid()
 			{
 				Margin = new Thickness(905 + xOffset, yOffset, 0, 0),
@@ -542,27 +468,251 @@ namespace A2_Project.ContentWindows
 			grdAddMode.Children.Add(btnInsertNew);
 			grdAddMode.Children.Add(btnCancelAddition);
 		}
+		#endregion Programmatic UI Generation
 
+		#region Events
+
+		#region DataGrid Events
+		/// <summary>
+		/// Ensures that text in a column wraps properly
+		/// </summary>
+		private void Dtg_AutoGeneratingColumn(object sender, DataGridAutoGeneratingColumnEventArgs e)
+		{
+			// Cancel the auto generated column
+			e.Cancel = true;
+			DataGridTextColumn dgTextC = (DataGridTextColumn)e.Column;
+			//Create a new template column 
+			DataGridTemplateColumn dgtc = new DataGridTemplateColumn();
+			DataTemplate dataTemplate = new DataTemplate(typeof(DataGridCell));
+			FrameworkElementFactory tb = new FrameworkElementFactory(typeof(TextBlock));
+			// Ensure the text wraps properly when the column is resized
+			tb.SetValue(TextBlock.TextWrappingProperty, TextWrapping.Wrap);
+			dataTemplate.VisualTree = tb;
+
+			dgtc.Header = dgTextC.Header;
+			dgtc.CellTemplate = dataTemplate;
+			tb.SetBinding(TextBlock.TextProperty, dgTextC.Binding);
+
+			// Add column back to data grid
+			if (sender is DataGrid dg) dg.Columns.Add(dgtc);
+		}
+
+		/// <summary>
+		/// Update the selected data when the user selected a different item
+		/// </summary>
+		private void DtgContacts_SelectedCellsChanged(object sender, SelectedCellsChangedEventArgs e)
+		{
+			if (e.AddedCells.Count == 0) return;
+			if (tableName == "Contact") // If the user is looking at contacts, they should be able to see other contacts from the same client. TODO: Consider removing
+			{
+				try
+				{
+					// Gets the selected contact's ID and relevant contact ID
+					DataRowView drv = (DataRowView)dtgContacts.SelectedItems[0];
+					string contactID = (string)drv.Row.ItemArray[0];
+					string clientID = (string)drv.Row.ItemArray[1];
+					// Gets other contacts with the same client ID
+					List<List<string>> data = DBMethods.MiscRequests.GetByColumnData(tableName, "ClientID", clientID, columns.Select(c => c.Name).ToArray());
+					DataTable dt = new DataTable();
+					DtgMethods.CreateTable(data, tableName, ref dtgContactsToClient, columns, ref dt, true);
+					// In dtgContactsToClient, select the contact that is selected in the main DataGrid
+					for (int i = 0; i < data.Count; i++)
+						if (data[i][0] == contactID)
+							dtgContactsToClient.SelectedIndex = i;
+				}
+				catch { }
+			}
+			else
+			{
+				// Update which data is selected and display this change to the user
+				selectedData = ((DataRowView)dtgContacts.SelectedItems[0]).Row.ItemArray.OfType<string>().ToArray();
+				ChangeSelectedData();
+			}
+		}
+
+		/// <summary>
+		/// Update the selected data when the user selected a different item
+		/// </summary>
+		private void DtgContactsToClient_SelectedCellsChanged(object sender, SelectedCellsChangedEventArgs e)
+		{
+			if (e.AddedCells.Count == 0) return;
+			selectedData = ((DataRowView)dtgContactsToClient.SelectedItems[0]).Row.ItemArray.OfType<string>().ToArray();
+			ChangeSelectedData();
+		}
+
+		/// <summary>
+		/// Whenever a new row is being loaded, attempt to colour it based on the data it contains
+		/// </summary>
+		private void Dtg_LoadingRow(object sender, DataGridRowEventArgs e)
+		{
+			// Get the data being loaded
+			DataGridRow row = e.Row;
+			DataRowView drv = (DataRowView)row.Item;
+			string[] strArr = drv.Row.ItemArray.Cast<string>().ToArray();
+
+			switch (tableName)
+			{
+				case "Contact": // Group contacts together by their ClientID
+					if (Convert.ToInt32(strArr[1]) % 2 == 0) row.Background = (SolidColorBrush)new BrushConverter().ConvertFrom("#161616");
+					else row.Background = (SolidColorBrush)new BrushConverter().ConvertFrom("#252526");
+					break;
+				default:
+					row.Background = (SolidColorBrush)new BrushConverter().ConvertFrom("#252526");
+					break;
+			}
+
+			// Set the text colour to slightly less bright than white
+			row.Foreground = (SolidColorBrush)new BrushConverter().ConvertFrom("#EEEEEE");
+		}
+
+		#endregion DataGrid Events
+
+		private void BtnEmail_Click(object sender, RoutedEventArgs e)
+		{
+			EmailManagement.SendInvoiceEmail("atempmailfortestingcsharp@gmail.com", dataTable, columns.Select(c => c.Name).ToArray());
+		}
+
+		/// <summary>
+		/// Update the search whenever the user changes the text to be searched
+		/// </summary>
+		private void TbxSearch_TextChanged(object sender, TextChangedEventArgs e)
+		{
+			Search();
+		}
+
+		/// <summary>
+		/// Update the search whenever the column being searched through is changed by the user
+		/// </summary>
+		private void CmbColumn_SelectionChanged(object sender, SelectionChangedEventArgs e)
+		{
+			Search();
+		}
+
+		#region Edit Mode
+		/// <summary>
+		/// Saves the users changes or adds the item to the database if it does not yet exist
+		/// </summary>
+		private async void BtnSave_Click(object sender, RoutedEventArgs e)
+		{
+			// Checks if the entered data is valid before allowing the user to make changes
+			if (IsValid())
+			{
+				Button b = (Button)sender;
+
+				// Moves the data entered into the textboxes to an array
+				for (int i = 0; i < selectedData.Length; i++)
+				{
+					if (displayElements[i] is Label l) selectedData[i] = l.Content.ToString();
+					else if (displayElements[i] is TextBox t) selectedData[i] = t.Text;
+					else if (displayElements[i] is CheckBox c) selectedData[i] = c.IsChecked.ToString();
+				}
+
+				// Allows the user to be alerted if an error occurred while trying to save their changes
+				bool succeeded;
+				// Checks if the item already exists and needs updated or is new and needs inserted by checking if the primary key is taken
+				bool isNew = DBMethods.MiscRequests.IsPKeyFree(tableName, columns[0].Name, selectedData[0]);
+				try
+				{
+					DBMethods.DBAccess.UpdateTable(tableName, columns.Select(c => c.Name).ToArray(), selectedData, isNew);
+					succeeded = true;
+				}
+				catch
+				{
+					succeeded = false;
+				}
+
+				if (succeeded)
+				{
+					// If it is an existing item that needs updates, update the table displayed to the user without requesting all data from the database again
+					if (!isNew)
+					{
+						((DataRowView)dtgContacts.SelectedCells[0].Item).Row.ItemArray = selectedData;
+						if (tableName == "Contact") ((DataRowView)dtgContactsToClient.SelectedCells[0].Item).Row.ItemArray = selectedData;
+
+						// Tell the user their changes have been saved without displaying an intrusive message
+						b.Content = "Changes saved!";
+						await Task.Delay(2000);
+						b.Content = "Save Changes";
+					}
+					// Otherwise if the item needs to be inserted
+					else
+					{
+						// Add the new item to the list of all current data
+						currentData.Add(selectedData.ToList());
+						// Add it to the DataTable
+						dataTable.Rows.Add(selectedData);
+						dtgContacts.ItemsSource = dataTable.DefaultView;
+						// Select the item in the DataGrid and scroll to it
+						dtgContacts.SelectedIndex = dataTable.Rows.Count - 1;
+						dtgContacts.ScrollIntoView(dtgContacts.SelectedItem);
+					}
+				}
+				// Note: This should never occur, but if something does go wrong then notify the user
+				else
+				{
+					b.Content = "Error occurred!";
+				}
+			}
+		}
+
+		/// <summary>
+		/// Reverts the user's changes to the selected item
+		/// </summary>
+		private void BtnRevert_Click(object sender, RoutedEventArgs e)
+		{
+			ChangeSelectedData();
+		}
+
+		private void BtnAddNew_Click(object sender, RoutedEventArgs e)
+		{
+			EditToAdd();
+		}
+		#endregion Edit Mode
+
+		#region AddMode
 		private void BtnCancelAddition_Click(object sender, RoutedEventArgs e)
 		{
 			AddToEdit();
 		}
+		#endregion AddMode
 
-		private void DisplayUI()
+		/// <summary>
+		/// Allows the user to be given feedback on the validity of their changes as they types
+		/// </summary>
+		private void Tbx_TextChanged(object sender, TextChangedEventArgs e)
 		{
-			foreach (UIElement e in labelElements) grd.Children.Add(e);
-			foreach (UIElement e in displayElements) grd.Children.Add(e);
+			IsValid();
 		}
 
+		/// <summary>
+		/// Updates the UI and the DataTables whenever the selected  table is changed
+		/// </summary>
+		private void CmbTable_SelectionChanged(object sender, SelectionChangedEventArgs e)
+		{
+			tableName = cmbTable.SelectedItem.ToString();
+			ClearUI();
+			Setup();
+			GenUI();
+			try { dtgContacts.SelectedIndex = 0; }
+			catch { }
+		}
+
+		/// <summary>
+		/// The user wants to delete the item and anything else that references it
+		/// </summary>
 		private void BtnFkeyErrorAccept_Click(object sender, RoutedEventArgs e)
 		{
 			DeleteRow(true);
 			grdFKeyErrorOuter.Visibility = Visibility.Hidden;
 		}
 
+		/// <summary>
+		/// The user does not want to delete the selected item
+		/// </summary>
 		private void BtnFkeyErrorDecline_Click(object sender, RoutedEventArgs e)
 		{
 			grdFKeyErrorOuter.Visibility = Visibility.Hidden;
 		}
+		#endregion Events
 	}
 }

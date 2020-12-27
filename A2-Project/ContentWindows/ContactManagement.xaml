@@ -80,7 +80,7 @@
 			SelectedCellsChanged="DtgContacts_SelectedCellsChanged"
 			Width="860" Height="700"
 			AutoGeneratingColumn="Dtg_AutoGeneratingColumn"
-			LoadingRow="DtgTest_LoadingRow" Margin="10,120,0,0"/>
+			LoadingRow="Dtg_LoadingRow" Margin="10,120,0,0"/>
 
 		<TextBlock Name="tbcErr1" Text="ERROR" Margin="900, 700, 0, 0" MaxHeight="300"/>
 		<TextBlock Name="tbcErr2" Text="ERROR" Margin="1310, 700, 0, 0" MaxHeight="300"/>
@@ -89,7 +89,7 @@
 			Width="860" Height="200"
 			SelectedCellsChanged="DtgContactsToClient_SelectedCellsChanged"
 			AutoGeneratingColumn="Dtg_AutoGeneratingColumn"
-			LoadingRow="DtgTest_LoadingRow" Margin="10,825,0,0"/>
+			LoadingRow="Dtg_LoadingRow" Margin="10,825,0,0"/>
 		<Label x:Name="lblSelTable" Content="Table:" HorizontalAlignment="Left" FontSize="30" Margin="10,14,0,0" VerticalAlignment="Top"/>
 		<ComboBox x:Name="cmbTable" HorizontalAlignment="Left" Margin="130,33,0,0" VerticalAlignment="Top" Width="120" SelectionChanged="CmbTable_SelectionChanged" RenderTransformOrigin="0.5,0.5">
 			<ComboBox.RenderTransform>
