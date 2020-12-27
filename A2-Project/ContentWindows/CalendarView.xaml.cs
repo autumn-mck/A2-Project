@@ -14,7 +14,7 @@ namespace A2_Project.ContentWindows
 	/// </summary>
 	public partial class CalandarView : Window
 	{
-
+		private Color[] colours = new Color[5];
 		private Point diffMouseAndElem;
 		private bool mouseDown = false;
 		private object currentlySelected;
@@ -23,10 +23,17 @@ namespace A2_Project.ContentWindows
 
 		public CalandarView()
 		{
+			colours[0] = Color.FromRgb(183, 28, 28);
+			colours[1] = Color.FromRgb(62, 39, 35);
+			colours[2] = Color.FromRgb(27, 94, 32);
+			colours[3] = Color.FromRgb(13, 71, 161);
+			colours[4] = Color.FromRgb(49, 27, 146);
+
 			InitializeComponent();
 			Thread thread = new Thread(Loop);
 			thread.Start();
 			calPick.SelectedDate = DateTime.Now;
+
 		}
 
 		/// <summary>
@@ -126,7 +133,7 @@ namespace A2_Project.ContentWindows
 						Width = 40,
 						Height = 40 * Convert.ToInt32(appTypes[typeID][1]),
 						Margin = new Thickness(i * 40, (d.TimeOfDay.TotalHours - 7) * 40, 0, 0),
-						Fill = Brushes.LightBlue,
+						Fill = new SolidColorBrush(colours[Convert.ToInt32(ls[3])]),
 						Stroke = Brushes.Black,
 						StrokeThickness = 2,
 						VerticalAlignment = VerticalAlignment.Top,
