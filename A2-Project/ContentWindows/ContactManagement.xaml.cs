@@ -2,9 +2,11 @@
 using System.Collections.Generic;
 using System.Data;
 using System.Linq;
+using System.Threading;
 using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls;
+using System.Windows.Controls.Primitives;
 using System.Windows.Media;
 
 namespace A2_Project.ContentWindows
@@ -14,12 +16,16 @@ namespace A2_Project.ContentWindows
 	/// </summary>
 	public partial class ContactManagement : Window
 	{
-		private string tableName;
+		private static string tableName;
 		private string[] selectedData;
-		private Control[] displayElements;
-		private FrameworkElement[] labelElements;
+		private static Control[] displayElements;
+		private static FrameworkElement[] labelElements;
+		private static string errCol1;
+		private static string errCol2;
+		private static TextBlock errOut1;
+		private static TextBlock errOut2;
 
-		DBObjects.Column[] columns;
+		private static DBObjects.Column[] columns;
 
 		Grid grdEditMode;
 		Grid grdAddMode;
@@ -33,6 +39,8 @@ namespace A2_Project.ContentWindows
 
 			cmbTable.ItemsSource = DBMethods.MetaRequests.GetTableNames();
 			tableName = cmbTable.Items[0].ToString();
+			errOut1 = tbcErr1;
+			errOut2 = tbcErr2;
 			Setup();
 			GenUI();
 			try { dtgContacts.SelectedIndex = 0; }
@@ -43,75 +51,82 @@ namespace A2_Project.ContentWindows
 		/// <summary>
 		/// Returns true if the user entered data is valid
 		/// </summary>
-		private bool IsValid()
+		private static bool IsValid()
 		{
 			bool isAllValid = true;
 
 			// Used to display error messages to the user
-			string errCol1 = "";
-			string errCol2 = "";
+			errCol1 = "";
+			errCol2 = "";
 
 			for (int i = 0; i < columns.Length; i++)
 			{
 				// TODO: Allow empty if null values allowed
 				// Gets the data to be validated in string form
 				string str = "";
-				if (displayElements[i] is TextBox tbx) str = tbx.Text;
-				else if (displayElements[i] is Label) continue; // If the item to be checked is a label, it is not user editable, so it is assumed to already contain valid data.
-				else if (displayElements[i] is CheckBox) continue;
-
 				bool patternReq = true;
 				bool typeReq = true;
 				bool fKeyReq = true;
 				bool pKeyReq = true;
 
-				// Check if the string meets a specific pattern
+				if (displayElements[i] is TextBox tbx) str = tbx.Text;
+				else if (displayElements[i] is Label) continue; // If the item to be checked is a label, it is not user editable, so it is assumed to already contain valid data.
+				else if (displayElements[i] is CheckBox) continue;
+				else if (displayElements[i] is CustomDatePicker cd)
+				{
+					typeReq = cd.IsValid;
+				}
+				// TODO: Test if this allows invalid data
+
+
 				string patternError = "";
 				DBObjects.Column col = columns[i];
-				if (col.Name.Contains("Email"))
-				{
-					patternReq = PatternValidation.IsValidEmail(str);
-					patternError = "Please enter a valid email address.";
-				}
-				else if (col.Name.Contains("Postcode"))
-				{
-					patternReq = PatternValidation.IsValidPostcode(str);
-					patternError = "Please enter a valid postcode.";
-				}
-				else if (col.Name.Contains("PhoneNo"))
-				{
-					patternReq = PatternValidation.IsValidPhoneNo(str);
-					patternError = "Please enter a valid phone number.";
-				}
-				else if (col.Name.Contains("DogGender"))
-				{
-					patternReq = PatternValidation.IsValidDogGender(str);
-					patternError = "Please enter a valid dog gender. (M/F)";
-				}
 
-				// Checks if the data meets the requirements for the type of data it should be
-				switch (col.Constraints.Type)
+				if (displayElements[i] is TextBox)
 				{
-					case "int":
-						typeReq = !string.IsNullOrEmpty(str) && str.All(char.IsDigit);
-						break;
-					case "datetime":
-						// TODO: DateTime.TryParse is not strict enough
-						typeReq = DateTime.TryParse(str, out DateTime d);
-						break;
-					case "date":
-						patternReq = PatternValidation.IsValidDate(str);
-						break;
+
+					// Check if the string meets a specific pattern
+					if (col.Name.Contains("Email"))
+					{
+						patternReq = PatternValidation.IsValidEmail(str);
+						patternError = "Please enter a valid email address.";
+					}
+					else if (col.Name.Contains("Postcode"))
+					{
+						patternReq = PatternValidation.IsValidPostcode(str);
+						patternError = "Please enter a valid postcode.";
+					}
+					else if (col.Name.Contains("PhoneNo"))
+					{
+						patternReq = PatternValidation.IsValidPhoneNo(str);
+						patternError = "Please enter a valid phone number.";
+					}
+					else if (col.Name.Contains("DogGender"))
+					{
+						patternReq = PatternValidation.IsValidDogGender(str);
+						patternError = "Please enter a valid dog gender. (M/F)";
+					}
+
+					// Checks if the data meets the requirements for the type of data it should be
+					switch (col.Constraints.Type)
+					{
+						case "int":
+							typeReq = !string.IsNullOrEmpty(str) && str.All(char.IsDigit);
+							break;
+						case "datetime":
+							// TODO: DateTime.TryParse is not strict enough
+							typeReq = DateTime.TryParse(str, out DateTime d);
+							break;
+					}
+
+					// Checks if the data meets foreign key requirements if needed
+					if (col.Constraints.ForeignKey != null && typeReq)
+						fKeyReq = DBMethods.MiscRequests.DoesMeetForeignKeyReq(col.Constraints.ForeignKey, str);
+
+					// Checks if the data meets primary key requirements if needed
+					if (col.Constraints.IsPrimaryKey && typeReq)
+						pKeyReq = DBMethods.MiscRequests.IsPKeyFree(tableName, col.Name, str);
 				}
-
-				// Checks if the data meets foreign key requirements if needed
-				if (col.Constraints.ForeignKey != null && typeReq)
-					fKeyReq = DBMethods.MiscRequests.DoesMeetForeignKeyReq(col.Constraints.ForeignKey, str);
-
-				// Checks if the data meets primary key requirements if needed
-				if (col.Constraints.IsPrimaryKey && typeReq)
-					pKeyReq = DBMethods.MiscRequests.IsPKeyFree(tableName, col.Name, str);
-
 				// Note: No good way to validate names/addresses
 
 				bool isInstanceValid = patternReq && typeReq && fKeyReq && pKeyReq;
@@ -148,8 +163,8 @@ namespace A2_Project.ContentWindows
 				else
 					displayElements[i].Background = Brushes.Red;
 			}
-			tbcErr1.Text = errCol1;
-			tbcErr2.Text = errCol2;
+			errOut1.Text = errCol1;
+			errOut2.Text = errCol2;
 			return isAllValid;
 		}
 
@@ -266,6 +281,7 @@ namespace A2_Project.ContentWindows
 				if (displayElements[i] is Label l) l.Content = selectedData[i];
 				else if (displayElements[i] is TextBox t) t.Text = selectedData[i];
 				else if (displayElements[i] is CheckBox c) c.IsChecked = selectedData[i] == "True";
+				else if (displayElements[i] is CustomDatePicker d) d.SelectedDate = DateTime.Parse(selectedData[i]);
 			}
 		}
 
@@ -364,7 +380,7 @@ namespace A2_Project.ContentWindows
 					};
 					yOffset += 35;
 				}
-				// An sql bit is a boolean value, so a checkbox can be used to help prevent insertion of invalid data
+				// An SQL bit is a boolean value, so a checkbox can be used to help prevent insertion of invalid data
 				else if (columns[i].Constraints.Type == "bit")
 				{
 					c = new CheckBox()
@@ -373,6 +389,20 @@ namespace A2_Project.ContentWindows
 						RenderTransform = new ScaleTransform(2, 2)
 					};
 					yOffset += 30;
+				}
+				else if (columns[i].Constraints.Type == "date")
+				{
+					c = new CustomDatePicker()
+					{
+						Margin = new Thickness(905 + xOffset, yOffset, 0, 0),
+						Width = 130,
+						Height = 40,
+						FontSize = 16,
+						RenderTransform = new ScaleTransform(1.5, 1.5),
+						HorizontalAlignment = HorizontalAlignment.Left,
+						VerticalAlignment = VerticalAlignment.Top
+					};
+					yOffset += 100;
 				}
 				// Otherwise, a text box is used to allow the user to enter data
 				else
@@ -393,6 +423,11 @@ namespace A2_Project.ContentWindows
 				}
 				displayElements[i] = c;
 			}
+		}
+
+		private void DatePicker_SelectedDateChanged(object sender, SelectionChangedEventArgs e)
+		{
+			IsValid();
 		}
 
 		/// <summary>
@@ -599,12 +634,13 @@ namespace A2_Project.ContentWindows
 			{
 				Button b = (Button)sender;
 
-				// Moves the data entered into the textboxes to an array
+				// Moves the data entered into the text boxes to an array
 				for (int i = 0; i < selectedData.Length; i++)
 				{
 					if (displayElements[i] is Label l) selectedData[i] = l.Content.ToString();
 					else if (displayElements[i] is TextBox t) selectedData[i] = t.Text;
 					else if (displayElements[i] is CheckBox c) selectedData[i] = c.IsChecked.ToString();
+					else if (displayElements[i] is CustomDatePicker d) selectedData[i] = d.SelectedDate.ToString();
 				}
 
 				// Allows the user to be alerted if an error occurred while trying to save their changes
@@ -697,6 +733,11 @@ namespace A2_Project.ContentWindows
 			catch { }
 		}
 
+		public static void CustomDatePicker_TextChanged(object sender, TextChangedEventArgs e)
+		{
+			IsValid();
+		}
+
 		/// <summary>
 		/// The user wants to delete the item and anything else that references it
 		/// </summary>
@@ -714,5 +755,36 @@ namespace A2_Project.ContentWindows
 			grdFKeyErrorOuter.Visibility = Visibility.Hidden;
 		}
 		#endregion Events
+	}
+
+	public class CustomDatePicker : DatePicker
+	{
+		protected DatePickerTextBox _datePickerTextBox;
+		public bool IsValid { get; set; }
+
+		public override void OnApplyTemplate()
+		{
+			base.OnApplyTemplate();
+
+			_datePickerTextBox = Template.FindName("PART_TextBox", this) as DatePickerTextBox;
+			if (_datePickerTextBox != null)
+			{
+				_datePickerTextBox.TextChanged += Dptb_TextChanged;
+				_datePickerTextBox.TextChanged += ContactManagement.CustomDatePicker_TextChanged;
+			}
+		}
+
+		private void Dptb_TextChanged(object sender, TextChangedEventArgs e)
+		{
+			if (DateTime.TryParse(_datePickerTextBox.Text, out DateTime dt) && _datePickerTextBox.Text.Length > 5)
+			{
+				SelectedDate = dt;
+				IsValid = true;
+			}
+			else
+			{
+				IsValid = false;
+			}
+		}
 	}
 }
