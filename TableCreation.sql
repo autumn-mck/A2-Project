@@ -153,8 +153,10 @@ CREATE TABLE [Appointment] (
 	IsCancelled BIT NOT NULL,
 	IsPaid BIT NOT NULL,
 	BookedInAdvanceDiscount DECIMAL(5,2),
-	AppointmentDateTime DATETIME NOT NULL,
-	InvoiceLastSent DATETIME,
+	AppointmentDate DATE NOT NULL,
+	AppointmentTime TIME NOT NULL,
+	LastInvoiceDate DATE,
+	LastInvoiceTime TIME,
 	InvoicesSent INT NOT NULL,
 	GroomingRoomID INT NOT NULL FOREIGN KEY REFERENCES [GroomingRoom] ON DELETE CASCADE
 );

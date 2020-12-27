@@ -107,7 +107,7 @@ namespace A2_Project.ContentWindows
 				int count = 0;
 				foreach (List<string> ls in results)
 				{
-					DateTime d = DateTime.Parse(ls[10]);
+					DateTime d = DateTime.Parse(ls[9]).Add(TimeSpan.Parse(ls[10]));
 					count++;
 					Rectangle newRect = new Rectangle
 					{

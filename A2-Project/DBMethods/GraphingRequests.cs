@@ -13,13 +13,13 @@ namespace A2_Project.DBMethods
 
 		public static void GetCountOfAppointmentTypes(ref int[][] data, ref string[] headers, DateTime minDate)
 		{
-			data[0] = DBAccess.GetStringsWithQuery($"SELECT Count(AppointmentTypeID) FROM [Appointment] WHERE AppointmentDateTime BETWEEN '{minDate:yyyy-MM-dd}' AND '{DateTime.Now:yyyy-MM-dd}' GROUP BY AppointmentTypeID;").Select(int.Parse).ToArray();
+			data[0] = DBAccess.GetStringsWithQuery($"SELECT Count(AppointmentTypeID) FROM [Appointment] WHERE AppointmentDate BETWEEN '{minDate:yyyy-MM-dd}' AND '{DateTime.Now:yyyy-MM-dd}' GROUP BY AppointmentTypeID;").Select(int.Parse).ToArray();
 			headers = DBAccess.GetStringsWithQuery("SELECT Description FROM [AppointmentType] ORDER BY AppointmentTypeID;").ToArray();
 		}
 
 		public static void GetBusinessOfStaff(ref int[][] data, ref string[] headers, DateTime minDate)
 		{
-			data[0] = DBAccess.GetStringsWithQuery($"SELECT Count(StaffID) FROM [Appointment] WHERE AppointmentDateTime BETWEEN '{minDate:yyyy-MM-dd}' AND '{DateTime.Now:yyyy-MM-dd}' GROUP BY StaffID ORDER BY StaffID;").Select(int.Parse).ToArray();
+			data[0] = DBAccess.GetStringsWithQuery($"SELECT Count(StaffID) FROM [Appointment] WHERE AppointmentDate BETWEEN '{minDate:yyyy-MM-dd}' AND '{DateTime.Now:yyyy-MM-dd}' GROUP BY StaffID ORDER BY StaffID;").Select(int.Parse).ToArray();
 			headers = DBAccess.GetStringsWithQuery("SELECT StaffName FROM [Staff] ORDER BY StaffID;").ToArray();
 		}
 
@@ -47,7 +47,7 @@ namespace A2_Project.DBMethods
 		{
 			data[0] = new int[7];
 			for (int i = 0; i < data[0].Length; i++)
-				data[0][i] = Convert.ToInt32(DBAccess.GetStringsWithQuery("SET DATEFIRST 1; SELECT COUNT(AppointmentID) FROM [Appointment] WHERE DATEPART(WEEKDAY, AppointmentDateTime) = " + (i + 1) + $" AND AppointmentDateTime BETWEEN '{minDate:yyyy-MM-dd}' AND '{DateTime.Now:yyyy-MM-dd}';")[0]);
+				data[0][i] = Convert.ToInt32(DBAccess.GetStringsWithQuery("SET DATEFIRST 1; SELECT COUNT(AppointmentID) FROM [Appointment] WHERE DATEPART(WEEKDAY, AppointmentDate) = " + (i + 1) + $" AND AppointmentDate BETWEEN '{minDate:yyyy-MM-dd}' AND '{DateTime.Now:yyyy-MM-dd}';")[0]);
 			headers = new string[] { "Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun" };
 		}
 
@@ -59,7 +59,7 @@ namespace A2_Project.DBMethods
 			data[0] = new int[12];
 			for (int i = 0; i < data[0].Length; i++)
 			{
-				data[0][i] = Convert.ToInt32(DBAccess.GetStringsWithQuery("SELECT COUNT(AppointmentID) FROM [Appointment] WHERE DATEPART(MONTH, AppointmentDateTime) = " + (i + 1) + $" AND AppointmentDateTime BETWEEN '{minDate:yyyy-MM-dd}' AND '{DateTime.Now:yyyy-MM-dd}';")[0]);
+				data[0][i] = Convert.ToInt32(DBAccess.GetStringsWithQuery("SELECT COUNT(AppointmentID) FROM [Appointment] WHERE DATEPART(MONTH, AppointmentDate) = " + (i + 1) + $" AND AppointmentDate BETWEEN '{minDate:yyyy-MM-dd}' AND '{DateTime.Now:yyyy-MM-dd}';")[0]);
 			}
 			headers = months;
 		}
@@ -69,14 +69,14 @@ namespace A2_Project.DBMethods
 		/// </summary>
 		public static void GetAppCancelRate(ref int[][] data, ref string[] headers, DateTime minDate)
 		{
-			DateTime startDate = MaxDate(Convert.ToDateTime(DBAccess.GetStringsWithQuery("SELECT MIN(AppointmentDateTime) FROM Appointment")[0]), minDate);
+			DateTime startDate = MaxDate(Convert.ToDateTime(DBAccess.GetStringsWithQuery("SELECT MIN(AppointmentDate) FROM Appointment")[0]), minDate);
 			DateTime endDate = DateTime.Now;
 			int diff = (int)(endDate - startDate).TotalDays;
 			List<int> growth = new List<int>();
 			for (double i = 0; i < diff; i += diff / 75.0)
 			{
-				int totalInTime = Convert.ToInt32(DBAccess.GetStringsWithQuery("SELECT COUNT(AppointmentID) FROM [Appointment] WHERE AppointmentDateTime <= '" + startDate.AddDays(i).ToString("yyyy-MM-dd") + "' AND AppointmentDateTime > '" + startDate.AddDays(i - diff / 10.0).ToString("yyyy-MM-dd") + "';")[0]);
-				int cancelledInTime = Convert.ToInt32(DBAccess.GetStringsWithQuery("SELECT COUNT(AppointmentID) FROM [Appointment] WHERE IsCancelled = 1 AND AppointmentDateTime <= '" + startDate.AddDays(i).ToString("yyyy-MM-dd") + "' AND AppointmentDateTime > '" + startDate.AddDays(i - diff / 10.0).ToString("yyyy-MM-dd") + "';")[0]);
+				int totalInTime = Convert.ToInt32(DBAccess.GetStringsWithQuery("SELECT COUNT(AppointmentID) FROM [Appointment] WHERE AppointmentDate <= '" + startDate.AddDays(i).ToString("yyyy-MM-dd") + "' AND AppointmentDate > '" + startDate.AddDays(i - diff / 10.0).ToString("yyyy-MM-dd") + "';")[0]);
+				int cancelledInTime = Convert.ToInt32(DBAccess.GetStringsWithQuery("SELECT COUNT(AppointmentID) FROM [Appointment] WHERE IsCancelled = 1 AND AppointmentDate <= '" + startDate.AddDays(i).ToString("yyyy-MM-dd") + "' AND AppointmentDate > '" + startDate.AddDays(i - diff / 10.0).ToString("yyyy-MM-dd") + "';")[0]);
 				if (cancelledInTime == 0 || totalInTime == 0)
 					growth.Add(0);
 				else growth.Add((int)((float)cancelledInTime * 100 / totalInTime));
@@ -130,7 +130,7 @@ namespace A2_Project.DBMethods
 			for (int i = 0; i < 12; i++)
 			{
 				headers[i] = months[startDate.AddMonths(i).Month - 1];
-				string query = "SELECT AppointmentTypeID, IncludesNailAndTeeth, BookedInAdvanceDiscount FROM [Appointment] WHERE IsPaid = 1 AND AppointmentDateTime BETWEEN '" + startDate.AddMonths(i).ToString("yyyy-MM-dd") + "' AND '" + startDate.AddMonths(i + 1).ToString("yyyy-MM-dd") + "';";
+				string query = "SELECT AppointmentTypeID, IncludesNailAndTeeth, BookedInAdvanceDiscount FROM [Appointment] WHERE IsPaid = 1 AND AppointmentDate BETWEEN '" + startDate.AddMonths(i).ToString("yyyy-MM-dd") + "' AND '" + startDate.AddMonths(i + 1).ToString("yyyy-MM-dd") + "';";
 				growth.Add(DBAccess.GetListStringsWithQuery(query));
 			}
 			List<List<string>> appTypeData = DBAccess.GetListStringsWithQuery("SELECT * FROM [AppointmentType]");
