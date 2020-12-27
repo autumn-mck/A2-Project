@@ -20,7 +20,7 @@ namespace A2_Project.DBMethods
 		/// <summary>
 		/// Gets all data from the specified table
 		/// </summary>
-		public static List<List<string>> GetAllFromTable(string tableName, string[] headers)
+		public static List<List<string>> GetAllFromTable(string tableName, string[] headers = null)
 		{
 			// TODO: Should be in MiscRequests
 			return DBAccess.GetListStringsWithQuery("SELECT * FROM [" + tableName + "];", headers);
