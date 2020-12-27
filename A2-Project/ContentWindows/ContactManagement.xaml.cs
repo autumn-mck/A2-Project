@@ -2,7 +2,6 @@
 using System.Collections.Generic;
 using System.Data;
 using System.Linq;
-using System.Threading;
 using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls;
@@ -18,7 +17,7 @@ namespace A2_Project.ContentWindows
 	{
 		private static string tableName;
 		private string[] selectedData;
-		private static Control[] displayElements;
+		private static FrameworkElement[] displayElements;
 		private static FrameworkElement[] labelElements;
 		private static string errCol1;
 		private static string errCol2;
@@ -113,9 +112,9 @@ namespace A2_Project.ContentWindows
 						case "int":
 							typeReq = !string.IsNullOrEmpty(str) && str.All(char.IsDigit);
 							break;
-						case "datetime":
-							// TODO: DateTime.TryParse is not strict enough
-							typeReq = DateTime.TryParse(str, out DateTime d);
+						case "time":
+							typeReq = TimeSpan.TryParse(str, out TimeSpan t);
+							typeReq = typeReq && t.TotalMinutes % 1.0 == 0;
 							break;
 					}
 
@@ -145,7 +144,7 @@ namespace A2_Project.ContentWindows
 							case "int": instErr += "Please enter a number!"; break;
 							case "bit": instErr += "Please enter True/False/1/0!"; break;
 							case "date": instErr += "Please enter a valid date!"; break;
-							case "datetime": instErr += "Please enter a valid date & time!"; break;
+							case "time": instErr += "Please enter a valid time! (hh:mm)"; break;
 						}
 					}
 
@@ -158,10 +157,20 @@ namespace A2_Project.ContentWindows
 				}
 
 				// Allow the user to clearly see which data is incorrect
-				if (isInstanceValid)
-					displayElements[i].Background = Brushes.White;
-				else
-					displayElements[i].Background = Brushes.Red;
+				if (displayElements[i] is Control c)
+				{
+					if (isInstanceValid)
+						c.Background = Brushes.White;
+					else
+						c.Background = Brushes.Red;
+				}
+				else if (displayElements[i] is Grid g)
+				{
+					if (isInstanceValid)
+						g.Background = Brushes.White;
+					else
+						g.Background = Brushes.Red;
+				}
 			}
 			errOut1.Text = errCol1;
 			errOut2.Text = errCol2;
@@ -185,11 +194,13 @@ namespace A2_Project.ContentWindows
 
 			for (int i = 0; i < displayElements.Length; i++)
 			{
-				Control c = displayElements[i];
+				FrameworkElement c = displayElements[i];
 				// Reset the values in the controls
 				// TODO: Insert suggested values instead
-				if (c is TextBox t) t.Text = "";
-				// Any labels which were used to dis
+				if (c is TextBox t) t.Text = GetSuggestedValue(columns[i]).ToString();
+				else if (c is DatePicker d) d.SelectedDate = (DateTime)GetSuggestedValue(columns[i]);
+				else if (c is CheckBox cbx) cbx.IsChecked = (bool)GetSuggestedValue(columns[i]);
+				// Any labels which were used to display primary keys now need to be editable
 				else if (c is Label l)
 				{
 					grd.Children.Remove(l);
@@ -197,13 +208,22 @@ namespace A2_Project.ContentWindows
 					{
 						Height = 34,
 						Margin = new Thickness(l.Margin.Left + 5, l.Margin.Top, 0, 0),
-						Tag = "Primary Key"
+						Tag = "Primary Key",
+						Text = GetSuggestedValue(columns[i]).ToString()
 					};
 					((TextBox)c).TextChanged += Tbx_TextChanged;
 					displayElements[i] = c;
 					grd.Children.Add(c);
 				}
 			}
+		}
+
+		private static object GetSuggestedValue(DBObjects.Column column)
+		{
+			if (column.Constraints.Type == "date") return DateTime.Now.Date;
+			else if (column.Constraints.Type == "bit") return false;
+			else if (column.Constraints.IsPrimaryKey && column.Constraints.ForeignKey == null) return DBMethods.MiscRequests.GetMinKeyNotUsed(tableName, column.Name);
+			else return "";
 		}
 
 		/// <summary>
@@ -224,7 +244,7 @@ namespace A2_Project.ContentWindows
 
 			for (int i = 0; i < displayElements.Length; i++)
 			{
-				Control c = displayElements[i];
+				FrameworkElement c = displayElements[i];
 				// Reset the displayed values
 				if (c is TextBox t) t.Text = "";
 				// If the element is to display a primary key, it should not be editable, so a label is used instead of a textbox
@@ -281,7 +301,7 @@ namespace A2_Project.ContentWindows
 				if (displayElements[i] is Label l) l.Content = selectedData[i];
 				else if (displayElements[i] is TextBox t) t.Text = selectedData[i];
 				else if (displayElements[i] is CheckBox c) c.IsChecked = selectedData[i] == "True";
-				else if (displayElements[i] is CustomDatePicker d) d.SelectedDate = DateTime.Parse(selectedData[i]);
+				else if (displayElements[i] is CustomDatePicker cDP) cDP.SelectedDate = DateTime.Parse(selectedData[i]);
 			}
 		}
 
@@ -298,7 +318,7 @@ namespace A2_Project.ContentWindows
 		{
 			if (displayElements == null) return;
 			// Remove the user-editable controls
-			foreach (Control c in displayElements) grd.Children.Remove(c);
+			foreach (FrameworkElement fr in displayElements) grd.Children.Remove(fr);
 			// Remove the column labels
 			foreach (FrameworkElement l in labelElements) grd.Children.Remove(l);
 			// Remove the grids used for displaying button options
@@ -330,27 +350,28 @@ namespace A2_Project.ContentWindows
 		private void GenUI()
 		{
 			int count = columns.Length;
-			displayElements = new Control[count];
+			displayElements = new FrameworkElement[count];
 			labelElements = new FrameworkElement[count];
 			selectedData = new string[count];
 
 			// A yOffset and xOffset are used to display all elements in the correct position
 			double yOffset = 40;
 			double xOffset = 0;
-			GenDataEntry(count, ref yOffset, ref xOffset);
+			GenDataEntry(count, ref yOffset, ref xOffset, out double maxYOffset);
 
 			// Display the already generated elements
 			foreach (UIElement e in labelElements) grd.Children.Add(e);
 			foreach (UIElement e in displayElements) grd.Children.Add(e);
 
-			GenAddEditBtns(yOffset, xOffset);
+			GenAddEditBtns(maxYOffset);
 		}
 
 		/// <summary>
 		/// Generate the items used for entering data
 		/// </summary>
-		private void GenDataEntry(int count, ref double yOffset, ref double xOffset)
+		private void GenDataEntry(int count, ref double yOffset, ref double xOffset, out double maxYOffset)
 		{
+			maxYOffset = 0;
 			for (int i = 0; i < count; i++)
 			{
 				// Split the items into multiple columns if needed
@@ -369,7 +390,7 @@ namespace A2_Project.ContentWindows
 				labelElements[i] = lbl;
 				yOffset += 35;
 
-				Control c;
+				FrameworkElement c;
 				// If the item displays a primary key, it is not editable by the user, so a label is used to display the data without it being editable
 				if (columns[i].Constraints.IsPrimaryKey)
 				{
@@ -395,7 +416,7 @@ namespace A2_Project.ContentWindows
 					c = new CustomDatePicker()
 					{
 						Margin = new Thickness(905 + xOffset, yOffset, 0, 0),
-						Width = 130,
+						Width = 200/1.5,
 						Height = 40,
 						FontSize = 16,
 						RenderTransform = new ScaleTransform(1.5, 1.5),
@@ -422,6 +443,7 @@ namespace A2_Project.ContentWindows
 					yOffset += c.Height + 10;
 				}
 				displayElements[i] = c;
+				maxYOffset = Math.Max(maxYOffset, yOffset);
 			}
 		}
 
@@ -433,18 +455,18 @@ namespace A2_Project.ContentWindows
 		/// <summary>
 		/// Generate the buttons used in add mode and edit mode
 		/// </summary>
-		private void GenAddEditBtns(double yOffset, double xOffset)
+		private void GenAddEditBtns(double yOffset)
 		{
 			grdEditMode = new Grid()
 			{
-				Margin = new Thickness(905 + xOffset, yOffset, 0, 0),
+				Margin = new Thickness(905, yOffset, 0, 0),
 				HorizontalAlignment = HorizontalAlignment.Left,
 				VerticalAlignment = VerticalAlignment.Top
 			};
 
 			grdAddMode = new Grid()
 			{
-				Margin = new Thickness(905 + xOffset, yOffset, 0, 0),
+				Margin = new Thickness(905, yOffset, 0, 0),
 				HorizontalAlignment = HorizontalAlignment.Left,
 				VerticalAlignment = VerticalAlignment.Top,
 				Visibility = Visibility.Hidden
@@ -640,7 +662,7 @@ namespace A2_Project.ContentWindows
 					if (displayElements[i] is Label l) selectedData[i] = l.Content.ToString();
 					else if (displayElements[i] is TextBox t) selectedData[i] = t.Text;
 					else if (displayElements[i] is CheckBox c) selectedData[i] = c.IsChecked.ToString();
-					else if (displayElements[i] is CustomDatePicker d) selectedData[i] = d.SelectedDate.ToString();
+					else if (displayElements[i] is CustomDatePicker d) selectedData[i] = ((DateTime)d.SelectedDate).ToString("dd/MM/yyyy");
 				}
 
 				// Allows the user to be alerted if an error occurred while trying to save their changes
@@ -778,7 +800,7 @@ namespace A2_Project.ContentWindows
 		{
 			if (DateTime.TryParse(_datePickerTextBox.Text, out DateTime dt) && _datePickerTextBox.Text.Length > 5)
 			{
-				SelectedDate = dt;
+				//SelectedDate = dt;
 				IsValid = true;
 			}
 			else

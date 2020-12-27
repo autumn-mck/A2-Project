@@ -8,7 +8,7 @@ namespace A2_Project.DBMethods
 	{
 		public static List<List<string>> GetAllAppointmentsOnDay(DateTime day)
 		{
-			return DBAccess.GetListStringsWithQuery("SELECT * FROM Appointment WHERE CONVERT(DATE, AppointmentDateTime) = '" + day.ToString("yyyy-MM-dd") + "';");
+			return DBAccess.GetListStringsWithQuery("SELECT * FROM Appointment WHERE AppointmentDate = '" + day.ToString("yyyy-MM-dd") + "';");
 		}
 
 		public static List<List<string>> GetByColumnData(string table, string column, string toMatch, string[] headers)
@@ -50,6 +50,11 @@ namespace A2_Project.DBMethods
 		public static bool IsFKeyRefUsed(string table, string col, ForeignKey fKey, string dataCondition)
 		{
 			return Convert.ToInt32(DBAccess.GetStringsWithQuery($"SELECT Count([{table}].{col}) FROM [{table}] INNER JOIN [{fKey.ReferencedTable}] ON [{fKey.ReferencedTable}].{col} = [{table}].{col} WHERE [{table}].{col} = '{dataCondition}';")[0]) > 0;
+		}
+
+		public static string GetMinKeyNotUsed(string table, string col)
+		{
+			return DBAccess.GetStringsWithQuery($"SELECT TOP 1 t1.{col}+1 FROM {table} t1 WHERE NOT EXISTS(SELECT * FROM {table} t2 WHERE t2.{col} = t1.{col} + 1) ORDER BY t1.{col}")[0];
 		}
 	}
 }

@@ -30,6 +30,7 @@ namespace A2_Project.DBMethods
 						|| str.Contains("Date") && !str.Contains("Time"))
 							obj = time.ToString("dd/MM/yyyy");
 					}
+					else if (obj is TimeSpan timeSpan) obj = timeSpan.ToString("hh\\:mm");
 				}
 				results.Add(obj.ToString());
 			}
