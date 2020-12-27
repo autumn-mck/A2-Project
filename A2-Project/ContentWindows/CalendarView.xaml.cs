@@ -12,7 +12,7 @@ namespace A2_Project.ContentWindows
 	/// <summary>
 	/// Interaction logic for Calander.xaml
 	/// </summary>
-	public partial class Calander : Window
+	public partial class CalandarView : Window
 	{
 
 		private Point diffMouseAndElem;
@@ -21,11 +21,12 @@ namespace A2_Project.ContentWindows
 		private bool toExit = false;
 		private Point diff;
 
-		public Calander()
+		public CalandarView()
 		{
 			InitializeComponent();
 			Thread thread = new Thread(Loop);
 			thread.Start();
+			calPick.SelectedDate = DateTime.Now;
 		}
 
 		/// <summary>
@@ -36,9 +37,9 @@ namespace A2_Project.ContentWindows
 			while (!toExit)
 			{
 				Dispatcher.Invoke(() => {
-					if (mouseDown && currentlySelected is FrameworkElement elem)
+					if (mouseDown && currentlySelected is FrameworkElement elem && elem.Parent is FrameworkElement parent)
 					{
-						diff = (Point)(Mouse.GetPosition(grd) - diffMouseAndElem);
+						diff = (Point)(Mouse.GetPosition(parent) - diffMouseAndElem);
 						elem.Margin = new Thickness(diff.X, diff.Y, 0, 0);
 					}
 				});
@@ -53,9 +54,9 @@ namespace A2_Project.ContentWindows
 		{
 			mouseDown = true;
 			currentlySelected = sender;
-			if (currentlySelected is FrameworkElement element)
+			if (currentlySelected is FrameworkElement element && element.Parent is FrameworkElement parent)
 			{
-				diffMouseAndElem = (Point)(Mouse.GetPosition(grd) - new Point(element.Margin.Left, element.Margin.Top));
+				diffMouseAndElem = (Point)(Mouse.GetPosition(parent) - new Point(element.Margin.Left, element.Margin.Top));
 				if (element is Rectangle rect)
 				{
 					Rectangle newRect = new Rectangle
@@ -65,13 +66,19 @@ namespace A2_Project.ContentWindows
 						Margin = rect.Margin,
 						Fill = rect.Fill,
 						Stroke = rect.Stroke,
+						StrokeThickness = rect.StrokeThickness,
 						VerticalAlignment = rect.VerticalAlignment,
 						HorizontalAlignment = rect.HorizontalAlignment
 					};
 					newRect.MouseDown += Rectangle_MouseDown;
 					newRect.MouseUp += RctRect_MouseUp;
 					currentlySelected = newRect;
-					grd.Children.Add(newRect);
+					((Grid)parent).Children.Add(newRect);
+				}
+
+				if (element.Tag == null || element.Tag.ToString() != "Duplicate")
+				{
+					((Grid)parent).Children.Remove(element);
 				}
 			}
 		}
@@ -95,10 +102,13 @@ namespace A2_Project.ContentWindows
 			toExit = true;
 		}
 
-		private void DatePicker_SelectedDateChanged(object sender, SelectionChangedEventArgs e)
+		private void CalPick_DisplayModeChanged(object sender, CalendarModeChangedEventArgs e)
 		{
+			Calendar c = (Calendar)sender;
+			if (c.DisplayMode == CalendarMode.Month) c.DisplayMode = CalendarMode.Year;
+
 			grdResults.Children.Clear();
-			DateTime picked = (DateTime)dtPick.SelectedDate;
+			DateTime picked = c.DisplayDate;
 			int days = DateTime.DaysInMonth(picked.Year, picked.Month);
 			for (int i = 1; i < days; i++)
 			{
@@ -120,6 +130,8 @@ namespace A2_Project.ContentWindows
 						VerticalAlignment = VerticalAlignment.Top,
 						HorizontalAlignment = HorizontalAlignment.Left
 					};
+					newRect.MouseDown += Rectangle_MouseDown;
+					newRect.MouseUp += RctRect_MouseUp;
 					grdResults.Children.Add(newRect);
 				}
 			}
