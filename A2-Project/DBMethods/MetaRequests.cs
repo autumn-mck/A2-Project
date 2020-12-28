@@ -14,7 +14,7 @@ namespace A2_Project.DBMethods
 		/// </summary>
 		public static List<string> GetTableNames()
 		{
-			return DBAccess.GetStringsWithQuery("SELECT TABLE_NAME FROM INFORMATION_SCHEMA.TABLES WHERE TABLE_TYPE = 'BASE TABLE';");
+			return DBAccess.GetStringsWithQuery("SELECT [TABLE_NAME] FROM [INFORMATION_SCHEMA].[TABLES] WHERE [TABLE_TYPE] = 'BASE TABLE';");
 		}
 
 		/// <summary>

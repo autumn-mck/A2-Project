@@ -60,7 +60,6 @@ namespace A2_Project.ContentWindows
 
 			for (int i = 0; i < columns.Length; i++)
 			{
-				// TODO: Allow empty if null values allowed
 				// Gets the data to be validated in string form
 				string str = "";
 				bool patternReq = true;
@@ -75,8 +74,6 @@ namespace A2_Project.ContentWindows
 				{
 					typeReq = cd.IsValid;
 				}
-				// TODO: Test if this allows invalid data
-
 
 				string patternError = "";
 				DBObjects.Column col = columns[i];
@@ -192,7 +189,6 @@ namespace A2_Project.ContentWindows
 			grdAddMode.Visibility = Visibility.Visible;
 
 			// Deselect the selected item and disable the DataGrids to prevent new items from being selected
-			// TODO: Change so that DataGrids can still be scrolled through, but not selected?
 			dtgContacts.SelectedIndex = -1;
 			dtgContactsToClient.SelectedIndex = -1;
 			dtgContacts.IsEnabled = false;
@@ -202,7 +198,6 @@ namespace A2_Project.ContentWindows
 			{
 				FrameworkElement c = displayElements[i];
 				// Reset the values in the controls
-				// TODO: Insert suggested values instead
 				if (c is TextBox t) t.Text = GetSuggestedValue(columns[i]).ToString();
 				else if (c is DatePicker d) d.SelectedDate = (DateTime)GetSuggestedValue(columns[i]);
 				else if (c is CheckBox cbx) cbx.IsChecked = (bool)GetSuggestedValue(columns[i]);
@@ -240,7 +235,6 @@ namespace A2_Project.ContentWindows
 			grdEditMode.Visibility = Visibility.Visible;
 			grdAddMode.Visibility = Visibility.Hidden;
 
-			// TODO: This may cause errors
 			dtgContacts.SelectedIndex = 0;
 			dtgContactsToClient.SelectedIndex = 0;
 
@@ -253,8 +247,7 @@ namespace A2_Project.ContentWindows
 				FrameworkElement c = displayElements[i];
 				// Reset the displayed values
 				if (c is TextBox t) t.Text = "";
-				// If the element is to display a primary key, it should not be editable, so a label is used instead of a textbox
-				// TODO: Is that fixable?
+				// If the element is to display a primary key, it should not be editable, so a label is used instead of a text box
 				if (c.Tag != null && c.Tag.ToString() == "Primary Key")
 				{
 					grd.Children.Remove(c);
@@ -575,7 +568,7 @@ namespace A2_Project.ContentWindows
 					string contactID = (string)drv.Row.ItemArray[0];
 					string clientID = (string)drv.Row.ItemArray[1];
 					// Gets other contacts with the same client ID
-					List<List<string>> data = DBMethods.MiscRequests.GetByColumnData(tableName, "ClientID", clientID, columns.Select(c => c.Name).ToArray());
+					List<List<string>> data = DBMethods.MiscRequests.GetByColumnData(tableName, "Client ID", clientID, columns.Select(c => c.Name).ToArray());
 					DataTable dt = new DataTable();
 					DtgMethods.CreateTable(data, tableName, ref dtgContactsToClient, columns, ref dt, true);
 					// In dtgContactsToClient, select the contact that is selected in the main DataGrid

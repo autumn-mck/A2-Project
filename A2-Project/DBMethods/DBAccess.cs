@@ -86,12 +86,12 @@ namespace A2_Project.DBMethods
 			string command;
 			if (!MiscRequests.IsPKeyFree(table, headers[0], data[0]))
 			{
-				command = $"SET DATEFORMAT dmy; UPDATE {table} SET {headers[1]} = '{data[1]}'";
+				command = $"SET DATEFORMAT dmy; UPDATE [{table}] SET [{headers[1]}] = '{data[1]}'";
 				for (int i = 2; i < headers.Length; i++)
 				{
-					command += $", {headers[i]} = '{data[i]}'";
+					command += $", [{headers[i]}] = '{data[i]}'";
 				}
-				command += $" WHERE {headers[0]} = '{data[0]}';";
+				command += $" WHERE [{headers[0]}] = '{data[0]}';";
 			}
 			else
 			{

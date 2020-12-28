@@ -33,7 +33,6 @@ namespace A2_Project.ContentWindows
 			grdAppCancelRate.Children.Clear();
 			grdAppTypes.Children.Clear();
 			grdDaysOfWeek.Children.Clear();
-			grdDogTypes.Children.Clear();
 			grdGrowth.Children.Clear();
 			grdIncome.Children.Clear();
 			grdRepeatCustomers.Children.Clear();
@@ -49,7 +48,6 @@ namespace A2_Project.ContentWindows
 			GraphAppByMonth();
 			GraphAppCancelRate();
 			GraphCustReturn();
-			GraphDogTypes();
 			GraphIncome();
 		}
 
@@ -347,12 +345,6 @@ namespace A2_Project.ContentWindows
 		{
 			GetData getData = new GetData(DBMethods.GraphingRequests.GetCustReturns);
 			GenerateLineGraph(getData, grdRepeatCustomers, "Return Customers");
-		}
-
-		private void GraphDogTypes()
-		{
-			GetData getData = new GetData(DBMethods.GraphingRequests.GetDogTypesOverTime);
-			GenerateLineGraph(getData, grdDogTypes, "Dog Types");
 		}
 
 		private void GraphIncome()

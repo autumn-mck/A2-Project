@@ -13,9 +13,8 @@
 		<Grid x:Name="grdDaysOfWeek" Width="500" Height="270" HorizontalAlignment="Left" VerticalAlignment="Top" Margin="600,50,0,0"/>
 		<Grid x:Name="grdAppByMonth" Width="500" Height="270" HorizontalAlignment="Left" VerticalAlignment="Top" Margin="600,400,0,0"/>
 		<Grid x:Name="grdAppCancelRate" Width="500" Height="270" HorizontalAlignment="Left" VerticalAlignment="Top" Margin="600,750,0,0"/>
-		<Grid x:Name="grdRepeatCustomers" Width="500" Height="270" HorizontalAlignment="Left" VerticalAlignment="Top" Margin="1150,50,0,0"/>
-		<Grid x:Name="grdDogTypes" Width="500" Height="270" HorizontalAlignment="Left" VerticalAlignment="Top" Margin="1150,400,0,0"/>
-		<Grid x:Name="grdIncome" Width="500" Height="270" HorizontalAlignment="Left" VerticalAlignment="Top" Margin="1150,750,0,0"/>
+		<Grid x:Name="grdIncome" Width="500" Height="270" HorizontalAlignment="Left" VerticalAlignment="Top" Margin="1150,50,0,0"/>
+		<Grid x:Name="grdRepeatCustomers" Width="500" Height="270" HorizontalAlignment="Left" VerticalAlignment="Top" Margin="1150,750,0,0"/>
 		<ComboBox x:Name="cmbTimescale" HorizontalAlignment="Left" Margin="672,325,0,0" VerticalAlignment="Top" Width="120" RenderTransformOrigin="0.5,0.5">
 			<ComboBox.RenderTransform>
 				<ScaleTransform ScaleX="2" ScaleY="1.85"/>
