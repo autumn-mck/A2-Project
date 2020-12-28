@@ -9,15 +9,15 @@ namespace A2_Project.DBMethods
 	{
 		public static bool DoesUse2FA(string username, ref string email)
 		{
-			bool uses2FA = DBAccess.GetStringsWithQuery("SELECT StaffUses2FA FROM [Staff] WHERE [Staff].StaffName = '" + username + "';")[0] == "True";
-			if (uses2FA) email = DBAccess.GetStringsWithQuery("SELECT [StaffEmail] FROM [Staff] WHERE [Staff].StaffName = '" + username + "';")[0];
+			bool uses2FA = DBAccess.GetStringsWithQuery("SELECT [Staff Uses 2FA] FROM [Staff] WHERE [Staff].[Staff Name] = '" + username + "';")[0] == "True";
+			if (uses2FA) email = DBAccess.GetStringsWithQuery("SELECT [Staff Email] FROM [Staff] WHERE [Staff].[Staff Name] = '" + username + "';")[0];
 			return uses2FA;
 		}
 
 		public static bool IsNameTaken(string name)
 		{
 			// TODO: StaffName should be enforced as unique
-			return DBAccess.GetStringsWithQuery("SELECT COUNT(StaffID) FROM [Staff] WHERE [Staff].StaffName = '" + name + "';")[0] == "0";
+			return DBAccess.GetStringsWithQuery("SELECT COUNT([Staff ID]) FROM [Staff] WHERE [Staff].[Staff Name] = '" + name + "';")[0] == "0";
 		}
 
 		public static void CreateStaffAccount(string staffName, string staffPassword, string staffEmail, string staffPhoneNo, bool uses2FA)
@@ -25,14 +25,14 @@ namespace A2_Project.DBMethods
 			string str;
 			if (uses2FA) str = "1";
 			else str = "0";
-			DBAccess.ExecuteNonQuery($"INSERT INTO [Staff] VALUES ((SELECT Max(StaffID) FROM [Staff]) + 1, '{staffName}', '{staffPassword}', '{staffEmail}', '{staffPhoneNo}', {str});");
+			DBAccess.ExecuteNonQuery($"INSERT INTO [Staff] VALUES ((SELECT Max([Staff ID]) FROM [Staff]) + 1, '{staffName}', '{staffPassword}', '{staffEmail}', '{staffPhoneNo}', {str});");
 		}
 
 		public static bool IsLoginDataCorrect(string name, string password)
 		{
 			// TODO: Password should be called StaffPassword, same with email
 			password = ComputeHash(ComputeHash(password) + name);
-			List<List<string>> results = DBAccess.GetListStringsWithQuery("SELECT * FROM [Staff] WHERE [Staff].StaffName = '" + name + "' AND [Staff].StaffPassword = '" + password + "';");
+			List<List<string>> results = DBAccess.GetListStringsWithQuery("SELECT * FROM [Staff] WHERE [Staff].[Staff Name] = '" + name + "' AND [Staff].[Staff Password] = '" + password + "';");
 			return results.Count == 1;
 		}
 

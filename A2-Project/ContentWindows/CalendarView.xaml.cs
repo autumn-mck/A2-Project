@@ -96,8 +96,14 @@ namespace A2_Project.ContentWindows
 		private void RctRect_MouseUp(object sender, MouseButtonEventArgs e)
 		{
 			mouseDown = false;
-			Point mPos = new Point(diff.X + diffMouseAndElem.X, diff.Y + diffMouseAndElem.Y);
-			if (sender is FrameworkElement f) f.Margin = new Thickness(mPos.X - mPos.X % f.Width, mPos.Y - mPos.Y % f.Height, 0, 0);
+			if (sender != currentlySelected) return;
+			if (sender is FrameworkElement f)
+			{
+				int ySnap = 20;
+				double midLeft = f.Margin.Left + f.Width / 2;
+				double midTop = f.Margin.Top + ySnap / 2;
+				f.Margin = new Thickness(midLeft - midLeft % f.Width, midTop - midTop % ySnap, 0, 0);
+			}
 		}
 
 		/// <summary>
@@ -110,7 +116,7 @@ namespace A2_Project.ContentWindows
 
 		private void CalPick_DisplayModeChanged(object sender, CalendarModeChangedEventArgs e)
 		{
-			List<List<string>> appTypes = DBMethods.MetaRequests.GetAllFromTable("AppointmentType");
+			List<List<string>> appTypes = DBMethods.MetaRequests.GetAllFromTable("Appointment Type");
 			Calendar c = (Calendar)sender;
 			if (c.DisplayMode == CalendarMode.Month) c.DisplayMode = CalendarMode.Year;
 

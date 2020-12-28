@@ -1,44 +1,44 @@
 ﻿DROP TABLE Appointment;
-DROP TABLE GroomingRoom;
-DROP TABLE AppointmentType;
+DROP TABLE [Grooming Room];
+DROP TABLE [Appointment Type];
 DROP TABLE Staff;
 DROP TABLE Dog;
 DROP TABLE Contact;
 DROP TABLE Client;
 
 CREATE TABLE [Client] (
-	ClientID INT NOT NULL PRIMARY KEY,
-	ClientNotes VARCHAR(100),
-	ClientJoinDate DATE
+	[Client ID] INT NOT NULL PRIMARY KEY,
+	[Client Notes] VARCHAR(100),
+	[Client Join Date] DATE
 );
 
 CREATE TABLE [Contact] (
-	ContactID INT NOT NULL PRIMARY KEY,
-	ClientID INT NOT NULL FOREIGN KEY REFERENCES [Client] ON DELETE CASCADE,
-	ClientName VARCHAR(30) NOT NULL,
-	ClientEmail VARCHAR(40),
-	ClientAddress VARCHAR(100),
-	ClientPostcode VARCHAR(10),
-	ClientPhoneNo VARCHAR(20)
+	[Contact ID] INT NOT NULL PRIMARY KEY,
+	[Client ID] INT NOT NULL FOREIGN KEY REFERENCES [Client] ON DELETE CASCADE,
+	[Client Name] VARCHAR(30) NOT NULL,
+	[Client Email] VARCHAR(40),
+	[Client Address] VARCHAR(100),
+	[Client Postcode] VARCHAR(10),
+	[Client Phone No] VARCHAR(20)
 );
 
 CREATE TABLE [Dog] (
-	DogID INT NOT NULL PRIMARY KEY,
-	ClientID INT NOT NULL REFERENCES [Client] ON DELETE CASCADE,
-	DogName VARCHAR(20) NOT NULL,
-	DogDOB DATE,
-	DogGender VARCHAR(1),
-	DogType VARCHAR(40)
+	[Dog ID] INT NOT NULL PRIMARY KEY,
+	[Client ID] INT NOT NULL REFERENCES [Client] ON DELETE CASCADE,
+	[Dog Name] VARCHAR(20) NOT NULL,
+	[Dog DOB] DATE,
+	[Dog Gender] VARCHAR(1),
+	[Dog Type] VARCHAR(40)
 );
 
 CREATE TABLE [Staff] (
-	StaffID INT NOT NULL PRIMARY KEY,
-	StaffName VARCHAR(20) NOT NULL,
-	StaffPassword VARCHAR(64) NOT NULL,
-	PasswordSalt VARCHAR(32),
-	StaffEmail VARCHAR(128),
-	StaffPhoneNo VARCHAR(15), 
-	StaffUses2FA BIT NOT NULL
+	[Staff ID] INT NOT NULL PRIMARY KEY,
+	[Staff Name] VARCHAR(20) NOT NULL,
+	[Staff Password] VARCHAR(64) NOT NULL,
+	[Password Salt] VARCHAR(32),
+	[Staff Email] VARCHAR(128),
+	[Staff Phone No] VARCHAR(15), 
+	[Staff Uses 2FA] BIT NOT NULL
 );
 
 INSERT INTO [Staff] VALUES (
@@ -91,72 +91,72 @@ INSERT INTO [Staff] VALUES (
 	0
 );
 
-CREATE TABLE [AppointmentType] (
-	AppointmentTypeID INT NOT NULL PRIMARY KEY,
-	BaseTimeTaken DECIMAL (10, 5) NOT NULL,
-	BasePrice DECIMAL (10, 2) NOT NULL,
+CREATE TABLE [Appointment Type] (
+	[Appointment Type ID] INT NOT NULL PRIMARY KEY,
+	[Base Time Taken] DECIMAL (10, 5) NOT NULL,
+	[Base Price] DECIMAL (10, 2) NOT NULL,
 	[Description] VARCHAR(100) NOT NULL
 );
 
-INSERT INTO [AppointmentType] VALUES (
+INSERT INTO [Appointment Type] VALUES (
 	0,
 	1,
 	35,
 	'Wash, Shampoo & Brush'
 );
 
-INSERT INTO [AppointmentType] VALUES (
+INSERT INTO [Appointment Type] VALUES (
 	1,
 	1.5,
 	40,
 	'Wash, Shampoo, Brush & Trim'
 );
 
-INSERT INTO [AppointmentType] VALUES (
+INSERT INTO [Appointment Type] VALUES (
 	2,
 	2,
 	50,
 	'Wash, Shampoo, Brush & Full Cut'
 );
 
-CREATE TABLE [GroomingRoom] (
-	GroomingRoomID INT NOT NULL PRIMARY KEY,
-	GroomingRoomName VARCHAR(20) NOT NULL,
-	GroomingRoomNotes VARCHAR(50)
+CREATE TABLE [Grooming Room] (
+	[Grooming Room ID] INT NOT NULL PRIMARY KEY,
+	[Grooming Room Name] VARCHAR(20) NOT NULL,
+	[Grooming Room Notes] VARCHAR(50)
 );
 
-INSERT INTO [GroomingRoom] VALUES (
+INSERT INTO [Grooming Room] VALUES (
 	0,
 	'Shed',
 	'Ideal for smaller dogs.'
 );
 
-INSERT INTO [GroomingRoom] VALUES (
+INSERT INTO [Grooming Room] VALUES (
 	1,
 	'Barn 1',
 	'Fit for all dogs.'
 );
 
-INSERT INTO [GroomingRoom] VALUES (
+INSERT INTO [Grooming Room] VALUES (
 	2,
 	'Barn 2',
 	'Fit for all dogs, ideal for big dogs.'
 );
 
 CREATE TABLE [Appointment] (
-	AppointmentID INT NOT NULL PRIMARY KEY,
-	DogID INT NOT NULL FOREIGN KEY REFERENCES [Dog] ON DELETE CASCADE,
-	AppointmentTypeID INT NOT NULL FOREIGN KEY REFERENCES [AppointmentType] ON DELETE CASCADE,
-	StaffID INT NOT NULL FOREIGN KEY REFERENCES [Staff] ON DELETE CASCADE,
-	IsInitialAppointment BIT NOT NULL,
-	IncludesNailAndTeeth BIT NOT NULL,
-	IsCancelled BIT NOT NULL,
-	IsPaid BIT NOT NULL,
-	BookedInAdvanceDiscount DECIMAL(5,2),
-	AppointmentDate DATE NOT NULL,
-	AppointmentTime TIME NOT NULL,
-	LastInvoiceDate DATE,
-	LastInvoiceTime TIME,
-	InvoicesSent INT NOT NULL,
-	GroomingRoomID INT NOT NULL FOREIGN KEY REFERENCES [GroomingRoom] ON DELETE CASCADE
+	[Appointment ID] INT NOT NULL PRIMARY KEY,
+	[Dog ID] INT NOT NULL FOREIGN KEY REFERENCES [Dog] ON DELETE CASCADE,
+	[Appointment Type ID] INT NOT NULL FOREIGN KEY REFERENCES [Appointment Type] ON DELETE CASCADE,
+	[Staff ID] INT NOT NULL FOREIGN KEY REFERENCES [Staff] ON DELETE CASCADE,
+	[Is Initial Appointment] BIT NOT NULL,
+	[Includes Nail And Teeth] BIT NOT NULL,
+	[Is Cancelled] BIT NOT NULL,
+	[Is Paid] BIT NOT NULL,
+	[Booked In Advance Discount] DECIMAL(5,2),
+	[Appointment Date] DATE NOT NULL,
+	[Appointment Time] TIME NOT NULL,
+	[Last Invoice Date] DATE,
+	[Last Invoice Time] TIME,
+	[Invoices Sent] INT NOT NULL,
+	[Grooming Room ID] INT NOT NULL FOREIGN KEY REFERENCES [Grooming Room] ON DELETE CASCADE
 );
