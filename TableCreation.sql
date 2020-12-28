@@ -35,7 +35,7 @@ CREATE TABLE [Staff] (
 	[Staff ID] INT NOT NULL PRIMARY KEY,
 	[Staff Name] VARCHAR(20) NOT NULL,
 	[Staff Password] VARCHAR(64) NOT NULL,
-	[Password Salt] VARCHAR(32),
+	[Password Salt] VARCHAR(32) NOT NULL,
 	[Staff Email] VARCHAR(128),
 	[Staff Phone No] VARCHAR(15), 
 	[Staff Uses 2FA] BIT NOT NULL
@@ -44,8 +44,8 @@ CREATE TABLE [Staff] (
 INSERT INTO [Staff] VALUES (
 	0,
 	'Dianne',
-	'9693a6491db493c87133af8dc801dd04b6c73ca2fdf92a6443d5e5066992d1f3',
-	'',
+	'4b8027d7604b6ca0fb4e6b0ba32a489d8f83404744fce2aaa5bd76557503e1e1',
+	'WHXGuuNRWvOFda1iZFxuS43nqdsU3gTc',
 	'atempmailfortestingcsharp@gmail.com',
 	'07700 900730',
 	1
@@ -54,8 +54,8 @@ INSERT INTO [Staff] VALUES (
 INSERT INTO [Staff] VALUES (
 	1,
 	'Jon',
-	'5e0524de4400e6875b14c07da5731796166037f54bc87043ab9abd98c3d33036',
-	'',
+	'2241f96d20db3dd70220ff1c83c4b5fc9e31ec7ae147fedd5fd744dae7f8d285',
+	'EbT0yIBi1tIZvdQXFPmEYKt8tylZhwY5',
 	'not.a@real.email',
 	'07700 900747',
 	0
@@ -65,7 +65,7 @@ INSERT INTO [Staff] VALUES (
 	2,
 	'Elaine',
 	'5e0524de4400e6875b14c07da5731796166037f54bc87043ab9abd98c3d33036',
-	'',
+	'T5GBVgh0ZeVeZP4wl8tjnPT96ag1drTs',
 	'',
 	'07700 900835',
 	0
@@ -75,7 +75,7 @@ INSERT INTO [Staff] VALUES (
 	3,
 	'Richard',
 	'5e0524de4400e6875b14c07da5731796166037f54bc87043ab9abd98c3d33036',
-	'',
+	'RMo5PySIYiNSIRa0YfKEeJT2YMj3NF0M',
 	'',
 	'07700 900042',
 	0
@@ -85,7 +85,7 @@ INSERT INTO [Staff] VALUES (
 	4,
 	'Jane',
 	'5e0524de4400e6875b14c07da5731796166037f54bc87043ab9abd98c3d33036',
-	'',
+	'97Lh0VLIaaFfm278gFPoLQNTYj0bvcX7',
 	'',
 	'07700 900276',
 	0

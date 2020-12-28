@@ -38,7 +38,7 @@ namespace A2_Project
 		/// <summary>
 		/// Generates a random string of characters of size "size", default 8
 		/// </summary>
-		private static string Generate2FAKey(int size = 8)
+		public static string GenerateRandomKey(int size = 8)
 		{
 			// The selection of characters to be used to generate the key
 			char[] chars = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ1234567890".ToCharArray();
@@ -66,7 +66,7 @@ namespace A2_Project
 		public static string Send2FAEmail(string recipient)
 		{
 			// TODO: Body of 2FA email should be proper HTML, and contain more than just the key itself
-			string key = Generate2FAKey();
+			string key = GenerateRandomKey();
 			SendEmail(recipient, "Authentication Email", key);
 			return key;
 		}

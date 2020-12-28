@@ -22,30 +22,31 @@ namespace A2_Project.DBMethods
 
 		public static void CreateStaffAccount(string staffName, string staffPassword, string staffEmail, string staffPhoneNo, bool uses2FA)
 		{
-			string str;
-			if (uses2FA) str = "1";
-			else str = "0";
-			DBAccess.ExecuteNonQuery($"INSERT INTO [Staff] VALUES ((SELECT Max([Staff ID]) FROM [Staff]) + 1, '{staffName}', '{staffPassword}', '{staffEmail}', '{staffPhoneNo}', {str});");
+			string strUses2FA;
+			if (uses2FA) strUses2FA = "1";
+			else strUses2FA = "0";
+			string salt = EmailManagement.GenerateRandomKey(32);
+			string hash = ComputeHash(staffPassword + salt);
+			DBAccess.ExecuteNonQuery($"INSERT INTO [Staff] VALUES ((SELECT Max([Staff ID]) FROM [Staff]) + 1, '{staffName}', '{hash}', '{salt}', '{staffEmail}', '{staffPhoneNo}', {strUses2FA});");
 		}
 
 		public static bool IsLoginDataCorrect(string name, string password)
 		{
-			// TODO: Password should be called StaffPassword, same with email
-			password = ComputeHash(ComputeHash(password) + name);
-			List<List<string>> results = DBAccess.GetListStringsWithQuery("SELECT * FROM [Staff] WHERE [Staff].[Staff Name] = '" + name + "' AND [Staff].[Staff Password] = '" + password + "';");
-			return results.Count == 1;
+			List<List<string>> userData = DBAccess.GetListStringsWithQuery($"SELECT * FROM [Staff] WHERE [Staff].[Staff Name] = '{name}';");
+			if (userData.Count == 0) return false;
+			else return ComputeHash(password + userData[0][3]) == userData[0][2];
 		}
 
 		/// <summary>
 		/// Computes and returns the SHA256 hash of the input
 		/// </summary>
-		private static string ComputeHash(string password)
+		private static string ComputeHash(string toHash)
 		{
 			// TODO: This method should probably be moved somewhere else
 			byte[] bytes = Array.Empty<byte>();
 			using (SHA256 sha256Hash = SHA256.Create())
 			{
-				bytes = sha256Hash.ComputeHash(Encoding.UTF8.GetBytes(password));
+				bytes = sha256Hash.ComputeHash(Encoding.UTF8.GetBytes(toHash));
 			}
 			string hashedPassword = "";
 			for (int i = 0; i < bytes.Length; i++)
