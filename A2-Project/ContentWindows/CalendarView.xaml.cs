@@ -33,7 +33,6 @@ namespace A2_Project.ContentWindows
 			Thread thread = new Thread(Loop);
 			thread.Start();
 			calPick.SelectedDate = DateTime.Now;
-
 		}
 
 		/// <summary>
@@ -131,7 +130,7 @@ namespace A2_Project.ContentWindows
 					Rectangle newRect = new Rectangle
 					{
 						Width = 40,
-						Height = 40 * Convert.ToInt32(appTypes[typeID][1]),
+						Height = 40 * Convert.ToDouble(appTypes[typeID][1]),
 						Margin = new Thickness(i * 40, (d.TimeOfDay.TotalHours - 7) * 40, 0, 0),
 						Fill = new SolidColorBrush(colours[Convert.ToInt32(ls[3])]),
 						Stroke = Brushes.Black,

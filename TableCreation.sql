@@ -93,8 +93,8 @@ INSERT INTO [Staff] VALUES (
 
 CREATE TABLE [AppointmentType] (
 	AppointmentTypeID INT NOT NULL PRIMARY KEY,
-	BaseTimeTaken DECIMAL NOT NULL,
-	BasePrice DECIMAL NOT NULL,
+	BaseTimeTaken DECIMAL (10, 5) NOT NULL,
+	BasePrice DECIMAL (10, 2) NOT NULL,
 	[Description] VARCHAR(100) NOT NULL
 );
 
