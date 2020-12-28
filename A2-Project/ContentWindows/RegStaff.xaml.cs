@@ -83,13 +83,13 @@ namespace A2_Project.ContentWindows
 			if (str == "")
 			{
 				tblOutput.Text = "Account created!";
+				DBMethods.LogRegRequests.CreateStaffAccount(txtName.Text, pswPassword.Password, txtEmail.Text, txtPhoneNo.Text, (bool)cbx2FA.IsChecked);
 				tblOutput.Foreground = isValidBrush;
 				txtName.Text = "";
 				txtEmail.Text = "";
 				txtPhoneNo.Text = "";
 				pswPassword.Password = "";
 				pswRePassword.Password = "";
-				DBMethods.LogRegRequests.CreateStaffAccount(txtName.Text, pswPassword.Password, txtEmail.Text, txtPhoneNo.Text, (bool)cbx2FA.IsChecked);
 			}
 			else
 			{
