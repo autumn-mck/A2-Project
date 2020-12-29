@@ -97,7 +97,10 @@ namespace A2_Project
 			if (regWindow != null) regWindow.Close();
 			if (calWindow != null) calWindow.Close();
 			if (loginWindow != null) loginWindow.Close();
+			if (contactManWindow != null) contactManWindow.Close();
+			if (statsWindow != null) statsWindow.Close();
 			toExit = true;
+			Application.Current.Shutdown();
 		}
 
 		private void Window_ContentRendered(object sender, EventArgs e)

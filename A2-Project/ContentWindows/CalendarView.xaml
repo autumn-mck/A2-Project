@@ -9,12 +9,6 @@
 	<Grid x:Name="grd" Width="1876" Height="1080">
 		<Rectangle x:Name="rctRectOriginal" Tag="Duplicate" Fill="#FFF4F4F5" HorizontalAlignment="Left" Height="60" Stroke="Black" VerticalAlignment="Top" Width="100" MouseDown="Rectangle_MouseDown" MouseUp="RctRect_MouseUp" Margin="10,10,0,0"/>
 		<Rectangle x:Name="rctRectOriginal2" Tag="Duplicate" Fill="LightSkyBlue" HorizontalAlignment="Left" Height="60" Stroke="Black" VerticalAlignment="Top" Width="100" MouseDown="Rectangle_MouseDown" MouseUp="RctRect_MouseUp" Margin="10,93,0,0"/>
-
-		<Grid x:Name="grdResults" Width="1400" HorizontalAlignment="Right" Margin="0,0,0,0" />
-		<Calendar x:Name="calPick" HorizontalAlignment="Left" DisplayMode="Year" DisplayModeChanged="CalPick_DisplayModeChanged" Margin="10,200,0,0" VerticalAlignment="Top">
-			<Calendar.RenderTransform>
-				<ScaleTransform ScaleX="2" ScaleY="2"/>
-			</Calendar.RenderTransform>
-		</Calendar>
+		<Grid x:Name="grdResults" Width="1500" HorizontalAlignment="Right" Margin="0,0,0,0" />
 	</Grid>
 </Window>
