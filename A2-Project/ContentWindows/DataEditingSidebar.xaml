@@ -7,6 +7,36 @@
         mc:Ignorable="d"
         Title="DataEditingSidebar" Height="450" Width="800">
     <Grid x:Name="grd">
+		<Grid.Resources>
+			<Style TargetType="Label">
+				<Setter Property="Foreground" Value="#D5D5D5"/>
+				<Setter Property="FontSize" Value="24"/>
+				<Setter Property="HorizontalAlignment" Value="Left"/>
+				<Setter Property="VerticalAlignment" Value="Top"/>
+			</Style>
+			<Style TargetType="TextBlock">
+				<Setter Property="Foreground" Value="#D5D5D5"/>
+				<Setter Property="FontSize" Value="18"/>
+				<Setter Property="HorizontalAlignment" Value="Left"/>
+				<Setter Property="VerticalAlignment" Value="Top"/>
+				<Setter Property="TextWrapping" Value="Wrap"/>
+			</Style>
+			<Style TargetType="TextBox">
+				<Setter Property="FontSize" Value="24"/>
+				<Setter Property="TextWrapping" Value="Wrap"/>
+				<Setter Property="HorizontalAlignment" Value="Left"/>
+				<Setter Property="VerticalAlignment" Value="Top"/>
+				<Setter Property="MinWidth" Value="200"/>
+				<Setter Property="MaxWidth" Value="250"/>
+			</Style>
+			<Style TargetType="Button">
+				<Setter Property="Height" Value="37"/>
+				<Setter Property="FontSize" Value="24"/>
+				<Setter Property="Width" Value="170"/>
+				<Setter Property="HorizontalAlignment" Value="Left"/>
+				<Setter Property="VerticalAlignment" Value="Top"/>
+			</Style>
+		</Grid.Resources>
 		<TextBlock Name="tbcErr1" Text="ERROR" Margin="0, 700, 0, 0" MaxHeight="300"/>
 		<TextBlock Name="tbcErr2" Text="ERROR" Margin="410, 700, 0, 0" MaxHeight="300"/>
 	</Grid>
