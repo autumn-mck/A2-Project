@@ -6,6 +6,11 @@ namespace A2_Project.DBMethods
 {
 	public static class MiscRequests
 	{
+		public static void UpdateColumn(string table, string newData, string columnToUpdate, string idColumn, string id)
+		{
+			DBAccess.ExecuteNonQuery($"UPDATE [{table}] SET [{columnToUpdate}] = '{newData}' WHERE [{idColumn}] = '{id}';");
+		}
+
 		public static List<List<string>> GetAllAppointmentsOnDay(DateTime day)
 		{
 			return DBAccess.GetListStringsWithQuery("SELECT * FROM [Appointment] WHERE [Appointment Date] = '" + day.ToString("yyyy-MM-dd") + "';");

@@ -37,9 +37,13 @@ namespace A2_Project.ContentWindows
 
 		private void UpdateToOwner(string[] data, bool isNew)
 		{
-			if (containingWindow is ContactManagement c)
+			if (containingWindow is ContactManagement contact)
 			{
-				c.UpdateFromSidebar(data, isNew);
+				contact.UpdateFromSidebar(data, isNew);
+			}
+			else if (containingWindow is CalandarView calandar)
+			{
+				calandar.UpdateFromSidebar(data, isNew);
 			}
 		}
 

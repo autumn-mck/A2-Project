@@ -21,12 +21,15 @@ namespace A2_Project.ContentWindows
 		private object currentlySelected;
 		private bool toExit = false;
 		private Point diff;
+		private List<List<string>> appTypes;
+
+		private CustomDatePicker datePicker;
 
 		private string tableName = "Appointment";
 
-		DBObjects.Column[] columns;
+		private DBObjects.Column[] columns;
 
-		DataEditingSidebar editingSidebar;
+		private DataEditingSidebar editingSidebar;
 
 		public CalandarView()
 		{
@@ -35,13 +38,14 @@ namespace A2_Project.ContentWindows
 			colours[2] = Color.FromRgb(27, 94, 32);
 			colours[3] = Color.FromRgb(13, 71, 161);
 			colours[4] = Color.FromRgb(49, 27, 146);
+			appTypes = DBMethods.MetaRequests.GetAllFromTable("Appointment Type");
 
 			columns = DBMethods.MetaRequests.GetColumnDataFromTable(tableName);
 
 			InitializeComponent();
 			Thread thread = new Thread(Loop);
 			thread.Start();
-			CustomDatePicker c = new CustomDatePicker()
+			datePicker = new CustomDatePicker()
 			{
 				Margin = new Thickness(10, 100, 0, 0),
 				Width = 200 / 1.5,
@@ -50,9 +54,10 @@ namespace A2_Project.ContentWindows
 				HorizontalAlignment = HorizontalAlignment.Left,
 				VerticalAlignment = VerticalAlignment.Top
 			};
-			grd.Children.Add(c);
+			grd.Children.Add(datePicker);
 			//c.AddNewTextChanged(CustomDatePicker_TextChanged);
-			c.SelectedDateChanged += DatePicker_SelectedDateChanged;
+			datePicker.SelectedDateChanged += DatePicker_SelectedDateChanged;
+			datePicker.SelectedDate = DateTime.Today;
 
 			editingSidebar = new DataEditingSidebar(columns, tableName, this);
 			lblSidebar.Content = editingSidebar.Content;
@@ -82,6 +87,10 @@ namespace A2_Project.ContentWindows
 		private void Rectangle_MouseDown(object sender, MouseButtonEventArgs e)
 		{
 			mouseDown = true;
+
+			if (currentlySelected is Rectangle rct)
+				rct.Stroke = Brushes.Black;
+
 			currentlySelected = sender;
 			if (currentlySelected is FrameworkElement element && element.Parent is FrameworkElement parent)
 			{
@@ -94,7 +103,7 @@ namespace A2_Project.ContentWindows
 						Height = rect.Height,
 						Margin = rect.Margin,
 						Fill = rect.Fill,
-						Stroke = rect.Stroke,
+						Stroke = Brushes.AliceBlue,
 						StrokeThickness = rect.StrokeThickness,
 						Tag = rect.Tag,
 						VerticalAlignment = rect.VerticalAlignment,
@@ -131,6 +140,20 @@ namespace A2_Project.ContentWindows
 				double midLeft = f.Margin.Left + f.Width / 2;
 				double midTop = f.Margin.Top + ySnap / 2;
 				f.Margin = new Thickness(midLeft - midLeft % f.Width, midTop - midTop % ySnap, 0, 0);
+
+				string idColumnName = "Appointment ID";
+
+				DateTime startOfWeek = GetStartOfWeek();
+				DateTime appDate = startOfWeek.AddDays(f.Margin.Left / 120);
+				DBMethods.MiscRequests.UpdateColumn(tableName, appDate.ToString("yyyy-MM-dd"), "Appointment Date", idColumnName, f.Tag.ToString());
+
+				TimeSpan t = new TimeSpan(7, (int)(f.Margin.Top * 1.5), 0);
+				DBMethods.MiscRequests.UpdateColumn(tableName, t.ToString("hh\\:mm"), "Appointment Time", idColumnName, f.Tag.ToString());
+
+				int roomID = (int)(f.Margin.Left % 120 / 40);
+				DBMethods.MiscRequests.UpdateColumn(tableName, roomID.ToString(), "Grooming Room ID", idColumnName, f.Tag.ToString());
+
+				editingSidebar.ChangeSelectedData(DBMethods.MiscRequests.GetByColumnData(tableName, idColumnName, f.Tag.ToString(), columns.Select(x => x.Name).ToArray())[0].ToArray());
 			}
 		}
 
@@ -144,11 +167,9 @@ namespace A2_Project.ContentWindows
 
 		private void DatePicker_SelectedDateChanged(object sender, SelectionChangedEventArgs e)
 		{
-			List<List<string>> appTypes = DBMethods.MetaRequests.GetAllFromTable("Appointment Type");
 			CustomDatePicker c = (CustomDatePicker)sender;
 
 			grdResults.Children.Clear();
-			DateTime picked = (DateTime)c.SelectedDate;
 			int days = 7;
 			for (int i = 0; i < days; i++)
 			{
@@ -164,48 +185,80 @@ namespace A2_Project.ContentWindows
 				};
 				grdResults.Children.Add(rct);
 
-				DateTime startOfWeek = picked.AddDays(-DayOfWeekToInt(picked.DayOfWeek) + i);
-				List<List<string>> results = DBMethods.MiscRequests.GetAllAppointmentsOnDay(startOfWeek);
-				int count = 0;
+				DateTime startOfWeek = GetStartOfWeek();
+				DateTime currentDay = startOfWeek.AddDays(i);
+
+				Label lblDayOfWeek = new Label()
+				{
+					Content = currentDay.DayOfWeek,
+					Margin = new Thickness(i * 120, 0, 0, 0),
+					Foreground = new SolidColorBrush(Color.FromRgb(230, 230, 230)),
+					FontSize = 20
+				};
+				grdResults.Children.Add(lblDayOfWeek);
+
+
+				List<List<string>> results = DBMethods.MiscRequests.GetAllAppointmentsOnDay(currentDay);
 				foreach (List<string> ls in results)
 				{
-					int roomID = Convert.ToInt32(ls[14]);
-					int typeID = Convert.ToInt32(ls[2]);
-					DateTime d = DateTime.Parse(ls[9]).Add(TimeSpan.Parse(ls[10]));
-					count++;
-					SolidColorBrush brush = new SolidColorBrush(colours[Convert.ToInt32(ls[3])]);
-
-					Rectangle newRect = new Rectangle
-					{
-						Width = 40,
-						Height = 40 * Convert.ToDouble(appTypes[typeID][1]),
-						Margin = new Thickness(i * 120 + roomID * 40, (d.TimeOfDay.TotalHours - 7) * 40, 0, 0),
-						Fill = brush,
-						Stroke = Brushes.Black,
-						StrokeThickness = 1,
-						Tag = ls[0],
-						VerticalAlignment = VerticalAlignment.Top,
-						HorizontalAlignment = HorizontalAlignment.Left
-					};
-					newRect.MouseDown += Rectangle_MouseDown;
-					newRect.MouseUp += RctRect_MouseUp;
-					grdResults.Children.Add(newRect);
+					GenRectFromData(ls.ToArray());
 				}
 			}
 		}
 
+		public DateTime GetStartOfWeek()
+		{
+			DateTime picked = (DateTime)datePicker.SelectedDate;
+			return picked.AddDays(-DayOfWeekToInt(picked.DayOfWeek));
+		}
+
+		public void UpdateFromSidebar(string[] data, bool isNew)
+		{
+			Rectangle r = grdResults.Children.OfType<Rectangle>().Where(r => r.Tag != null && r.Tag.ToString() == data[0]).First();
+			grdResults.Children.Remove(r);
+			GenRectFromData(data);
+			DBMethods.DBAccess.UpdateTable(tableName, columns.Select(x => x.Name).ToArray(), data, isNew);
+		}
+
+		public void GenRectFromData(string[] data)
+		{
+			int roomID = Convert.ToInt32(data[14]);
+			int typeID = Convert.ToInt32(data[2]);
+			DateTime d = DateTime.Parse(data[9]).Add(TimeSpan.Parse(data[10]));
+			int dDiff = (d.Date - (DateTime)datePicker.SelectedDate).Days;
+			dDiff += DayOfWeekToInt(((DateTime)datePicker.SelectedDate).DayOfWeek);
+			SolidColorBrush brush = new SolidColorBrush(colours[Convert.ToInt32(data[3])]);
+			
+			Rectangle newRect = new Rectangle
+			{
+				Width = 40,
+				Height = 40 * Convert.ToDouble(appTypes[typeID][1]),
+				Margin = new Thickness(dDiff * 120 + roomID * 40, (d.TimeOfDay.TotalHours - 7) * 40, 0, 0),
+				Fill = brush,
+				Stroke = Brushes.Black,
+				StrokeThickness = 1,
+				Tag = data[0],
+				VerticalAlignment = VerticalAlignment.Top,
+				HorizontalAlignment = HorizontalAlignment.Left
+			};
+			newRect.MouseDown += Rectangle_MouseDown;
+			newRect.MouseUp += RctRect_MouseUp;
+			grdResults.Children.Add(newRect);
+		}
+
 		private static int DayOfWeekToInt(DayOfWeek day)
 		{
-			switch (day)
+			return day switch
 			{
-				case DayOfWeek.Monday: return 0;
-				case DayOfWeek.Tuesday: return 1;
-				case DayOfWeek.Wednesday: return 2;
-				case DayOfWeek.Thursday: return 3;
-				case DayOfWeek.Friday: return 4;
-				case DayOfWeek.Saturday: return 5;
-				default: return 6;
-			}
+				DayOfWeek.Monday => 0,
+				DayOfWeek.Tuesday => 1,
+				DayOfWeek.Wednesday => 2,
+				DayOfWeek.Thursday => 3,
+				DayOfWeek.Friday => 4,
+				DayOfWeek.Saturday => 5,
+				DayOfWeek.Sunday => 6,
+				_ => throw new Exception(),
+			};
 		}
 	}
 }

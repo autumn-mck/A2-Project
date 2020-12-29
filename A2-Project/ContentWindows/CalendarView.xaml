@@ -7,10 +7,7 @@
 		mc:Ignorable="d"
 		Title="Calander" Width="1876" Height="1080" Closing="Window_Closing">
 	<Grid x:Name="grd" Width="1876" Height="1080">
-		<Rectangle x:Name="rctRectOriginal" Tag="Duplicate" Fill="#FFF4F4F5" HorizontalAlignment="Left" Height="60" Stroke="Black" VerticalAlignment="Top" Width="100" MouseDown="Rectangle_MouseDown" MouseUp="RctRect_MouseUp" Margin="10,10,0,0"/>
-		<Rectangle x:Name="rctRectOriginal2" Tag="Duplicate" Fill="LightSkyBlue" HorizontalAlignment="Left" Height="60" Stroke="Black" VerticalAlignment="Top" Width="100" MouseDown="Rectangle_MouseDown" MouseUp="RctRect_MouseUp" Margin="10,93,0,0"/>
 		<Grid x:Name="grdResults" Width="850" HorizontalAlignment="Left" Margin="220,0,0,0" />
 		<Label x:Name="lblSidebar" HorizontalAlignment="Right"/>
-
 	</Grid>
 </Window>
