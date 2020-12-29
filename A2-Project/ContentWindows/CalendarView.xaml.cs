@@ -32,7 +32,18 @@ namespace A2_Project.ContentWindows
 			InitializeComponent();
 			Thread thread = new Thread(Loop);
 			thread.Start();
-			calPick.SelectedDate = DateTime.Now;
+			CustomDatePicker c = new CustomDatePicker()
+			{
+				Margin = new Thickness(10, 100, 0, 0),
+				Width = 200 / 1.5,
+				FontSize = 16,
+				RenderTransform = new ScaleTransform(1.5, 1.5),
+				HorizontalAlignment = HorizontalAlignment.Left,
+				VerticalAlignment = VerticalAlignment.Top
+			};
+			grd.Children.Add(c);
+			//c.AddNewTextChanged(CustomDatePicker_TextChanged);
+			c.SelectedDateChanged += DatePicker_SelectedDateChanged;
 		}
 
 		/// <summary>
@@ -114,33 +125,47 @@ namespace A2_Project.ContentWindows
 			toExit = true;
 		}
 
-		private void CalPick_DisplayModeChanged(object sender, CalendarModeChangedEventArgs e)
+		private void DatePicker_SelectedDateChanged(object sender, SelectionChangedEventArgs e)
 		{
 			List<List<string>> appTypes = DBMethods.MetaRequests.GetAllFromTable("Appointment Type");
-			Calendar c = (Calendar)sender;
-			if (c.DisplayMode == CalendarMode.Month) c.DisplayMode = CalendarMode.Year;
+			CustomDatePicker c = (CustomDatePicker)sender;
 
 			grdResults.Children.Clear();
-			DateTime picked = c.DisplayDate;
-			int days = DateTime.DaysInMonth(picked.Year, picked.Month);
-			for (int i = 1; i < days; i++)
+			DateTime picked = (DateTime)c.SelectedDate;
+			int days = 7;
+			for (int i = 0; i < days; i++)
 			{
-				DateTime startOfMonth = picked.AddDays(-picked.Day + i);
-				List<List<string>> results = DBMethods.MiscRequests.GetAllAppointmentsOnDay(startOfMonth);
+				Rectangle rct = new Rectangle
+				{
+					Width = 1,
+					Height = 600,
+					Margin = new Thickness(i * 120 - 0.5, 0, 0, 0),
+					Fill = new SolidColorBrush(Color.FromRgb(230, 230, 230)),
+					StrokeThickness = 0,
+					VerticalAlignment = VerticalAlignment.Top,
+					HorizontalAlignment = HorizontalAlignment.Left
+				};
+				grdResults.Children.Add(rct);
+
+				DateTime startOfWeek = picked.AddDays(-DayOfWeekToInt(picked.DayOfWeek) + i);
+				List<List<string>> results = DBMethods.MiscRequests.GetAllAppointmentsOnDay(startOfWeek);
 				int count = 0;
 				foreach (List<string> ls in results)
 				{
+					int roomID = Convert.ToInt32(ls[14]);
 					int typeID = Convert.ToInt32(ls[2]);
 					DateTime d = DateTime.Parse(ls[9]).Add(TimeSpan.Parse(ls[10]));
 					count++;
+					SolidColorBrush brush = new SolidColorBrush(colours[Convert.ToInt32(ls[3])]);
+
 					Rectangle newRect = new Rectangle
 					{
 						Width = 40,
 						Height = 40 * Convert.ToDouble(appTypes[typeID][1]),
-						Margin = new Thickness(i * 40, (d.TimeOfDay.TotalHours - 7) * 40, 0, 0),
-						Fill = new SolidColorBrush(colours[Convert.ToInt32(ls[3])]),
+						Margin = new Thickness(i * 120 + roomID * 40, (d.TimeOfDay.TotalHours - 7) * 40, 0, 0),
+						Fill = brush,
 						Stroke = Brushes.Black,
-						StrokeThickness = 2,
+						StrokeThickness = 1,
 						VerticalAlignment = VerticalAlignment.Top,
 						HorizontalAlignment = HorizontalAlignment.Left
 					};
@@ -148,6 +173,20 @@ namespace A2_Project.ContentWindows
 					newRect.MouseUp += RctRect_MouseUp;
 					grdResults.Children.Add(newRect);
 				}
+			}
+		}
+
+		private static int DayOfWeekToInt(DayOfWeek day)
+		{
+			switch (day)
+			{
+				case DayOfWeek.Monday: return 0;
+				case DayOfWeek.Tuesday: return 1;
+				case DayOfWeek.Wednesday: return 2;
+				case DayOfWeek.Thursday: return 3;
+				case DayOfWeek.Friday: return 4;
+				case DayOfWeek.Saturday: return 5;
+				default: return 6;
 			}
 		}
 	}
