@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Threading;
 using System.Windows;
 using System.Windows.Controls;
@@ -21,6 +22,12 @@ namespace A2_Project.ContentWindows
 		private bool toExit = false;
 		private Point diff;
 
+		private string tableName = "Appointment";
+
+		DBObjects.Column[] columns;
+
+		DataEditingSidebar editingSidebar;
+
 		public CalandarView()
 		{
 			colours[0] = Color.FromRgb(183, 28, 28);
@@ -28,6 +35,8 @@ namespace A2_Project.ContentWindows
 			colours[2] = Color.FromRgb(27, 94, 32);
 			colours[3] = Color.FromRgb(13, 71, 161);
 			colours[4] = Color.FromRgb(49, 27, 146);
+
+			columns = DBMethods.MetaRequests.GetColumnDataFromTable(tableName);
 
 			InitializeComponent();
 			Thread thread = new Thread(Loop);
@@ -44,6 +53,9 @@ namespace A2_Project.ContentWindows
 			grd.Children.Add(c);
 			//c.AddNewTextChanged(CustomDatePicker_TextChanged);
 			c.SelectedDateChanged += DatePicker_SelectedDateChanged;
+
+			editingSidebar = new DataEditingSidebar(columns, tableName, this);
+			lblSidebar.Content = editingSidebar.Content;
 		}
 
 		/// <summary>
@@ -84,9 +96,14 @@ namespace A2_Project.ContentWindows
 						Fill = rect.Fill,
 						Stroke = rect.Stroke,
 						StrokeThickness = rect.StrokeThickness,
+						Tag = rect.Tag,
 						VerticalAlignment = rect.VerticalAlignment,
 						HorizontalAlignment = rect.HorizontalAlignment
 					};
+
+					int appID = Convert.ToInt32(rect.Tag);
+					editingSidebar.ChangeSelectedData(DBMethods.MiscRequests.GetByColumnData(tableName, "Appointment ID", rect.Tag.ToString(), columns.Select(columns => columns.Name).ToArray())[0].ToArray());
+
 					newRect.MouseDown += Rectangle_MouseDown;
 					newRect.MouseUp += RctRect_MouseUp;
 					currentlySelected = newRect;
@@ -166,6 +183,7 @@ namespace A2_Project.ContentWindows
 						Fill = brush,
 						Stroke = Brushes.Black,
 						StrokeThickness = 1,
+						Tag = ls[0],
 						VerticalAlignment = VerticalAlignment.Top,
 						HorizontalAlignment = HorizontalAlignment.Left
 					};

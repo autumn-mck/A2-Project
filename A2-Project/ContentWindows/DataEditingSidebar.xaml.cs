@@ -1,16 +1,9 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Linq;
-using System.Text;
 using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls;
-using System.Windows.Data;
-using System.Windows.Documents;
-using System.Windows.Input;
 using System.Windows.Media;
-using System.Windows.Media.Imaging;
-using System.Windows.Shapes;
 
 namespace A2_Project.ContentWindows
 {
@@ -19,14 +12,14 @@ namespace A2_Project.ContentWindows
 	/// </summary>
 	public partial class DataEditingSidebar : Window
 	{
-		private Window containingWindow;
+		private readonly Window containingWindow;
 		private FrameworkElement[] displayElements;
 		private FrameworkElement[] labelElements;
 		private string errCol1;
 		private string errCol2;
-		private DBObjects.Column[] columns;
+		private readonly DBObjects.Column[] columns;
 		private string[] selectedData;
-		private string tableName;
+		private readonly string tableName;
 
 		Grid grdEditMode;
 		Grid grdAddMode;
