@@ -13,7 +13,7 @@ namespace A2_Project.DBMethods
 
 		public static List<List<string>> GetAllAppointmentsOnDay(DateTime day, string[] headers)
 		{
-			return DBAccess.GetListStringsWithQuery("SELECT * FROM [Appointment] WHERE [Appointment Date] = '" + day.ToString("yyyy-MM-dd") + "';", headers);
+			return DBAccess.GetListStringsWithQuery("SELECT * FROM [Appointment] WHERE [Appointment Date] = '" + day.ToString("yyyy-MM-dd") + "' AND [Is Cancelled] = 'False';", headers);
 		}
 
 		public static List<List<string>> GetByColumnData(string table, string column, string toMatch, string[] headers)
