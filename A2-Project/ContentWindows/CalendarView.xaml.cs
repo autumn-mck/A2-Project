@@ -64,6 +64,8 @@ namespace A2_Project.ContentWindows
 		// Used to store if the user has just moved to the previous/next week
 		private bool hasMoved = false;
 
+		private List<FrameworkElement> labelElements = new List<FrameworkElement>();
+
 		public CalandarView()
 		{
 			// Get the number of rooms
@@ -406,6 +408,12 @@ namespace A2_Project.ContentWindows
 			// Clear the previous results
 			grdResults.Children.Clear();
 
+			foreach (FrameworkElement fr in labelElements)
+			{
+				grd.Children.Remove(fr);
+			}
+			labelElements.Clear();
+
 			// If something is currently selected and the mouse is down, the selected element should be carried over to the next week
 			// TODO: This may cause issues in future
 			if (!(currentlySelected is null) && mouseDown)
@@ -439,6 +447,8 @@ namespace A2_Project.ContentWindows
 				Panel.SetZIndex(hourLine, 1);
 				grd.Children.Add(lblTime);
 				grd.Children.Add(hourLine);
+				labelElements.Add(lblTime);
+				labelElements.Add(hourLine);
 			}
 
 
