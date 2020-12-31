@@ -15,39 +15,83 @@ namespace A2_Project.ContentWindows
 	/// </summary>
 	public partial class CalandarView : Window
 	{
-		private Color[] colours = new Color[5];
+		// The hour of the day work starts at (e.g. 9 being 9:00)
+		private const int dayStartTime = 9;
+		// How much extra space there should be between days (e.g. 1.3 being 30% the width of 1 day)
+		private const double spaceBetweenDays = 1.3;
+		// The number of rooms available (Assuming room IDs start at 0 and count up by 1)
+		private int appRoomCount = 3;
+		// The width 1 day should have
+		private const int dayWidth = 120;
+		// The height 1 hour should have
+		private const int hourHeight = 80;
+		// TODO: Does not properly work
+		private const int baseYOffset = 30;
+
+		// The colours used for colouring appointments based on the applied filter
+		private readonly Color[] colours = new Color[5];
+
+		// The difference between the position of the mouse and the currently selected element
 		private Point diffMouseAndElem;
+		// Is the mouse currently held down?
 		private bool mouseDown = false;
-		private object currentlySelected;
+		// The currently selected element to be moved with the mouse
+		private FrameworkElement currentlySelected;
+
+		// TODO: Check if still needed, due to Main Window now having App.Exit();
 		private bool toExit = false;
-		private Point diff;
+
+		// Stores data about all appointment types
 		private List<List<string>> appTypes;
 
+		// The date picker used for selecting a week to display
 		private CustomDatePicker datePicker;
-
-		private string tableName = "Appointment";
-
+		// The name of the appointment table
+		private readonly string tableName = "Appointment";
+		// The columns of the appointment table
 		private DBObjects.Column[] columns;
 
+		// The sidebar used for editing the selected appointment
 		private DataEditingSidebar editingSidebar;
+
+		// The text of the appointment key labels
+		private string[] keyLabels;
+		// The index of the key to next be added
+		private int keyLoadedCount = 0;
+		// The ComboBox used for selecting which colour filter will be used
+		private ComboBox cmbKey;
+
+		// Used to store if the user has just moved to the previous/next week
+		private bool hasMoved = false;
 
 		public CalandarView()
 		{
-			colours[0] = Color.FromRgb(183, 28, 28);
-			colours[1] = Color.FromRgb(62, 39, 35);
-			colours[2] = Color.FromRgb(27, 94, 32);
-			colours[3] = Color.FromRgb(13, 71, 161);
-			colours[4] = Color.FromRgb(49, 27, 146);
+			// Get the number of rooms
+			appRoomCount = Convert.ToInt32(DBMethods.MiscRequests.GetMinKeyNotUsed("Grooming Room", "Grooming Room ID"));
+			// For now, filtering by staff is default
+			keyLabels = DBMethods.MetaRequests.GetAllFromTable("Staff").Select(x => x[1]).ToArray();
+			// Get the column data for the appointment table
+			columns = DBMethods.MetaRequests.GetColumnDataFromTable(tableName);
+			// Get all data for the different appointment types
 			appTypes = DBMethods.MetaRequests.GetAllFromTable("Appointment Type");
 
-			columns = DBMethods.MetaRequests.GetColumnDataFromTable(tableName);
+			// Get the colours for filters
+			colours[0] = Color.FromRgb(183, 28, 28); // Red
+			colours[1] = Color.FromRgb(13, 71, 161); // Blue
+			colours[2] = Color.FromRgb(190, 96, 0); // Dark orange? Not quite brown
+			colours[3] = Color.FromRgb(27, 94, 32); // Green
+			colours[4] = Color.FromRgb(49, 27, 146); // Deep Purple
 
 			InitializeComponent();
-			Thread thread = new Thread(Loop);
-			thread.Start();
+
+			// Start the thread for moving the selected element to the mouse when needed
+			Thread loopThread = new Thread(Loop);
+			loopThread.Start();
+
+			// Create a DatePicker used for selecting a date to display
 			datePicker = new CustomDatePicker()
 			{
-				Margin = new Thickness(10, 100, 0, 0),
+				Margin = new Thickness(544, 10, 0, 0),
 				Width = 200 / 1.5,
 				FontSize = 16,
 				RenderTransform = new ScaleTransform(1.5, 1.5),
@@ -59,12 +103,152 @@ namespace A2_Project.ContentWindows
 			datePicker.SelectedDateChanged += DatePicker_SelectedDateChanged;
 			datePicker.SelectedDate = DateTime.Today;
 
+			// Instantiate the editing sidebar
 			editingSidebar = new DataEditingSidebar(columns, tableName, this);
 			lblSidebar.Content = editingSidebar.Content;
+
+			// Start the process of adding the key for the appointment view
+			AddKey();
+		}
+
+		private void AddKey(FrameworkElement frPrev = null)
+		{
+			// The base X offset
+			int baseX = 0;
+			// The base Y offset
+			int baseY = 5;
+			int gapBetweenKeys = 20;
+
+			// The first element to be added is the checkbox that allows other filters to be selected
+			if (keyLoadedCount == 0)
+			{
+				// Get the selected index of the previous ComboBox, if it exists
+				int selIndex;
+				if (cmbKey != null) selIndex = cmbKey.SelectedIndex;
+				else selIndex = 0;
+
+				// Creates the new ComboBox
+				cmbKey = new ComboBox()
+				{
+					Margin = new Thickness(baseX, 0, 0, 0),
+					Width = 200,
+					FontSize = 20,
+					HorizontalAlignment = HorizontalAlignment.Left,
+					VerticalAlignment = VerticalAlignment.Top,
+					ItemsSource = new string[] { "Staff Member", "Is Paid", "Appointment Type", "Includes Nail And Teeth" },
+					SelectedIndex = selIndex
+				};
+				cmbKey.SelectionChanged += CmbKeyOptions_SelectionChanged;
+				// Allow the next key to be added
+				cmbKey.Loaded += LblLoaded_LoadNextKey;
+
+				grdKey.Children.Add(cmbKey);
+				keyLoadedCount++;
+				return;
+			}
+
+			Rectangle r = new Rectangle
+			{
+				Width = 20,
+				Height = 20,
+				Margin = new Thickness(baseX + (keyLoadedCount - 1) * 120, baseY, 0, 0),
+				Fill = new SolidColorBrush(colours[keyLoadedCount - 1]),
+				Stroke = Brushes.Black,
+				StrokeThickness = 1,
+				VerticalAlignment = VerticalAlignment.Top,
+				HorizontalAlignment = HorizontalAlignment.Left
+			};
+			grdKey.Children.Add(r);
+
+			Label l = new Label()
+			{
+				Content = keyLabels[keyLoadedCount - 1],
+				Margin = new Thickness(baseX + r.Width + (keyLoadedCount - 1) * 120, baseY - 12, 0, 0)
+			};
+
+			// Allow the current key to be placed relative to the previous one
+			if (!(frPrev is null))
+			{
+				r.Margin = new Thickness(frPrev.Margin.Left + frPrev.ActualWidth + gapBetweenKeys, r.Margin.Top, 0, 0);
+				l.Margin = new Thickness(frPrev.Margin.Left + frPrev.ActualWidth + gapBetweenKeys + r.Width, l.Margin.Top, 0, 0);
+			}
+
+			if (keyLoadedCount == keyLabels.Length)
+			{
+				// If this is the final element to be created, reset the keyCount so it can be used in the future, and exit.
+				keyLoadedCount = 0;
+				grdKey.Children.Add(l);
+			}
+			else
+			{
+				// Otherwise, when the next label is loaded, this method must be called again
+				l.Loaded += LblLoaded_LoadNextKey;
+				grdKey.Children.Add(l);
+				keyLoadedCount++;
+			}
 		}
 
 		/// <summary>
-		/// A looping method to move the currently selected rectangle to the mouse.
+		/// Once this label has been loaded, try to add the next key.
+		/// </summary>
+		private void LblLoaded_LoadNextKey(object sender, RoutedEventArgs e)
+		{
+			AddKey((FrameworkElement)sender);
+		}
+
+		/// <summary>
+		/// When the selected filter is changed, update the displayed keys and the colours of the appointment rectangles
+		/// </summary>
+		private void CmbKeyOptions_SelectionChanged(object sender, SelectionChangedEventArgs e)
+		{
+			ComboBox cmb = (ComboBox)sender;
+			switch (cmb.SelectedItem.ToString())
+			{
+				case "Staff Member":
+					keyLabels = DBMethods.MetaRequests.GetAllFromTable("Staff").Select(x => x[1]).ToArray();
+					break;
+				case "Is Paid":
+					keyLabels = new string[] { "Not Paid For", "Paid For" };
+					break;
+				case "Appointment Type":
+					keyLabels = DBMethods.MetaRequests.GetAllFromTable("Appointment Type").Select(x => x[3]).ToArray();
+					break;
+				case "Includes Nail And Teeth":
+					keyLabels = new string[] { "Does Not Include Nails And Teeth", "Includes Nails And Teeth" };
+					break;
+			}
+			grdKey.Children.Clear();
+			AddKey();
+
+			IEnumerable<Rectangle> rects = grdResults.Children.OfType<Rectangle>();
+			foreach (Rectangle r in rects)
+			{
+				string[] tag = (string[])r.Tag;
+				if (tag is null) continue;
+				r.Fill = GetColourForRect(tag);
+			}
+		}
+
+		/// <summary>
+		/// Get the colour a rectangle should have based on its data and the current filter
+		/// </summary>
+		private SolidColorBrush GetColourForRect(string[] rectData)
+		{
+			string cmbCase;
+			if (cmbKey is null) cmbCase = "Staff Member";
+			else cmbCase = cmbKey.SelectedItem.ToString();
+			return cmbCase switch
+			{
+				"Staff Member" => new SolidColorBrush(colours[Convert.ToInt32(rectData[3])]),
+				"Is Paid" => new SolidColorBrush(colours[Convert.ToInt32(Convert.ToBoolean(rectData[7]))]),
+				"Appointment Type" => new SolidColorBrush(colours[Convert.ToInt32(rectData[2])]),
+				"Includes Nail And Teeth" => new SolidColorBrush(colours[Convert.ToInt32(Convert.ToBoolean(rectData[5]))]),
+				_ => throw new NotImplementedException(),
+			};
+		}
+
+		/// <summary>
+		/// A looping method to move the currently selected rectangle to the mouse when needed.
 		/// </summary>
 		private void Loop()
 		{
@@ -73,7 +257,22 @@ namespace A2_Project.ContentWindows
 				Dispatcher.Invoke(() => {
 					if (mouseDown && currentlySelected is FrameworkElement elem && elem.Parent is FrameworkElement parent)
 					{
-						diff = (Point)(Mouse.GetPosition(parent) - diffMouseAndElem);
+						Point mousePos = Mouse.GetPosition(parent);
+						Point diff = (Point)(mousePos - diffMouseAndElem);
+
+						// Allow the selected week to be changed if the currently selected element is moved to either side of the grid
+						if (mousePos.X > dayWidth * spaceBetweenDays * 6 + dayWidth && !hasMoved)
+						{
+							datePicker.SelectedDate = datePicker.SelectedDate.Value.AddDays(7);
+							hasMoved = true;
+						}
+						else if (mousePos.X < 0 && !hasMoved)
+						{
+							datePicker.SelectedDate = datePicker.SelectedDate.Value.AddDays(-7);
+							hasMoved = true;
+						}
+						else if (mousePos.X > 0 && mousePos.X < dayWidth * spaceBetweenDays * 6 + dayWidth) hasMoved = false;
+
 						elem.Margin = new Thickness(diff.X, diff.Y, 0, 0);
 					}
 				});
@@ -86,32 +285,41 @@ namespace A2_Project.ContentWindows
 		/// </summary>
 		private void Rectangle_MouseDown(object sender, MouseButtonEventArgs e)
 		{
+			// TODO: MouseDown should be tested in the Loop() method, not relying on MouseUp and MouseDown events
 			mouseDown = true;
 
+			// Reset the stroke around the previously selected element
 			if (currentlySelected is Rectangle rct)
+			{
 				rct.Stroke = Brushes.Black;
+				rct.StrokeThickness /= 2;
+			}
 
-			currentlySelected = sender;
+			// Update which element is currently selected
+			currentlySelected = (FrameworkElement)sender;
+
 			if (currentlySelected is FrameworkElement element && element.Parent is FrameworkElement parent)
 			{
 				diffMouseAndElem = (Point)(Mouse.GetPosition(parent) - new Point(element.Margin.Left, element.Margin.Top));
 				if (element is Rectangle rect)
 				{
+					// Create a new rectangle with the same properties as the old one
 					Rectangle newRect = new Rectangle
 					{
 						Width = rect.Width,
 						Height = rect.Height,
 						Margin = rect.Margin,
 						Fill = rect.Fill,
-						Stroke = Brushes.AliceBlue,
-						StrokeThickness = rect.StrokeThickness,
+						Stroke = Brushes.AliceBlue, // A different stroke help marks out which appointment is currently selected
+						StrokeThickness = rect.StrokeThickness * 2,
 						Tag = rect.Tag,
 						VerticalAlignment = rect.VerticalAlignment,
 						HorizontalAlignment = rect.HorizontalAlignment
 					};
 
-					int appID = Convert.ToInt32(rect.Tag);
-					editingSidebar.ChangeSelectedData(DBMethods.MiscRequests.GetByColumnData(tableName, "Appointment ID", rect.Tag.ToString(), columns.Select(columns => columns.Name).ToArray())[0].ToArray());
+					// The new rectangle should be displayed over the hour line markings for now
+					Panel.SetZIndex(newRect, 1);
+					editingSidebar.ChangeSelectedData((string[])rect.Tag);
 
 					newRect.MouseDown += Rectangle_MouseDown;
 					newRect.MouseUp += RctRect_MouseUp;
@@ -134,26 +342,54 @@ namespace A2_Project.ContentWindows
 		{
 			mouseDown = false;
 			if (sender != currentlySelected) return;
+
 			if (sender is FrameworkElement f)
 			{
-				int ySnap = 20;
+				Panel.SetZIndex(f, 0);
+				int ySnap = hourHeight / 4;
+
+				// Get the middle of the selected element
 				double midLeft = f.Margin.Left + f.Width / 2;
 				double midTop = f.Margin.Top + ySnap / 2;
-				f.Margin = new Thickness(midLeft - midLeft % f.Width, midTop - midTop % ySnap, 0, 0);
+
+				// Gets the difference in days between the start of the week and the day the selected appointment should be on
+				int dDiff = (int)(midLeft / (dayWidth * spaceBetweenDays));
+				// Gets the x offset that can be used to calculate which room/day the appointment should be placed into.
+				double roomIDOffset = (midLeft % (dayWidth * spaceBetweenDays)) / (dayWidth / appRoomCount);
+				int roomID;
+				// Place the appointment in the correct room/day whenever the user tries to place it into the gap between the days
+				if (roomIDOffset > appRoomCount && roomIDOffset < appRoomCount + 0.5)
+				{
+					roomID = appRoomCount - 1;
+				}
+				else if (roomIDOffset > appRoomCount + 0.5)
+				{
+					roomID = 0;
+					dDiff++;
+				}
+				else
+				{
+					roomID = (int)roomIDOffset;
+				}
+
+				// 'Snap' the appointment to a grid to represent where it should be
+				f.Margin = new Thickness(dDiff * dayWidth * spaceBetweenDays + roomID * dayWidth / appRoomCount, midTop - midTop % ySnap, 0, 0);
 
 				string idColumnName = "Appointment ID";
-
 				DateTime startOfWeek = GetStartOfWeek();
-				DateTime appDate = startOfWeek.AddDays(f.Margin.Left / 120);
-				DBMethods.MiscRequests.UpdateColumn(tableName, appDate.ToString("yyyy-MM-dd"), "Appointment Date", idColumnName, f.Tag.ToString());
+				DateTime appDate = startOfWeek.AddDays(dDiff);
+				// Save the user's changes to the database
+				string appID = ((string[])f.Tag)[0];
+				DBMethods.MiscRequests.UpdateColumn(tableName, appDate.ToString("yyyy-MM-dd"), "Appointment Date", idColumnName, appID);
 
-				TimeSpan t = new TimeSpan(7, (int)(f.Margin.Top * 1.5), 0);
-				DBMethods.MiscRequests.UpdateColumn(tableName, t.ToString("hh\\:mm"), "Appointment Time", idColumnName, f.Tag.ToString());
+				TimeSpan t = new TimeSpan(dayStartTime - 1, (int)(f.Margin.Top / hourHeight * 60), 0);
+				DBMethods.MiscRequests.UpdateColumn(tableName, t.ToString("hh\\:mm"), "Appointment Time", idColumnName, appID);
 
-				int roomID = (int)(f.Margin.Left % 120 / 40);
-				DBMethods.MiscRequests.UpdateColumn(tableName, roomID.ToString(), "Grooming Room ID", idColumnName, f.Tag.ToString());
+				DBMethods.MiscRequests.UpdateColumn(tableName, roomID.ToString(), "Grooming Room ID", idColumnName, appID);
 
-				editingSidebar.ChangeSelectedData(DBMethods.MiscRequests.GetByColumnData(tableName, idColumnName, f.Tag.ToString(), columns.Select(x => x.Name).ToArray())[0].ToArray());
+				string[] newData = DBMethods.MiscRequests.GetByColumnData(tableName, idColumnName, appID, columns.Select(x => x.Name).ToArray())[0].ToArray();
+				f.Tag = newData;
+				editingSidebar.ChangeSelectedData(newData);
 			}
 		}
 
@@ -167,38 +403,78 @@ namespace A2_Project.ContentWindows
 
 		private void DatePicker_SelectedDateChanged(object sender, SelectionChangedEventArgs e)
 		{
-			CustomDatePicker c = (CustomDatePicker)sender;
-
+			// Clear the previous results
 			grdResults.Children.Clear();
+
+			// If something is currently selected and the mouse is down, the selected element should be carried over to the next week
+			// TODO: This may cause issues in future
+			if (!(currentlySelected is null) && mouseDown)
+			{
+				grdResults.Children.Add(currentlySelected);
+			}
+
+			// Add labels to show hour of day
+			for (int i = dayStartTime; i < dayStartTime + 11; i += 2)
+			{
+				Label lblTime = new Label()
+				{
+					Content = i + ":00   ",
+					HorizontalAlignment = HorizontalAlignment.Right,
+					Margin = new Thickness(0, (i - dayStartTime + 1) * hourHeight - 24 + baseYOffset, grdResults.Width + grdResults.Margin.Right, 0)
+				};
+
+				// Horizontal translucent line to mark hour
+				Rectangle hourLine = new Rectangle()
+				{
+					Height = 2,
+					Width = dayWidth * 7 * spaceBetweenDays * 0.98,
+					Margin = new Thickness(0, (i - dayStartTime + 1) * hourHeight + baseYOffset, grdResults.Margin.Right + 4, 0),
+					Fill = new SolidColorBrush(Color.FromRgb(230, 230, 230)),
+					Opacity = 0.15,
+					VerticalAlignment = VerticalAlignment.Top,
+					HorizontalAlignment = HorizontalAlignment.Right
+				};
+
+				Panel.SetZIndex(lblTime, 1);
+				Panel.SetZIndex(hourLine, 1);
+				grd.Children.Add(lblTime);
+				grd.Children.Add(hourLine);
+			}
+
+
 			int days = 7;
 			for (int i = 0; i < days; i++)
 			{
-				Rectangle rct = new Rectangle
+				// Add a background to mark out each day
+				Rectangle dayBackground = new Rectangle
 				{
-					Width = 1,
-					Height = 600,
-					Margin = new Thickness(i * 120 - 0.5, 0, 0, 0),
-					Fill = new SolidColorBrush(Color.FromRgb(230, 230, 230)),
+					Width = dayWidth + 4,
+					Height = hourHeight * 11,
+					Margin = new Thickness(i * dayWidth * spaceBetweenDays - 2, hourHeight, 0, 0),
+					Fill = new SolidColorBrush(Color.FromRgb(11, 11, 11)),
 					StrokeThickness = 0,
 					VerticalAlignment = VerticalAlignment.Top,
 					HorizontalAlignment = HorizontalAlignment.Left
 				};
-				grdResults.Children.Add(rct);
+				Panel.SetZIndex(dayBackground, -1);
+				grdResults.Children.Add(dayBackground);
 
 				DateTime startOfWeek = GetStartOfWeek();
 				DateTime currentDay = startOfWeek.AddDays(i);
 
+				// Label each day of the week
 				Label lblDayOfWeek = new Label()
 				{
 					Content = currentDay.DayOfWeek,
-					Margin = new Thickness(i * 120, 0, 0, 0),
+					Margin = new Thickness(i * dayWidth * spaceBetweenDays - 10, hourHeight - 40, 0, 0),
 					Foreground = new SolidColorBrush(Color.FromRgb(230, 230, 230)),
-					FontSize = 20
+					Width = dayWidth + 20,
+					HorizontalContentAlignment = HorizontalAlignment.Center
 				};
 				grdResults.Children.Add(lblDayOfWeek);
 
-
-				List<List<string>> results = DBMethods.MiscRequests.GetAllAppointmentsOnDay(currentDay);
+				// Generate all the rectangles to represent the appointments on that day
+				List<List<string>> results = DBMethods.MiscRequests.GetAllAppointmentsOnDay(currentDay, columns.Select(x => x.Name).ToArray());
 				foreach (List<string> ls in results)
 				{
 					GenRectFromData(ls.ToArray());
@@ -206,38 +482,46 @@ namespace A2_Project.ContentWindows
 			}
 		}
 
-		public DateTime GetStartOfWeek()
+		/// <summary>
+		/// Gets the date that is at the start of the selected week
+		/// </summary>
+		private DateTime GetStartOfWeek()
 		{
 			DateTime picked = (DateTime)datePicker.SelectedDate;
 			return picked.AddDays(-DayOfWeekToInt(picked.DayOfWeek));
 		}
 
+		/// <summary>
+		/// Update the selected data from the rectangle
+		/// </summary>
 		public void UpdateFromSidebar(string[] data, bool isNew)
 		{
-			Rectangle r = grdResults.Children.OfType<Rectangle>().Where(r => r.Tag != null && r.Tag.ToString() == data[0]).First();
+			Rectangle r = grdResults.Children.OfType<Rectangle>().Where(r => r.Tag != null && ((string[])r.Tag)[0] == data[0]).First();
 			grdResults.Children.Remove(r);
 			GenRectFromData(data);
 			DBMethods.DBAccess.UpdateTable(tableName, columns.Select(x => x.Name).ToArray(), data, isNew);
 		}
 
-		public void GenRectFromData(string[] data)
+		/// <summary>
+		/// Generate a rectangle from the passed in data
+		/// </summary>
+		private void GenRectFromData(string[] data)
 		{
 			int roomID = Convert.ToInt32(data[14]);
 			int typeID = Convert.ToInt32(data[2]);
 			DateTime d = DateTime.Parse(data[9]).Add(TimeSpan.Parse(data[10]));
 			int dDiff = (d.Date - (DateTime)datePicker.SelectedDate).Days;
 			dDiff += DayOfWeekToInt(((DateTime)datePicker.SelectedDate).DayOfWeek);
-			SolidColorBrush brush = new SolidColorBrush(colours[Convert.ToInt32(data[3])]);
 			
 			Rectangle newRect = new Rectangle
 			{
-				Width = 40,
-				Height = 40 * Convert.ToDouble(appTypes[typeID][1]),
-				Margin = new Thickness(dDiff * 120 + roomID * 40, (d.TimeOfDay.TotalHours - 7) * 40, 0, 0),
-				Fill = brush,
+				Width = dayWidth / appRoomCount,
+				Height = hourHeight * Convert.ToDouble(appTypes[typeID][1]),
+				Margin = new Thickness(dDiff * dayWidth * spaceBetweenDays + roomID * dayWidth / appRoomCount, (d.TimeOfDay.TotalHours - dayStartTime + 1) * hourHeight, 0, 0),
+				Fill = GetColourForRect(data),
 				Stroke = Brushes.Black,
 				StrokeThickness = 1,
-				Tag = data[0],
+				Tag = data,
 				VerticalAlignment = VerticalAlignment.Top,
 				HorizontalAlignment = HorizontalAlignment.Left
 			};
@@ -246,6 +530,9 @@ namespace A2_Project.ContentWindows
 			grdResults.Children.Add(newRect);
 		}
 
+		/// <summary>
+		/// Turn a DayOfWeek into an integer
+		/// </summary>
 		private static int DayOfWeekToInt(DayOfWeek day)
 		{
 			return day switch
@@ -257,7 +544,7 @@ namespace A2_Project.ContentWindows
 				DayOfWeek.Friday => 4,
 				DayOfWeek.Saturday => 5,
 				DayOfWeek.Sunday => 6,
-				_ => throw new Exception(),
+				_ => throw new NotImplementedException(),
 			};
 		}
 	}
