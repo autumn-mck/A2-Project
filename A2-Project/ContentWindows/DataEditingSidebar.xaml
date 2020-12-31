@@ -37,7 +37,7 @@
 				<Setter Property="VerticalAlignment" Value="Top"/>
 			</Style>
 		</Grid.Resources>
-		<TextBlock Name="tbcErr1" Text="ERROR" Margin="0, 700, 0, 0" MaxHeight="300"/>
-		<TextBlock Name="tbcErr2" Text="ERROR" Margin="410, 700, 0, 0" MaxHeight="300"/>
+		<TextBlock Name="tbcErr1" Text="" Margin="0, 750, 0, 0" MaxHeight="300"/>
+		<TextBlock Name="tbcErr2" Text="" Margin="410, 750, 0, 0" MaxHeight="300"/>
 	</Grid>
 </Window>

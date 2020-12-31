@@ -95,7 +95,7 @@ namespace A2_Project.DBMethods
 			}
 			else
 			{
-				command = $"SET DATEFORMAT dmy; INSERT INTO {table} VALUES (";
+				command = $"SET DATEFORMAT dmy; INSERT INTO [{table}] VALUES (";
 				for (int i = 0; i < data.Length; i++)
 				{
 					command += $"'{data[i]}'";

@@ -316,7 +316,7 @@ namespace A2_Project.ContentWindows
 			for (int i = 0; i < count; i++)
 			{
 				// Split the items into multiple columns if needed
-				if (yOffset > 600)
+				if (yOffset > 620)
 				{
 					yOffset = 40;
 					xOffset += 250;
