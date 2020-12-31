@@ -119,7 +119,7 @@ namespace A2_Project.ContentWindows
 			int baseX = 0;
 			// The base Y offset
 			int baseY = 5;
-			int gapBetweenKeys = 20;
+			int gapBetweenKeys = 25;
 
 			// The first element to be added is the checkbox that allows other filters to be selected
 			if (keyLoadedCount == 0)
@@ -129,11 +129,18 @@ namespace A2_Project.ContentWindows
 				if (cmbKey != null) selIndex = cmbKey.SelectedIndex;
 				else selIndex = 0;
 
+				Label lblColourBy = new Label()
+				{
+					Margin = new Thickness(baseX, baseY - 12, 0, 0),
+					Content = "Colour By:"
+				};
+				grdKey.Children.Add(lblColourBy);
+
 				// Creates the new ComboBox
 				cmbKey = new ComboBox()
 				{
-					Margin = new Thickness(baseX, 0, 0, 0),
-					Width = 200,
+					Margin = new Thickness(baseX + 130, baseY - 5, 0, 0),
+					Width = 240,
 					FontSize = 20,
 					HorizontalAlignment = HorizontalAlignment.Left,
 					VerticalAlignment = VerticalAlignment.Top,
@@ -195,7 +202,9 @@ namespace A2_Project.ContentWindows
 		/// </summary>
 		private void LblLoaded_LoadNextKey(object sender, RoutedEventArgs e)
 		{
-			AddKey((FrameworkElement)sender);
+			FrameworkElement fr = (FrameworkElement)sender;
+			fr.Loaded -= LblLoaded_LoadNextKey;
+			AddKey(fr);
 		}
 
 		/// <summary>
@@ -436,7 +445,7 @@ namespace A2_Project.ContentWindows
 				{
 					Height = 2,
 					Width = dayWidth * 7 * spaceBetweenDays * 0.98,
-					Margin = new Thickness(0, (i - dayStartTime + 1) * hourHeight + baseYOffset, grdResults.Margin.Right + 4, 0),
+					Margin = new Thickness(0, (i - dayStartTime + 1) * hourHeight + baseYOffset - 1, grdResults.Margin.Right + 4, 0),
 					Fill = new SolidColorBrush(Color.FromRgb(230, 230, 230)),
 					Opacity = 0.15,
 					VerticalAlignment = VerticalAlignment.Top,
