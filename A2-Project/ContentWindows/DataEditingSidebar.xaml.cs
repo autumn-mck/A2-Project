@@ -219,6 +219,7 @@ namespace A2_Project.ContentWindows
 					grd.Children.Add(c);
 				}
 			}
+			IsValid();
 		}
 
 		private object GetSuggestedValue(DBObjects.Column column)
@@ -254,6 +255,7 @@ namespace A2_Project.ContentWindows
 					grd.Children.Add(c);
 				}
 			}
+			IsValid();
 		}
 
 		/// <summary>
@@ -270,24 +272,10 @@ namespace A2_Project.ContentWindows
 				else if (displayElements[i] is CheckBox c) c.IsChecked = selectedData[i] == "True";
 				else if (displayElements[i] is CustomDatePicker cDP) cDP.SelectedDate = DateTime.Parse(selectedData[i]);
 			}
+			IsValid();
 		}
 
 		#region Programmatic UI Generation
-		/// <summary>
-		/// Removes the UI Elements generated for the previous table
-		/// </summary>
-		private void ClearUI()
-		{
-			if (displayElements == null) return;
-			// Remove the user-editable controls
-			foreach (FrameworkElement fr in displayElements) grd.Children.Remove(fr);
-			// Remove the column labels
-			foreach (FrameworkElement l in labelElements) grd.Children.Remove(l);
-			// Remove the grids used for displaying button options
-			grd.Children.Remove(grdAddMode);
-			grd.Children.Remove(grdEditMode);
-		}
-
 		private void GenUI()
 		{
 			int count = columns.Length;
