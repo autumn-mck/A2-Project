@@ -89,19 +89,25 @@ namespace A2_Project.DBMethods
 		{
 			DateTime startDate = MaxDate(Convert.ToDateTime(DBAccess.GetStringsWithQuery("SELECT MIN([Client Join Date]) FROM [Client]")[0]), minDate);
 			DateTime endDate = DateTime.Now;
-			int diff = (int)(endDate - startDate).TotalDays;
+			double diff = (endDate - startDate).TotalDays;
 			List<int> growth = new List<int>();
-			for (double i = 0; i < diff; i += diff / 36.0)
+			int count = 0;
+			for (double i = 0; i < diff; i += diff / 40.0)
 			{
-				string query = "SELECT COUNT([Appointment].[Appointment ID]) FROM [Client] " +
+				string query = "SELECT SUM(1) FROM [Client] " +
 				"INNER JOIN [Dog] ON [Dog].[Client ID] = [Client].[Client ID] INNER JOIN [Appointment] ON [Appointment].[Dog ID] = [Dog].[Dog ID] " +
-				"WHERE [Client].[Client Join Date] < '" + startDate.AddDays(i).ToString("yyyy-MM-dd") + "' AND [Appointment].[Is Initial Appointment] = 1 " +
-				"AND [Client].[Client Join Date] > '" + startDate.AddDays(i - diff / 10.0).ToString("yyyy-MM-dd") + "';";
-				List<string> result = DBAccess.GetStringsWithQuery(query);
-				growth.Add(Convert.ToInt32(result[0]));
+				"INNER JOIN [Booking] ON [Booking].[Booking ID] = [Appointment].[Booking ID] " +
+				$"WHERE [Client].[Client Join Date] BETWEEN '{startDate.AddDays(i - diff / 40.0):yyyy-MM-dd}' AND '{startDate.AddDays(i):yyyy-MM-dd}' " +
+				"GROUP BY [Client].[Client ID] HAVING COUNT([Booking].[Booking ID]) < 2;";
+
+				List<List<string>> result = DBAccess.GetListStringsWithQuery(query);
+
+				if (count == 0) growth.Add(result.Count);
+				else growth.Add(result.Count + growth[count - 1]);
+				count++;
 			}
 			data[0] = growth.ToArray();
-			headers = InterpolateDates(startDate, diff);
+			headers = InterpolateDates(startDate, (int)diff);
 		}
 
 		// TODO: BookedInAdvancedDiscount should be its own table?

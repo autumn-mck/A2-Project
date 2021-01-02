@@ -251,9 +251,9 @@ namespace A2_Project.ContentWindows
 			return cmbCase switch
 			{
 				"Staff Member" => new SolidColorBrush(colours[Convert.ToInt32(rectData[3])]),
-				"Is Paid" => new SolidColorBrush(colours[Convert.ToInt32(Convert.ToBoolean(rectData[7]))]),
+				"Is Paid" => new SolidColorBrush(colours[Convert.ToInt32(Convert.ToBoolean(rectData[8]))]),
 				"Appointment Type" => new SolidColorBrush(colours[Convert.ToInt32(rectData[2])]),
-				"Includes Nail And Teeth" => new SolidColorBrush(colours[Convert.ToInt32(Convert.ToBoolean(rectData[5]))]),
+				"Includes Nail And Teeth" => new SolidColorBrush(colours[Convert.ToInt32(Convert.ToBoolean(rectData[6]))]),
 				_ => throw new NotImplementedException(),
 			};
 		}
@@ -526,7 +526,7 @@ namespace A2_Project.ContentWindows
 		/// </summary>
 		private void GenRectFromData(string[] data)
 		{
-			int roomID = Convert.ToInt32(data[14]);
+			int roomID = Convert.ToInt32(data[5]);
 			int typeID = Convert.ToInt32(data[2]);
 			DateTime d = DateTime.Parse(data[9]).Add(TimeSpan.Parse(data[10]));
 			int dDiff = (d.Date - (DateTime)datePicker.SelectedDate).Days;

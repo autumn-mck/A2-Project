@@ -1,4 +1,5 @@
 ﻿DROP TABLE Appointment;
+DROP TABLE Booking;
 DROP TABLE [Grooming Room];
 DROP TABLE [Appointment Type];
 DROP TABLE Staff;
@@ -9,9 +10,10 @@ DROP TABLE Client;
 CREATE TABLE [Client] (
 	[Client ID] INT NOT NULL PRIMARY KEY,
 	[Client Notes] VARCHAR(100),
-	[Client Join Date] DATE
+	[Client Join Date] DATE,
+	[Client Payment Method] VARCHAR(15)
 );
-
+	
 CREATE TABLE [Contact] (
 	[Contact ID] INT NOT NULL PRIMARY KEY,
 	[Client ID] INT NOT NULL FOREIGN KEY REFERENCES [Client] ON DELETE CASCADE,
@@ -25,7 +27,7 @@ CREATE TABLE [Contact] (
 CREATE TABLE [Dog] (
 	[Dog ID] INT NOT NULL PRIMARY KEY,
 	[Client ID] INT NOT NULL REFERENCES [Client] ON DELETE CASCADE,
-	[Dog Name] VARCHAR(20) NOT NULL,
+	[Dog Name] VARCHAR(30) NOT NULL,
 	[Dog DOB] DATE,
 	[Dog Gender] VARCHAR(1),
 	[Dog Type] VARCHAR(40)
@@ -33,7 +35,7 @@ CREATE TABLE [Dog] (
 
 CREATE TABLE [Staff] (
 	[Staff ID] INT NOT NULL PRIMARY KEY,
-	[Staff Name] VARCHAR(20) NOT NULL,
+	[Staff Name] VARCHAR(30) NOT NULL,
 	[Staff Password] VARCHAR(64) NOT NULL,
 	[Password Salt] VARCHAR(32) NOT NULL,
 	[Staff Email] VARCHAR(128),
@@ -143,20 +145,21 @@ INSERT INTO [Grooming Room] VALUES (
 	'Fit for all dogs, ideal for big dogs.'
 );
 
+CREATE TABLE [Booking] (
+	[Booking ID] INT NOT NULL PRIMARY KEY,
+	[Date Made] DATE NOT NULL
+);
+
 CREATE TABLE [Appointment] (
 	[Appointment ID] INT NOT NULL PRIMARY KEY,
 	[Dog ID] INT NOT NULL FOREIGN KEY REFERENCES [Dog] ON DELETE CASCADE,
 	[Appointment Type ID] INT NOT NULL FOREIGN KEY REFERENCES [Appointment Type] ON DELETE CASCADE,
 	[Staff ID] INT NOT NULL FOREIGN KEY REFERENCES [Staff] ON DELETE CASCADE,
-	[Is Initial Appointment] BIT NOT NULL,
+	[Booking ID] INT NOT NULL FOREIGN KEY REFERENCES [Booking] ON DELETE CASCADE,
+	[Grooming Room ID] INT NOT NULL FOREIGN KEY REFERENCES [Grooming Room] ON DELETE CASCADE,
 	[Includes Nail And Teeth] BIT NOT NULL,
 	[Is Cancelled] BIT NOT NULL,
 	[Is Paid] BIT NOT NULL,
-	[Booked In Advance Discount] DECIMAL(5,2),
 	[Appointment Date] DATE NOT NULL,
-	[Appointment Time] TIME NOT NULL,
-	[Last Invoice Date] DATE,
-	[Last Invoice Time] TIME,
-	[Invoices Sent] INT NOT NULL,
-	[Grooming Room ID] INT NOT NULL FOREIGN KEY REFERENCES [Grooming Room] ON DELETE CASCADE
+	[Appointment Time] TIME NOT NULL
 );
