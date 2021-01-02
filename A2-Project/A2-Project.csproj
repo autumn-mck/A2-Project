@@ -20,7 +20,9 @@
     <None Remove="Resources\addStaff.png" />
     <None Remove="Resources\calendar.png" />
     <None Remove="Resources\chart-box.png" />
+    <None Remove="Resources\charts.png" />
     <None Remove="Resources\logowhite.png" />
+    <None Remove="Resources\menu.png" />
     <None Remove="Resources\menubar.png" />
     <None Remove="Resources\notebook.png" />
     <None Remove="Resources\printer.png" />
@@ -34,9 +36,9 @@
     <Resource Include="Resources\accounts.png" />
     <Resource Include="Resources\addStaff.png" />
     <Resource Include="Resources\calendar.png" />
-    <Resource Include="Resources\chart-box.png" />
+    <Resource Include="Resources\charts.png" />
     <Resource Include="Resources\logowhite.png" />
-    <Resource Include="Resources\menubar.png" />
+    <Resource Include="Resources\menu.png" />
     <Resource Include="Resources\notebook.png" />
     <Resource Include="Resources\printer.png" />
   </ItemGroup>

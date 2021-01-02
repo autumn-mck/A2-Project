@@ -93,9 +93,9 @@ namespace A2_Project {
         /// <summary>
         ///   Looks up a localized resource of type System.Byte[].
         /// </summary>
-        public static byte[] chart_box {
+        public static byte[] charts {
             get {
-                object obj = ResourceManager.GetObject("chart_box", resourceCulture);
+                object obj = ResourceManager.GetObject("charts", resourceCulture);
                 return ((byte[])(obj));
             }
         }
@@ -122,9 +122,9 @@ namespace A2_Project {
         /// <summary>
         ///   Looks up a localized resource of type System.Byte[].
         /// </summary>
-        public static byte[] menubar {
+        public static byte[] menu {
             get {
-                object obj = ResourceManager.GetObject("menubar", resourceCulture);
+                object obj = ResourceManager.GetObject("menu", resourceCulture);
                 return ((byte[])(obj));
             }
         }
