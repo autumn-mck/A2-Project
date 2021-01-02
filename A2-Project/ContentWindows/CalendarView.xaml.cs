@@ -271,6 +271,38 @@ namespace A2_Project.ContentWindows
 						Point mousePos = Mouse.GetPosition(parent);
 						Point diff = (Point)(mousePos - diffMouseAndElem);
 
+						int ySnap = hourHeight / 4;
+
+						// Get the middle of the selected element
+						double midLeft = diff.X + elem.Width / 2;
+						double midTop = diff.Y + ySnap / 2;
+
+						// Gets the difference in days between the start of the week and the day the selected appointment should be on
+						int dDiff = (int)(midLeft / (dayWidth * spaceBetweenDays));
+						// Gets the x offset that can be used to calculate which room/day the appointment should be placed into.
+						double roomIDOffset = (midLeft % (dayWidth * spaceBetweenDays)) / (dayWidth / appRoomCount);
+						int roomID;
+						// Place the appointment in the correct room/day whenever the user tries to place it into the gap between the days
+						if (roomIDOffset > appRoomCount && roomIDOffset < appRoomCount + 0.5)
+						{
+							roomID = appRoomCount - 1;
+						}
+						else if (roomIDOffset > appRoomCount + 0.5)
+						{
+							roomID = 0;
+							dDiff++;
+						}
+						else
+						{
+							roomID = (int)roomIDOffset;
+						}
+
+						// 'Snap' the appointment to a grid to represent where it should be
+						elem.Margin = new Thickness(dDiff * dayWidth * spaceBetweenDays + roomID * dayWidth / appRoomCount, midTop - midTop % ySnap, 0, 0);
+
+
+
+
 						// Allow the selected week to be changed if the currently selected element is moved to either side of the grid
 						if (mousePos.X > dayWidth * spaceBetweenDays * 6 + dayWidth && !hasMoved)
 						{
@@ -284,7 +316,6 @@ namespace A2_Project.ContentWindows
 						}
 						else if (mousePos.X > 0 && mousePos.X < dayWidth * spaceBetweenDays * 6 + dayWidth) hasMoved = false;
 
-						elem.Margin = new Thickness(diff.X, diff.Y, 0, 0);
 					}
 				});
 				Thread.Sleep(10);
@@ -357,34 +388,14 @@ namespace A2_Project.ContentWindows
 			if (sender is FrameworkElement f)
 			{
 				Panel.SetZIndex(f, 0);
-				int ySnap = hourHeight / 4;
 
 				// Get the middle of the selected element
 				double midLeft = f.Margin.Left + f.Width / 2;
-				double midTop = f.Margin.Top + ySnap / 2;
 
 				// Gets the difference in days between the start of the week and the day the selected appointment should be on
 				int dDiff = (int)(midLeft / (dayWidth * spaceBetweenDays));
 				// Gets the x offset that can be used to calculate which room/day the appointment should be placed into.
-				double roomIDOffset = (midLeft % (dayWidth * spaceBetweenDays)) / (dayWidth / appRoomCount);
-				int roomID;
-				// Place the appointment in the correct room/day whenever the user tries to place it into the gap between the days
-				if (roomIDOffset > appRoomCount && roomIDOffset < appRoomCount + 0.5)
-				{
-					roomID = appRoomCount - 1;
-				}
-				else if (roomIDOffset > appRoomCount + 0.5)
-				{
-					roomID = 0;
-					dDiff++;
-				}
-				else
-				{
-					roomID = (int)roomIDOffset;
-				}
-
-				// 'Snap' the appointment to a grid to represent where it should be
-				f.Margin = new Thickness(dDiff * dayWidth * spaceBetweenDays + roomID * dayWidth / appRoomCount, midTop - midTop % ySnap, 0, 0);
+				int roomID = (int)(midLeft % (dayWidth * spaceBetweenDays) / (dayWidth / appRoomCount));
 
 				string idColumnName = "Appointment ID";
 				DateTime startOfWeek = GetStartOfWeek();
