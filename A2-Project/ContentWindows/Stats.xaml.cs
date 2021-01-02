@@ -107,24 +107,7 @@ namespace A2_Project.ContentWindows
 
 		private static void LabelYAxis(Grid grid, int max, string prefix, string suffix)
 		{
-			if (max > 20)
-			{
-				for (double i = 0; i <= 1; i += 0.2)
-				{
-					int height = (int)RoundToSigFigs(max * i, 2);
-					TextBlock tbl = new TextBlock
-					{
-						Text = prefix + height + suffix + " -",
-						Margin = new Thickness(0, 0, 463, (float)height / max * 200f + 28f),
-						Foreground = Brushes.White,
-						TextWrapping = TextWrapping.Wrap,
-						VerticalAlignment = VerticalAlignment.Bottom,
-						HorizontalAlignment = HorizontalAlignment.Right
-					};
-					grid.Children.Add(tbl);
-				}
-			}
-			else if (max == 0)
+			if (max == 0)
 			{
 				TextBlock tbl = new TextBlock
 				{
@@ -139,17 +122,35 @@ namespace A2_Project.ContentWindows
 			}
 			else
 			{
-				for (int i = 0; i <= max; i += 2)
+				double increment;
+				if (max > 20) increment = max * 0.2;
+				else increment = 2;
+
+				for (double i = 0; i <= max + 0.1; i += increment)
 				{
+					Rectangle rct = new Rectangle()
+					{
+						Width = 400,
+						Height = 3,
+						Fill = new LinearGradientBrush(Colors.White, Colors.Black, new Point(0.5, 0.4999), new Point(0.5, 0.5)),
+						Margin = new Thickness(40, 0, 0, (float)(i / max * 200.0 + 35.0)),
+						Opacity = 0.3,
+						SnapsToDevicePixels = true,
+						VerticalAlignment = VerticalAlignment.Bottom,
+						HorizontalAlignment = HorizontalAlignment.Left
+					};
+
 					TextBlock tbl = new TextBlock
 					{
-						Text = prefix + i + suffix + " -",
-						Margin = new Thickness(0, 0, 463, (float)i / max * 200f + 28f),
+						Text = prefix + (int)RoundToSigFigs(i, 2) + suffix + " -",
+						Margin = new Thickness(0, 0, 463, (float)(i / max * 200.0 + 28.0)),
 						Foreground = Brushes.White,
 						TextWrapping = TextWrapping.Wrap,
 						VerticalAlignment = VerticalAlignment.Bottom,
 						HorizontalAlignment = HorizontalAlignment.Right
 					};
+					Panel.SetZIndex(rct, 1);
+					grid.Children.Add(rct);
 					grid.Children.Add(tbl);
 				}
 			}
