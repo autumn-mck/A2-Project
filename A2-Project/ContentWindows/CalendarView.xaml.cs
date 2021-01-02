@@ -531,11 +531,17 @@ namespace A2_Project.ContentWindows
 			DateTime d = DateTime.Parse(data[9]).Add(TimeSpan.Parse(data[10]));
 			int dDiff = (d.Date - (DateTime)datePicker.SelectedDate).Days;
 			dDiff += DayOfWeekToInt(((DateTime)datePicker.SelectedDate).DayOfWeek);
-			
+
+			// appLength is in minutes
+			double appLength = Convert.ToDouble(appTypes[typeID][1]) * 60;
+			if (data[6] == "True") appLength += 15;
+			if (DBMethods.MiscRequests.IsAppointmentInitial(data[0])) appLength += 15;
+
+
 			Rectangle newRect = new Rectangle
 			{
 				Width = dayWidth / appRoomCount,
-				Height = hourHeight * Convert.ToDouble(appTypes[typeID][1]),
+				Height = appLength / 60 * hourHeight,
 				Margin = new Thickness(dDiff * dayWidth * spaceBetweenDays + roomID * dayWidth / appRoomCount, (d.TimeOfDay.TotalHours - dayStartTime + 1) * hourHeight, 0, 0),
 				Fill = GetColourForRect(data),
 				Stroke = Brushes.Black,
