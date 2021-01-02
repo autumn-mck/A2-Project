@@ -27,9 +27,17 @@
 							<Setter Property="Height" Value="48"/>
 							<Setter Property="HorizontalAlignment" Value="Left"/>
 						</Style>
+						<Style TargetType="Rectangle">
+							<Setter Property="Width" Value="48"/>
+							<Setter Property="Height" Value="48"/>
+							<Setter Property="HorizontalAlignment" Value="Left"/>
+							<Setter Property="Fill" Value="#F0F0F0"/>
+							<Setter Property="StrokeThickness" Value="2"/>
+							<Setter Property="Stroke" Value="#2D2D2D"/>
+						</Style>
 					</Grid.Resources>
 					<Grid x:Name="grdToggleMenu" Height="50" Width="300" Margin="6, 6, 0, 0" VerticalAlignment="Top" MouseDown="GrdToggleMenu_MouseDown">
-						<Image Source="/Resources/menubar.png"/>
+						<Image Source="/Resources/menu.png"/>
 						<Label Content="Close Menu"/>
 					</Grid>
 					<Grid x:Name="grdCalander" Height="50" Width="300" Margin="6, 66, 0, 0" VerticalAlignment="Top">
@@ -49,7 +57,7 @@
 						<Label Content="Register New Staff"/>
 					</Grid>
 					<Grid x:Name="grdViewStats" Height="50" Width="300" Margin="6, 306, 0, 0" VerticalAlignment="Top">
-						<Image Source="/Resources/chart-box.png"/>
+						<Image Source="/Resources/charts.png"/>
 						<Label Content="View Statistics"/>
 					</Grid>
 				</Grid>

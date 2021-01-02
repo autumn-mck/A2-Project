@@ -1,8 +1,13 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Diagnostics;
+using System.Linq;
 using System.Threading;
 using System.Windows;
+using System.Windows.Controls;
 using System.Windows.Input;
+using System.Windows.Media;
+using System.Windows.Shapes;
 using A2_Project.ContentWindows;
 
 namespace A2_Project
@@ -29,6 +34,12 @@ namespace A2_Project
 		private Stats statsWindow;
 		private readonly Login loginWindow;
 
+		private SolidColorBrush notHighlighted = new SolidColorBrush(Color.FromRgb(240, 240, 240));
+		private SolidColorBrush highlighted = new SolidColorBrush(Color.FromRgb(180, 180, 255));
+		private SolidColorBrush selected = new SolidColorBrush(Color.FromRgb(0, 122, 204));
+
+		private Grid[] grdButtons;
+
 		public MainWindow()
 		{
 			InitializeComponent();
@@ -39,6 +50,8 @@ namespace A2_Project
 			if (db.Connect()) DBMethods.DBAccess.Db = db;
 			else MessageBox.Show("Database Connection Unsuccessful.", "Error");
 
+
+			grdButtons = grdMenuButtons.Children.OfType<Grid>().ToArray();
 			// DEBUG: Allows easy access to the content windows. Currently in place to make testing easier
 			grdAccounts.MouseDown += GrdAccounts_MouseDown;
 			grdCalander.MouseDown += GrdCalander_MouseDown;
@@ -46,9 +59,42 @@ namespace A2_Project
 			grdAddStaff.MouseDown += GrdAddStaff_MouseDown;
 			grdViewStats.MouseDown += GrdViewStats_MouseDown;
 
+			foreach (Grid g in grdButtons)
+			{
+				Rectangle r = new Rectangle();
+				Panel.SetZIndex(r, -1);
+				g.Children.Add(r);
+
+				g.MouseEnter += GrdHighlight_MouseEnter;
+				g.MouseLeave += GrdHighlight_MouseLeave;
+				g.MouseDown += GrdHighlight_MouseDown;
+			}
+
 			// Tries to get the user to log in
 			loginWindow = new Login();
 			lblContents.Content = loginWindow.Content;
+		}
+
+		private void GrdHighlight_MouseDown(object sender, MouseButtonEventArgs e)
+		{
+			Grid grdSender = (Grid)sender;
+			if (grdSender == grdToggleMenu) return;
+			foreach (Grid g in grdButtons) g.Children.OfType<Rectangle>().First().Fill = notHighlighted;
+			grdSender.Children.OfType<Rectangle>().First().Fill = selected;
+		}
+
+		private void GrdHighlight_MouseLeave(object sender, MouseEventArgs e)
+		{
+			Grid g = (Grid)sender;
+			Rectangle r = g.Children.OfType<Rectangle>().First();
+			if (((SolidColorBrush)r.Fill).Color == highlighted.Color) r.Fill = notHighlighted;
+		}
+
+		private void GrdHighlight_MouseEnter(object sender, MouseEventArgs e)
+		{
+			Grid g = (Grid)sender;
+			Rectangle r = g.Children.OfType<Rectangle>().First();
+			if (((SolidColorBrush)r.Fill).Color == notHighlighted.Color) r.Fill = highlighted;
 		}
 
 		/// <summary>
