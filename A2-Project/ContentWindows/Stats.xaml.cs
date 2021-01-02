@@ -48,7 +48,7 @@ namespace A2_Project.ContentWindows
 			GraphAppByMonth();
 			GraphAppCancelRate();
 			GraphCustReturn();
-			GraphIncome();
+			//GraphIncome();
 		}
 
 		private static void GenerateBarGraph(GetData getData, Grid grid, string title, string prefix = "", string suffix = "")
