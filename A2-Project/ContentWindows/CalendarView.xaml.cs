@@ -266,9 +266,14 @@ namespace A2_Project.ContentWindows
 			while (!toExit)
 			{
 				Dispatcher.Invoke(() => {
+					//mouseDown = Mouse.LeftButton == MouseButtonState.Pressed;
+
+
 					if (mouseDown && currentlySelected is FrameworkElement elem && elem.Parent is FrameworkElement parent)
 					{
 						Point mousePos = Mouse.GetPosition(parent);
+						TimeSpan mouseTime = new TimeSpan(dayStartTime - 1, (int)(mousePos.Y / hourHeight * 60), 0);
+						lblOut.Content = $"Mouse Time: {mouseTime}\n";
 						Point diff = (Point)(mousePos - diffMouseAndElem);
 
 						int ySnap = hourHeight / 4;
@@ -297,12 +302,6 @@ namespace A2_Project.ContentWindows
 							roomID = (int)roomIDOffset;
 						}
 
-						// 'Snap' the appointment to a grid to represent where it should be
-						elem.Margin = new Thickness(dDiff * dayWidth * spaceBetweenDays + roomID * dayWidth / appRoomCount, midTop - midTop % ySnap, 0, 0);
-
-
-
-
 						// Allow the selected week to be changed if the currently selected element is moved to either side of the grid
 						if (mousePos.X > dayWidth * spaceBetweenDays * 6 + dayWidth && !hasMoved)
 						{
@@ -316,6 +315,51 @@ namespace A2_Project.ContentWindows
 						}
 						else if (mousePos.X > 0 && mousePos.X < dayWidth * spaceBetweenDays * 6 + dayWidth) hasMoved = false;
 
+
+						// 'Snap' the appointment to a grid to represent where it should be
+						Thickness newMargin = new Thickness(dDiff * dayWidth * spaceBetweenDays + roomID * dayWidth / appRoomCount, midTop - midTop % ySnap, 0, 0);
+
+						// If the element should be moved
+						if (newMargin != elem.Margin)
+						{
+							string[] data = (string[])elem.Tag;
+							DateTime day = GetStartOfWeek().AddDays(dDiff);
+							TimeSpan appStart = new TimeSpan(dayStartTime - 1, (int)(newMargin.Top / hourHeight * 60), 0);
+							bool doesClash = DBMethods.MiscRequests.DoesAppointmentClash(data, roomID, day, appStart);
+
+							if (doesClash)
+							{
+								int appLength = DBMethods.MiscRequests.GetAppLength((string[])elem.Tag);
+								int direction = (int)((newMargin.Top - elem.Margin.Top) / Math.Abs(newMargin.Top - elem.Margin.Top));
+								TimeSpan oldStart = new TimeSpan(dayStartTime - 1, (int)(elem.Margin.Top / hourHeight * 60), 0);
+								lblOut.Content += $"Direction: {direction}\nOld Start: {oldStart}\n";
+								int count = 0;
+								while (true)
+								{
+									count += direction;
+									TimeSpan toCheck = oldStart.Add(TimeSpan.FromMinutes(count * 15));
+									if (toCheck.TotalHours > 18 || toCheck.TotalHours < 9) break;
+									bool doesNewClash = DBMethods.MiscRequests.DoesAppointmentClash(data, roomID, day, toCheck);
+									if (!doesNewClash)
+									{
+										TimeSpan halfway = oldStart.Add(new TimeSpan(0, (int)(count * 15 + appLength) / 2, 0));
+										lblOut.Content = $"Mouse As Time: {mouseTime}\nMid-point: {halfway}\nDirection: {direction}\nNew Time: {toCheck}";
+
+										bool shouldUpdate = false;
+										if (direction == -1 && mouseTime < halfway) shouldUpdate = true;
+										else if (direction == 1 && mouseTime > halfway) shouldUpdate = true;
+
+										if (shouldUpdate)
+										{
+											newMargin.Top = (toCheck.TotalHours - dayStartTime + 1) * hourHeight;
+											elem.Margin = newMargin;
+										}
+										break;
+									}
+								}
+							}
+							else elem.Margin = newMargin;
+						}
 					}
 				});
 				Thread.Sleep(10);
@@ -544,10 +588,7 @@ namespace A2_Project.ContentWindows
 			dDiff += DayOfWeekToInt(((DateTime)datePicker.SelectedDate).DayOfWeek);
 
 			// appLength is in minutes
-			double appLength = Convert.ToDouble(appTypes[typeID][1]) * 60;
-			if (data[6] == "True") appLength += 15;
-			if (DBMethods.MiscRequests.IsAppointmentInitial(data[0])) appLength += 15;
-
+			double appLength = DBMethods.MiscRequests.GetAppLength(data);
 
 			Rectangle newRect = new Rectangle
 			{

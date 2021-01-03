@@ -1,11 +1,14 @@
 ﻿using A2_Project.DBObjects;
 using System;
 using System.Collections.Generic;
+using System.Linq;
 
 namespace A2_Project.DBMethods
 {
 	public static class MiscRequests
 	{
+		public static List<List<string>> AppTypes;
+
 		public static void UpdateColumn(string table, string newData, string columnToUpdate, string idColumn, string id)
 		{
 			DBAccess.ExecuteNonQuery($"UPDATE [{table}] SET [{columnToUpdate}] = '{newData}' WHERE [{idColumn}] = '{id}';");
@@ -67,6 +70,52 @@ namespace A2_Project.DBMethods
 			string dogID = DBAccess.GetStringsWithQuery($"SELECT [Dog].[Dog ID] FROM [Dog] INNER JOIN [Appointment] ON [Appointment].[Dog ID] = [Dog].[Dog ID] WHERE [Appointment].[Appointment ID] = {appID};")[0];
 			string clientFirstAppID = DBAccess.GetStringsWithQuery($"SELECT TOP 1 [Appointment].[Appointment ID] FROM [Appointment] INNER JOIN [Dog] ON [Dog].[Dog ID] = [Appointment].[Dog ID] WHERE [Dog].[Dog ID] = {dogID} ORDER BY [Appointment].[Appointment Date], [Appointment].[Appointment Time];")[0];
 			return appID == clientFirstAppID;
+		}
+
+		public static bool DoesAppointmentClash(string[] oldData, int roomID, DateTime date, TimeSpan time)
+		{
+			//return true;
+			TimeSpan appEnd = time.Add(new TimeSpan(0, GetAppLength(Convert.ToInt32(oldData[2]), oldData[6] == "True", oldData[0]), 0));
+			
+			List<List<string>> allOnDay = DBAccess.GetListStringsWithQuery($"SELECT * FROM [Appointment] WHERE [Appointment].[Appointment Date] = '{date:yyyy-MM-dd}' AND [Appointment].[Appointment Time] < '{appEnd}' AND [Appointment].[Is Cancelled] = 'False';");
+			// An appointment cannot clash with itself, so remove the appointment with the same unique ID (If it exists)
+			allOnDay.Remove(allOnDay.Where(a => a[0] == oldData[0]).FirstOrDefault());
+
+			List<List<string>> potentialCollisions = new List<List<string>>();
+
+			foreach (List<string> ls in allOnDay)
+			{
+				int appLength = GetAppLength(ls.ToArray());
+				TimeSpan localAppEnd = TimeSpan.Parse(ls[10]).Add(new TimeSpan(0, appLength, 0));
+				if (localAppEnd > time) potentialCollisions.Add(ls);
+			}
+
+			foreach (List<string> ls in potentialCollisions)
+			{
+				if (ls[1] == oldData[1]) return true; // A dog cannot be in 2 appointments at once
+				if (ls[3] == oldData[3]) return true; // A staff member cannot be at 2 appointments at once
+			}
+
+			List<List<string>> inRoom = potentialCollisions.Where(a => a[5] == roomID.ToString()).ToList();
+			if (inRoom.Count > 0) return true;
+			return false;
+		}
+
+		public static int GetAppLength(string[] data)
+		{
+			return GetAppLength(Convert.ToInt32(data[2]), data[6] == "True", data[0]);
+		}
+
+		public static int GetAppLength(int typeID, bool includesNailAndTeeth, string appID)
+		{
+			if (AppTypes is null) AppTypes = MetaRequests.GetAllFromTable("Appointment Type");
+
+			// appLength is in minutes
+			int appLength = (int)(Convert.ToDouble(AppTypes[typeID][1]) * 60);
+			if (includesNailAndTeeth) appLength += 15;
+			if (IsAppointmentInitial(appID)) appLength += 15;
+
+			return appLength;
 		}
 	}
 }
