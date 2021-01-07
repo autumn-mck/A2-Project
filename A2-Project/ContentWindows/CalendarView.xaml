@@ -18,6 +18,5 @@
 		<Grid x:Name="grdResults" Width="1060" Height="1050" HorizontalAlignment="Right" VerticalAlignment="Top" Margin="0,30,700,0" />
 		<Grid x:Name="grdKey" Height="80" HorizontalAlignment="Left" VerticalAlignment="Bottom" Margin="115,0,0,0" />
 		<Label x:Name="lblSidebar" HorizontalAlignment="Left" Margin="1240, 0, 0, 0"/>
-		<Label x:Name="lblOut" HorizontalAlignment="Left" Margin="1200, 800, 0, 0"/>
 	</Grid>
 </Window>

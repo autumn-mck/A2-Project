@@ -16,7 +16,8 @@ namespace A2_Project.ContentWindows
 	public partial class CalandarView : Window
 	{
 		// The hour of the day work starts at (e.g. 9 being 9:00)
-		private const int dayStartTime = 9;
+		private const double dayStartTime = 8;
+		private const double dayEndTime = 19; 
 		// How much extra space there should be between days (e.g. 1.3 being 30% the width of 1 day)
 		private const double spaceBetweenDays = 1.3;
 		// The number of rooms available (Assuming room IDs start at 0 and count up by 1)
@@ -38,7 +39,6 @@ namespace A2_Project.ContentWindows
 		// The currently selected element to be moved with the mouse
 		private FrameworkElement currentlySelected;
 
-		// TODO: Check if still needed, due to Main Window now having App.Exit();
 		private bool toExit = false;
 
 		// Stores data about all appointment types
@@ -266,99 +266,61 @@ namespace A2_Project.ContentWindows
 			while (!toExit)
 			{
 				Dispatcher.Invoke(() => {
-					//mouseDown = Mouse.LeftButton == MouseButtonState.Pressed;
-
-
+					if (mouseDown) mouseDown = Mouse.LeftButton == MouseButtonState.Pressed;
 					if (mouseDown && currentlySelected is FrameworkElement elem && elem.Parent is FrameworkElement parent)
 					{
 						Point mousePos = Mouse.GetPosition(parent);
-						TimeSpan mouseTime = new TimeSpan(dayStartTime - 1, (int)(mousePos.Y / hourHeight * 60), 0);
-						lblOut.Content = $"Mouse Time: {mouseTime}\n";
-						Point diff = (Point)(mousePos - diffMouseAndElem);
 
-						int ySnap = hourHeight / 4;
-
-						// Get the middle of the selected element
-						double midLeft = diff.X + elem.Width / 2;
-						double midTop = diff.Y + ySnap / 2;
-
-						// Gets the difference in days between the start of the week and the day the selected appointment should be on
-						int dDiff = (int)(midLeft / (dayWidth * spaceBetweenDays));
-						// Gets the x offset that can be used to calculate which room/day the appointment should be placed into.
-						double roomIDOffset = (midLeft % (dayWidth * spaceBetweenDays)) / (dayWidth / appRoomCount);
-						int roomID;
-						// Place the appointment in the correct room/day whenever the user tries to place it into the gap between the days
-						if (roomIDOffset > appRoomCount && roomIDOffset < appRoomCount + 0.5)
-						{
-							roomID = appRoomCount - 1;
-						}
-						else if (roomIDOffset > appRoomCount + 0.5)
-						{
-							roomID = 0;
-							dDiff++;
-						}
-						else
-						{
-							roomID = (int)roomIDOffset;
-						}
-
-						// Allow the selected week to be changed if the currently selected element is moved to either side of the grid
-						if (mousePos.X > dayWidth * spaceBetweenDays * 6 + dayWidth && !hasMoved)
-						{
-							datePicker.SelectedDate = datePicker.SelectedDate.Value.AddDays(7);
-							hasMoved = true;
-						}
-						else if (mousePos.X < 0 && !hasMoved)
-						{
-							datePicker.SelectedDate = datePicker.SelectedDate.Value.AddDays(-7);
-							hasMoved = true;
-						}
-						else if (mousePos.X > 0 && mousePos.X < dayWidth * spaceBetweenDays * 6 + dayWidth) hasMoved = false;
-
-
-						// 'Snap' the appointment to a grid to represent where it should be
-						Thickness newMargin = new Thickness(dDiff * dayWidth * spaceBetweenDays + roomID * dayWidth / appRoomCount, midTop - midTop % ySnap, 0, 0);
-
+						GetNewMargin(elem, mousePos, out Thickness newMargin, out int roomID, out int dDiff);
+						
 						// If the element should be moved
 						if (newMargin != elem.Margin)
 						{
 							string[] data = (string[])elem.Tag;
 							DateTime day = GetStartOfWeek().AddDays(dDiff);
-							TimeSpan appStart = new TimeSpan(dayStartTime - 1, (int)(newMargin.Top / hourHeight * 60), 0);
+							TimeSpan appStart = TimeSpan.FromHours(dayStartTime - 1 + newMargin.Top / hourHeight);
 							bool doesClash = DBMethods.MiscRequests.DoesAppointmentClash(data, roomID, day, appStart);
 
-							if (doesClash)
-							{
-								int appLength = DBMethods.MiscRequests.GetAppLength((string[])elem.Tag);
-								int direction = (int)((newMargin.Top - elem.Margin.Top) / Math.Abs(newMargin.Top - elem.Margin.Top));
-								TimeSpan oldStart = new TimeSpan(dayStartTime - 1, (int)(elem.Margin.Top / hourHeight * 60), 0);
-								lblOut.Content += $"Direction: {direction}\nOld Start: {oldStart}\n";
-								int count = 0;
-								while (true)
+							int appLength = DBMethods.MiscRequests.GetAppLength((string[])elem.Tag);
+
+								if (doesClash)
 								{
-									count += direction;
-									TimeSpan toCheck = oldStart.Add(TimeSpan.FromMinutes(count * 15));
-									if (toCheck.TotalHours > 18 || toCheck.TotalHours < 9) break;
-									bool doesNewClash = DBMethods.MiscRequests.DoesAppointmentClash(data, roomID, day, toCheck);
-									if (!doesNewClash)
+									TimeSpan oldStart = TimeSpan.FromHours(dayStartTime - 1 + elem.Margin.Top / hourHeight);
+
+									if (!DBMethods.MiscRequests.DoesAppointmentClash(data, roomID, day, oldStart))
 									{
-										TimeSpan halfway = oldStart.Add(new TimeSpan(0, (int)(count * 15 + appLength) / 2, 0));
-										lblOut.Content = $"Mouse As Time: {mouseTime}\nMid-point: {halfway}\nDirection: {direction}\nNew Time: {toCheck}";
-
-										bool shouldUpdate = false;
-										if (direction == -1 && mouseTime < halfway) shouldUpdate = true;
-										else if (direction == 1 && mouseTime > halfway) shouldUpdate = true;
-
-										if (shouldUpdate)
-										{
-											newMargin.Top = (toCheck.TotalHours - dayStartTime + 1) * hourHeight;
-											elem.Margin = newMargin;
-										}
-										break;
+										elem.Margin = new Thickness(dDiff * dayWidth * spaceBetweenDays + roomID * dayWidth / appRoomCount, elem.Margin.Top, 0, 0);
 									}
+
+									int direction = (int)((newMargin.Top - elem.Margin.Top) / Math.Abs(newMargin.Top - elem.Margin.Top));
+									int count = 0;
+
+									while (true)
+									{
+										count += direction;
+										TimeSpan toCheck = oldStart.Add(TimeSpan.FromMinutes(count * 15));
+										if (toCheck.TotalHours > 18 || toCheck.TotalHours < 9) break;
+										bool doesNewClash = DBMethods.MiscRequests.DoesAppointmentClash(data, roomID, day, toCheck);
+										if (!doesNewClash)
+										{
+											TimeSpan halfway = oldStart.Add(TimeSpan.FromMinutes((count * 15 + appLength) / 2));
+
+											TimeSpan mouseTime = TimeSpan.FromMinutes((dayStartTime - 1 + mousePos.Y / hourHeight) * 60);
+											bool shouldUpdate = false;
+											if (direction == -1 && mouseTime < halfway) shouldUpdate = true;
+											else if (direction == 1 && mouseTime > halfway) shouldUpdate = true;
+
+											if (shouldUpdate)
+											{
+												newMargin.Top = (toCheck.TotalHours - dayStartTime + 1) * hourHeight;
+												elem.Margin = newMargin;
+											}
+											break;
+										}
+									}
+
 								}
-							}
-							else elem.Margin = newMargin;
+								else elem.Margin = newMargin;
 						}
 					}
 				});
@@ -366,12 +328,63 @@ namespace A2_Project.ContentWindows
 			}
 		}
 
+		private void GetNewMargin(FrameworkElement elem, Point mousePos, out Thickness newMargin, out int roomID, out int dDiff)
+		{
+			Point diff = (Point)(mousePos - diffMouseAndElem);
+
+			int ySnap = hourHeight / 4;
+
+			// Get the middle of the selected element
+			double midLeft = diff.X + elem.Width / 2;
+			double midTop = diff.Y + ySnap / 2;
+
+			// Gets the difference in days between the start of the week and the day the selected appointment should be on
+			dDiff = (int)(midLeft / (dayWidth * spaceBetweenDays));
+			// Gets the x offset that can be used to calculate which room/day the appointment should be placed into.
+
+			// TODO: Should be based on mousePos.X, not midLeft
+			double roomIDOffset = (midLeft % (dayWidth * spaceBetweenDays)) / (dayWidth / appRoomCount);
+
+			// Place the appointment in the correct room/day whenever the user tries to place it into the gap between the days
+			if (roomIDOffset > appRoomCount && roomIDOffset < appRoomCount + 0.5)
+			{
+				roomID = appRoomCount - 1;
+			}
+			else if (roomIDOffset > appRoomCount + 0.5)
+			{
+				roomID = 0;
+				dDiff++;
+			}
+			else
+			{
+				roomID = (int)roomIDOffset;
+			}
+
+			// Allow the selected week to be changed if the currently selected element is moved to either side of the grid
+			if (mousePos.X > dayWidth * spaceBetweenDays * 6 + dayWidth && !hasMoved)
+			{
+				datePicker.SelectedDate = datePicker.SelectedDate.Value.AddDays(7);
+				hasMoved = true;
+			}
+			else if (mousePos.X < 0 && !hasMoved)
+			{
+				datePicker.SelectedDate = datePicker.SelectedDate.Value.AddDays(-7);
+				hasMoved = true;
+			}
+			else if (mousePos.X > 0 && mousePos.X < dayWidth * spaceBetweenDays * 6 + dayWidth) hasMoved = false;
+
+			// 'Snap' the appointment to a grid to represent where it should be
+			newMargin = new Thickness(dDiff * dayWidth * spaceBetweenDays + roomID * dayWidth / appRoomCount, midTop - midTop % ySnap, 0, 0);
+
+			newMargin.Top = Math.Max(hourHeight, newMargin.Top);
+			newMargin.Top = Math.Min((dayEndTime + 1 - dayStartTime) * hourHeight - elem.Height, newMargin.Top);
+		}
+
 		/// <summary>
 		/// Creates a duplicate of the rectangle clicked on to be moved around.
 		/// </summary>
 		private void Rectangle_MouseDown(object sender, MouseButtonEventArgs e)
 		{
-			// TODO: MouseDown should be tested in the Loop() method, not relying on MouseUp and MouseDown events
 			mouseDown = true;
 
 			// Reset the stroke around the previously selected element
@@ -448,7 +461,7 @@ namespace A2_Project.ContentWindows
 				string appID = ((string[])f.Tag)[0];
 				DBMethods.MiscRequests.UpdateColumn(tableName, appDate.ToString("yyyy-MM-dd"), "Appointment Date", idColumnName, appID);
 
-				TimeSpan t = new TimeSpan(dayStartTime - 1, (int)(f.Margin.Top / hourHeight * 60), 0);
+				TimeSpan t = TimeSpan.FromHours(dayStartTime - 1 + f.Margin.Top / hourHeight);
 				DBMethods.MiscRequests.UpdateColumn(tableName, t.ToString("hh\\:mm"), "Appointment Time", idColumnName, appID);
 
 				DBMethods.MiscRequests.UpdateColumn(tableName, roomID.ToString(), "Grooming Room ID", idColumnName, appID);
@@ -479,18 +492,18 @@ namespace A2_Project.ContentWindows
 			labelElements.Clear();
 
 			// If something is currently selected and the mouse is down, the selected element should be carried over to the next week
-			// TODO: This may cause issues in future
 			if (!(currentlySelected is null) && mouseDown)
 			{
+				// TODO: For now, this just adds it in the same position it was in before. Is there anything I can do about this?
 				grdResults.Children.Add(currentlySelected);
 			}
 
 			// Add labels to show hour of day
-			for (int i = dayStartTime; i < dayStartTime + 11; i += 2)
+			for (double i = dayStartTime; i < dayStartTime + 12; i += 1)
 			{
 				Label lblTime = new Label()
 				{
-					Content = i + ":00   ",
+					Content = TimeSpan.FromHours(i).ToString(@"hh\:mm") + "   ",
 					HorizontalAlignment = HorizontalAlignment.Right,
 					Margin = new Thickness(0, (i - dayStartTime + 1) * hourHeight - 24 + baseYOffset, grdResults.Width + grdResults.Margin.Right, 0)
 				};

@@ -22,7 +22,7 @@ namespace A2_Project
 			{
 				DataSource = "(LocalDB)\\MSSQLLocalDB",
 				// TODO: An absolute file path should not be used here.
-				//AttachDBFilename = "C:\\Users\\James\\Desktop\\Projects\\A2-Project\\A2-Project\\Database1.mdf",
+				//AttachDBFilename = "|DataDirectory|DogCareDB.mdf",
 				IntegratedSecurity = true
 			};
 			scStrBuild.AttachDBFilename = "C:\\Users\\james\\Desktop\\Projects\\A2-Project\\A2-Project\\DogCareDB.mdf";
