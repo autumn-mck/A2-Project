@@ -93,7 +93,6 @@ namespace A2_Project.ContentWindows
 		/// </summary>
 		private void Setup()
 		{
-			// TODO: Spaces in column names
 			columns = DBMethods.MetaRequests.GetColumnDataFromTable(tableName);
 			currentData = DBMethods.MetaRequests.GetAllFromTable(tableName, columns.Select(c => c.Name).ToArray());
 			if (tableName == "Contact")
@@ -142,7 +141,7 @@ namespace A2_Project.ContentWindows
 		private void DtgContacts_SelectedCellsChanged(object sender, SelectedCellsChangedEventArgs e)
 		{
 			if (e.AddedCells.Count == 0) return;
-			if (tableName == "Contact") // If the user is looking at contacts, they should be able to see other contacts from the same client. TODO: Consider removing
+			if (tableName == "Contact") // If the user is looking at contacts, they should be able to see other contacts from the same client.
 			{
 				try
 				{

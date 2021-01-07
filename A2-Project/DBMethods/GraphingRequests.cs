@@ -9,6 +9,7 @@ namespace A2_Project.DBMethods
 	public static class GraphingRequests
 	{
 		private static readonly string[] months = new string[] { "Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec" };
+		private static List<List<string>> appTypeData = MetaRequests.GetAllFromTable("Appointment Type");
 
 		public static void GetCountOfAppointmentTypes(ref int[][] data, ref string[] headers, DateTime minDate)
 		{
@@ -110,7 +111,6 @@ namespace A2_Project.DBMethods
 			headers = InterpolateDates(startDate, (int)diff);
 		}
 
-		// TODO: BookedInAdvancedDiscount should be its own table?
 		public static void GetIncomeLastYear(ref int[][] data, ref string[] headers, DateTime minDate)
 		{
 			headers = new string[12];
@@ -120,10 +120,9 @@ namespace A2_Project.DBMethods
 			for (int i = 0; i < 12; i++)
 			{
 				headers[i] = months[startDate.AddMonths(i).Month - 1];
-				string query = "SELECT [Appointment Type ID], [Includes Nail And Teeth], [Booked In Advance Discount] FROM [Appointment] WHERE [Is Paid] = 1 AND [Appointment Date] BETWEEN '" + startDate.AddMonths(i).ToString("yyyy-MM-dd") + "' AND '" + startDate.AddMonths(i + 1).ToString("yyyy-MM-dd") + "';";
+				string query = "SELECT [Appointment Type ID], [Includes Nail And Teeth], [Booking ID], [Appointment ID] FROM [Appointment] WHERE [Is Paid] = 1 AND [Appointment Date] BETWEEN '" + startDate.AddMonths(i).ToString("yyyy-MM-dd") + "' AND '" + startDate.AddMonths(i + 1).ToString("yyyy-MM-dd") + "';";
 				growth.Add(DBAccess.GetListStringsWithQuery(query));
 			}
-			List<List<string>> appTypeData = DBAccess.GetListStringsWithQuery("SELECT * FROM [Appointment Type]");
 			List<double> income = new List<double>();
 			for (int i = 0; i < growth.Count; i++)
 			{
@@ -131,14 +130,30 @@ namespace A2_Project.DBMethods
 				List<List<string>> lls = growth[i];
 				foreach (List<string> ls in lls)
 				{
-					int incomeFromApp = Convert.ToInt32(ls[0]);
-					double t = Convert.ToDouble(appTypeData[incomeFromApp][2]);
-					if (ls[1] == "1") t += 5;
 					// TODO: Use actual costs of appointments
-					income[i] += t - 38;
+					income[i] += CalculateAppointmentPrice(ls.ToArray()) - 44.4;
 				}
 			}
 			data[0] = income.Select(x => (int)Math.Round(x)).ToArray();
+		}
+
+		private static double CalculateAppointmentPrice(string[] data)
+		{
+			double price = 0;
+
+			price += Convert.ToDouble(appTypeData[Convert.ToInt32(data[0])][2]);
+			if (data[1] == "True") price += 10;
+			if (MiscRequests.IsAppointmentInitial(data[3])) price += 5;
+			price *= (100.0 - GetBookingDiscount(data[2])) / 100.0;
+
+			return price;
+		}
+
+		private static double GetBookingDiscount(string bookingID)
+		{
+			int count = Convert.ToInt32(DBAccess.GetStringsWithQuery($"SELECT Count([Appointment ID]) FROM [Appointment] WHERE [Appointment].[Booking ID] = {bookingID};")[0]);
+			if (count > 2) return 5;
+			else return 0;
 		}
 
 		/// <summary>

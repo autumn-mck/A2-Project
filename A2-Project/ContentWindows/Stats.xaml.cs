@@ -48,7 +48,7 @@ namespace A2_Project.ContentWindows
 			GraphAppByMonth();
 			GraphAppCancelRate();
 			GraphCustReturn();
-			//GraphIncome();
+			GraphIncome();
 		}
 
 		private static void GenerateBarGraph(GetData getData, Grid grid, string title, string prefix = "", string suffix = "")
@@ -59,8 +59,9 @@ namespace A2_Project.ContentWindows
 			getData(ref data, ref xAxisLabels, minDate);
 
 			int max = GetMax(data);
-			LabelGraph(grid, data[0].Length, xAxisLabels, title, prefix, suffix, max);
-			GenerateBars(grid, data, max);
+			int min = GetMin(data);
+			LabelGraph(grid, data[0].Length, xAxisLabels, title, prefix, suffix, max, min);
+			GenerateBars(grid, data, max, min);
 		}
 
 		private static void GenerateLineGraph(GetData getData, Grid grid, string title, string prefix = "", string suffix = "")
@@ -70,25 +71,36 @@ namespace A2_Project.ContentWindows
 			getData(ref data, ref xAxisLabels, minDate);
 
 			int max = GetMax(data);
-			LabelGraph(grid, data[0].Length, xAxisLabels, title, prefix, suffix, max);
-			GenerateLines(grid, data, max, data.Length > 1);
+			int min = GetMin(data);
+			LabelGraph(grid, data[0].Length, xAxisLabels, title, prefix, suffix, max, min);
+			GenerateLines(grid, data, max, data.Length > 1, min);
 		}
 
-		private static void LabelGraph(Grid grid, int length, string[] xAxisLabels, string title, string prefix, string suffix, int max)
+		private static void LabelGraph(Grid grid, int length, string[] xAxisLabels, string title, string prefix, string suffix, int max, int min)
 		{
 			GenerateTitle(grid, title);
 			LabelXAxis(grid, length, xAxisLabels);
-			LabelYAxis(grid, max, prefix, suffix);
+			LabelYAxis(grid, max, min, prefix, suffix);
 		}
 
 		private static int GetMax(int[][] arr)
 		{
-			List<int> maxes = new List<int>();
+			int max = 0;
 			foreach (int[] inArr in arr)
 			{
-				maxes.Add(inArr.Max());
+				max = Math.Max(max, inArr.Max());
 			}
-			return maxes.Max();
+			return max;
+		}
+
+		private static int GetMin(int[][] arr)
+		{
+			int min = 0;
+			foreach (int[] inArr in arr)
+			{
+				min = Math.Min(inArr.Min(), min);
+			}
+			return min;
 		}
 
 		private static void DrawFullArea(Grid grid)
@@ -105,9 +117,9 @@ namespace A2_Project.ContentWindows
 			grid.Children.Add(newRect);
 		}
 
-		private static void LabelYAxis(Grid grid, int max, string prefix, string suffix)
+		private static void LabelYAxis(Grid grid, int max, int min, string prefix, string suffix)
 		{
-			if (max == 0)
+			if (max == 0 && min == 0)
 			{
 				TextBlock tbl = new TextBlock
 				{
@@ -122,38 +134,84 @@ namespace A2_Project.ContentWindows
 			}
 			else
 			{
-				double increment;
-				if (max > 20) increment = max * 0.2;
-				else increment = 2;
+				int maxHeight = (int)RoundToSigFigs(max, 2);
+				int minHeight = (int)RoundToSigFigs(min, 2);
 
-				for (double i = 0; i <= max + 0.1; i += increment)
+				double aboveZero = (double)maxHeight / (maxHeight - minHeight);
+				double belowZero = 1 - aboveZero;
+
+				double zeroMarginTop = 34 + aboveZero * 200;
+
+				double countAbove = (int)(aboveZero / 0.2) + 1;
+				for (double i = 0; i <= countAbove; i++)
 				{
+					double marginTop = (zeroMarginTop - (i / countAbove) * 200.0 * aboveZero);
 					Rectangle rct = new Rectangle()
 					{
 						Width = 400,
 						Height = 3,
 						Fill = new LinearGradientBrush(Colors.White, Colors.Black, new Point(0.5, 0.4999), new Point(0.5, 0.5)),
-						Margin = new Thickness(40, 0, 0, (float)(i / max * 200.0 + 35.0)),
+						Margin = new Thickness(40, marginTop, 0, 0),
 						Opacity = 0.3,
 						SnapsToDevicePixels = true,
-						VerticalAlignment = VerticalAlignment.Bottom,
+						VerticalAlignment = VerticalAlignment.Top,
 						HorizontalAlignment = HorizontalAlignment.Left
 					};
+					if (i == 0) rct.Opacity = 1;
 
 					TextBlock tbl = new TextBlock
 					{
-						Text = prefix + (int)RoundToSigFigs(i, 2) + suffix + " -",
-						Margin = new Thickness(0, 0, 463, (float)(i / max * 200.0 + 28.0)),
+						Text = prefix + Math.Round(RoundToSigFigs(i / countAbove * maxHeight, 2), 2, MidpointRounding.AwayFromZero) + suffix + "  ",
+						Margin = new Thickness(0, marginTop - 7, 463, 0),
 						Foreground = Brushes.White,
 						TextWrapping = TextWrapping.Wrap,
-						VerticalAlignment = VerticalAlignment.Bottom,
+						VerticalAlignment = VerticalAlignment.Top,
 						HorizontalAlignment = HorizontalAlignment.Right
 					};
 					Panel.SetZIndex(rct, 1);
 					grid.Children.Add(rct);
 					grid.Children.Add(tbl);
+
+					GenYLabel(grid, prefix, suffix, maxHeight, countAbove, i, marginTop);
+				}
+
+				double countBelow = -(int)(belowZero / 0.2) - 1;
+				if (belowZero == 0) countBelow = 0;
+				prefix = "-" + prefix;
+				for (double i = -1; i >= countBelow; i--)
+				{
+					double marginTop = (zeroMarginTop + (i / countBelow) * 200.0 * belowZero);
+					GenYLabel(grid, prefix, suffix, minHeight, countBelow, i, marginTop);
 				}
 			}
+		}
+
+		private static void GenYLabel(Grid grid, string prefix, string suffix, int maxValue, double countDirection, double i, double marginTop)
+		{
+			Rectangle rct = new Rectangle()
+			{
+				Width = 400,
+				Height = 2,
+				Fill = new LinearGradientBrush(Colors.White, Colors.Black, new Point(0.5, 0.4999), new Point(0.5, 0.5)),
+				Margin = new Thickness(40, marginTop, 0, 0),
+				Opacity = 0.3,
+				SnapsToDevicePixels = true,
+				VerticalAlignment = VerticalAlignment.Top,
+				HorizontalAlignment = HorizontalAlignment.Left
+			};
+
+			TextBlock tbl = new TextBlock
+			{
+				Text = prefix + Math.Abs(Math.Round(RoundToSigFigs(i / countDirection * maxValue, 2), 2, MidpointRounding.AwayFromZero)) + suffix + "  ",
+				Margin = new Thickness(0, marginTop - 7, 463, 0),
+				Foreground = Brushes.White,
+				TextWrapping = TextWrapping.Wrap,
+				VerticalAlignment = VerticalAlignment.Top,
+				HorizontalAlignment = HorizontalAlignment.Right
+			};
+			Panel.SetZIndex(rct, 1);
+			grid.Children.Add(rct);
+			grid.Children.Add(tbl);
 		}
 
 		private static void LabelXAxis(Grid grid, int length, string[] labels)
@@ -202,23 +260,40 @@ namespace A2_Project.ContentWindows
 			}
 		}
 
-		private static void GenerateBars(Grid grid, int[][] data, int max)
+		private static void GenerateBars(Grid grid, int[][] data, int max, int min)
 		{
 			DrawFullArea(grid);
+
+			int maxHeight = (int)RoundToSigFigs(max, 2);
+			int minHeight = (int)RoundToSigFigs(min, 2);
+
+			double aboveZero = (double)maxHeight / (maxHeight - minHeight);
+			double belowZero = 1 - aboveZero;
+
+			double zeroMarginTop = 34 + aboveZero * 200;
+
 			if (data.Length == 1)
 			{
 				int[] arr = data[0];
 				for (int i = 0; i < arr.Length; i++)
 				{
+					double height;
+					if (arr[i] < 0) height = (double)arr[i] / minHeight * belowZero * 200;
+					else height = (double)arr[i] / maxHeight * aboveZero * 200;
+
+					double marginTop;
+					if (arr[i] < 0) marginTop = zeroMarginTop;
+					else marginTop = zeroMarginTop - height;
+
 					Rectangle newRect = new Rectangle
 					{
 						Width = 400f / arr.Length,
-						Height = (float)arr[i] / max * 200f,
-						Margin = new Thickness(i * (400f / arr.Length) + 40, 0, 0, 35),
+						Height = height,
+						Margin = new Thickness(i * (400f / arr.Length) + 40, marginTop, 0, 0),
 						Fill = Brushes.White,
 						Stroke = Brushes.Black,
 						StrokeThickness = 1,
-						VerticalAlignment = VerticalAlignment.Bottom,
+						VerticalAlignment = VerticalAlignment.Top,
 						HorizontalAlignment = HorizontalAlignment.Left
 					};
 					grid.Children.Add(newRect);
@@ -226,7 +301,7 @@ namespace A2_Project.ContentWindows
 			}
 		}
 
-		private static void GenerateLines(Grid grid, int[][] data, int max, bool isColoured)
+		private static void GenerateLines(Grid grid, int[][] data, int max, bool isColoured, int min)
 		{
 			DrawFullArea(grid);
 			foreach (int[] inArr in data)
@@ -252,8 +327,25 @@ namespace A2_Project.ContentWindows
 					break;
 				}
 
+				int maxHeight = (int)RoundToSigFigs(max, 2);
+				int minHeight = (int)RoundToSigFigs(min, 2);
+
+				double aboveZero = (double)maxHeight / (maxHeight - minHeight);
+				double belowZero = 1 - aboveZero;
+
+				double zeroMarginTop = 34 + aboveZero * 200;
+
 				for (int i = 0; i < inArr.Length - 1; i++)
 				{
+					// TODO: Allow line graphs to graph below 0 properly
+					//double height;
+					//if (inArr[i] < 0) height = (double)inArr[i] / minHeight * belowZero * 200;
+					//else height = (double)inArr[i] / maxHeight * aboveZero * 200;
+
+					//double marginTop;
+					//if (inArr[i] < 0) marginTop = zeroMarginTop;
+					//else marginTop = zeroMarginTop - height;
+
 					Line line = new Line
 					{
 						Margin = new Thickness(0, 0, 0, 0),
@@ -261,8 +353,8 @@ namespace A2_Project.ContentWindows
 						Stroke = new SolidColorBrush(colour),
 						X1 = 40f + i * (400f / (inArr.Length - 1)),
 						X2 = 40f + (i + 1) * (400f / (inArr.Length - 1)),
-						Y1 = 200f - ((float)inArr[i] / max * 200f) + 35f,
-						Y2 = 200f - ((float)inArr[i + 1] / max * 200f) + 35f,
+						Y1 = zeroMarginTop - ((float)inArr[i] / max * 200f),
+						Y2 = zeroMarginTop - ((float)inArr[i + 1] / max * 200f),
 						HorizontalAlignment = HorizontalAlignment.Left
 					};
 					grid.Children.Add(line);

@@ -34,9 +34,9 @@ namespace A2_Project
 		private Stats statsWindow;
 		private readonly Login loginWindow;
 
-		private SolidColorBrush notHighlighted = new SolidColorBrush(Color.FromRgb(240, 240, 240));
-		private SolidColorBrush highlighted = new SolidColorBrush(Color.FromRgb(180, 180, 255));
-		private SolidColorBrush selected = new SolidColorBrush(Color.FromRgb(0, 122, 204));
+		private SolidColorBrush notHighlighted = new SolidColorBrush(Color.FromRgb(161, 161, 161));
+		private SolidColorBrush highlighted = new SolidColorBrush(Color.FromRgb(250, 250, 250));
+		private SolidColorBrush selected = new SolidColorBrush(Color.FromRgb(33, 150, 243));
 
 		private Grid[] grdButtons;
 
@@ -62,6 +62,7 @@ namespace A2_Project
 			foreach (Grid g in grdButtons)
 			{
 				Rectangle r = new Rectangle();
+				r.Fill = notHighlighted;
 				Panel.SetZIndex(r, -1);
 				g.Children.Add(r);
 
