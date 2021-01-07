@@ -78,7 +78,7 @@ namespace A2_Project
 		/// </summary>
 		public static void SendInvoiceEmail(string recipient, DataTable table, string[] tableHeaders)
 		{
-			SendEmail(recipient, GenerateInvoiceHTML(DataTableToStringArrays(table), tableHeaders), "Monthly Invoice");
+			SendEmail(recipient, "Monthly Invoice", GenerateInvoiceHTML(DataTableToStringArrays(table), tableHeaders));
 		}
 
 		private static string[][] DataTableToStringArrays(DataTable table)
