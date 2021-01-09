@@ -19,17 +19,7 @@ namespace A2_Project.ContentWindows
 
 		private void TryLogin()
 		{
-			if (attemptsLeft < 2)
-			{
-				attemptsLeft = 3;
-				txtLogUser.IsEnabled = false;
-				txtLogUser.Text = "";
-				pswLogPassword.IsEnabled = false;
-				pswLogPassword.Password = "";
-				lblOutput.Content = "You have been locked out from logging in.";
-				btnLogIn.IsEnabled = false;
-				return;
-			}
+			if (attemptsLeft < 1) return;
 
 			if (txtLogUser.Text == "" || pswLogPassword.Password == "") { }
 			if (IsLoginDataCorrect(txtLogUser.Text, pswLogPassword.Password))
@@ -44,7 +34,7 @@ namespace A2_Project.ContentWindows
 					grdLog.HorizontalAlignment = HorizontalAlignment.Left;
 					grdLog.Margin = new Thickness(100, 0, 0, 0);
 					lblOutput.Foreground = new SolidColorBrush(Color.FromRgb(241, 241, 241));
-					lblOutput.Content = "\tEmail correct!\nPlease enter the authentication key\nwhich has just been emailed to you.";
+					lblOutput.Content = "Name/Password correct!\nPlease enter the authentication key\nwhich has just been emailed to you.";
 					pswLogPassword.IsEnabled = false;
 					txtLogUser.IsEnabled = false;
 					btnLogIn.Content = "Resend code";
@@ -56,6 +46,17 @@ namespace A2_Project.ContentWindows
 			}
 			else
 			{
+				if (attemptsLeft < 2)
+				{
+					txtLogUser.IsEnabled = false;
+					txtLogUser.Text = "";
+					pswLogPassword.IsEnabled = false;
+					pswLogPassword.Password = "";
+					lblOutput.Content = "You have been locked out from logging in.";
+					btnLogIn.IsEnabled = false;
+					return;
+				}
+
 				attemptsLeft--;
 				lblOutput.Content = "Incorrect username/password!\nYou have " + attemptsLeft + " attempts left.";
 			}
@@ -94,7 +95,7 @@ namespace A2_Project.ContentWindows
 		{
 			lblOutput.Content = "Logged in!";
 			((MainWindow)Owner).CurrentUser = txtLogUser.Text;
-			((MainWindow)Owner).HasLoggedIn();
+			((MainWindow)Owner).LoggedIn();
 		}
 	}
 }
