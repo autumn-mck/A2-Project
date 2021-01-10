@@ -15,7 +15,9 @@ namespace A2_Project
 		{
 			FileStream s = new FileStream(dataLocation + file, FileMode.Open);
 			StreamReader sr = new StreamReader(s);
-			return sr.ReadToEnd();
+			string str = sr.ReadToEnd();
+			sr.Close();
+			return str;
 		}
 
 		public static string GetEmailPassword()
