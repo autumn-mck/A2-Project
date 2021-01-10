@@ -10,8 +10,8 @@ DROP TABLE Client;
 CREATE TABLE [Client] (
 	[Client ID] INT NOT NULL PRIMARY KEY,
 	[Client Notes] VARCHAR(100),
-	[Client Join Date] DATE,
-	[Client Payment Method] VARCHAR(15)
+	[Client Join Date] DATE NOT NULL,
+	[Client Payment Method] VARCHAR(15) NOT NULL
 );
 	
 CREATE TABLE [Contact] (
@@ -21,7 +21,7 @@ CREATE TABLE [Contact] (
 	[Client Email] VARCHAR(40),
 	[Client Address] VARCHAR(100),
 	[Client Postcode] VARCHAR(10),
-	[Client Phone No] VARCHAR(20)
+	[Client Phone No] VARCHAR(15)
 );
 
 CREATE TABLE [Dog] (
