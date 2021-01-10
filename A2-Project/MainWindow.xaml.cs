@@ -112,7 +112,7 @@ namespace A2_Project
 			double prevT = 0; // The time passed the previous time the loop completed
 			Stopwatch stopwatch = new Stopwatch();
 			stopwatch.Start();
-			while (!toExit && (tPassed = stopwatch.Elapsed.TotalSeconds) < tMax)
+			while (!toExit && (tPassed = stopwatch.Elapsed.TotalSeconds) <= tMax)
 			{
 				// Sinusoidal animation
 				Dispatcher.Invoke(() => grdMenuButtons.Width += Math.Sin(tPassed / tMax * Math.PI / 2) * lclMenuDir * a - Math.Sin(prevT / tMax * Math.PI / 2) * lclMenuDir * a);
@@ -125,7 +125,7 @@ namespace A2_Project
 		/// <summary>
 		/// Allows the user to access all content windows whenever they have logged in
 		/// </summary>
-		public void HasLoggedIn()
+		public void LoggedIn()
 		{
 			lblContents.Content = null;
 			grdAccounts.MouseDown += GrdAccounts_MouseDown;
@@ -160,6 +160,7 @@ namespace A2_Project
 		private void GrdToggleMenu_MouseDown(object sender, MouseButtonEventArgs e)
 		{
 			Thread thread = new Thread(MenuTransition);
+			thread.IsBackground = true;
 			thread.Start();
 		}
 

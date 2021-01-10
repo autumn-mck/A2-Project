@@ -8,12 +8,6 @@
 		Title="ContactManagement" Height="1080" Width="1876" Background="#111111" Closing="Window_Closing">
 	<Grid x:Name="grd" Height="1080" Width="1876">
 		<Grid.Resources>
-			<Style TargetType="Label">
-				<Setter Property="Foreground" Value="#D5D5D5"/>
-				<Setter Property="FontSize" Value="24"/>
-				<Setter Property="HorizontalAlignment" Value="Left"/>
-				<Setter Property="VerticalAlignment" Value="Top"/>
-			</Style>
 			<Style TargetType="DataGrid">
 				<Setter Property="RowHeaderWidth" Value="0"/>
 				<Setter Property="Background" Value="#151515"/>
@@ -44,42 +38,31 @@
 				</Style.Resources>
 			</Style>
 		</Grid.Resources>
-		<Label x:Name="lblColumn" Content="Column:" HorizontalAlignment="Left" FontSize="30" Margin="321,14,0,0" VerticalAlignment="Top"/>
-		<ComboBox x:Name="cmbColumn" HorizontalAlignment="Left" Margin="476,33,0,0" VerticalAlignment="Top" Width="120" SelectionChanged="CmbColumn_SelectionChanged" RenderTransformOrigin="0.5,0.5">
-			<ComboBox.RenderTransform>
-				<ScaleTransform ScaleX="1.5" ScaleY="1.5"/>
-			</ComboBox.RenderTransform>
-		</ComboBox>
-		<Label x:Name="lblSearch" Content="Search term:" HorizontalAlignment="Left" FontSize="30" Margin="321,69,0,0" VerticalAlignment="Top"/>
-		<TextBox x:Name="tbxSearch" HorizontalAlignment="Left" FontSize="30" Margin="501,73,0,0" Text="TextBox" TextWrapping="Wrap"
-		VerticalAlignment="Top" MinWidth="100" TextChanged="TbxSearch_TextChanged"/>
-
-		<DataGrid Name="dtgContacts"
-			SelectedCellsChanged="DtgContacts_SelectedCellsChanged"
-			Width="860" Height="700"
-			AutoGeneratingColumn="Dtg_AutoGeneratingColumn"
-			LoadingRow="Dtg_LoadingRow" Margin="10,120,0,0"/>
-
-		<DataGrid Name="dtgContactsToClient"
-			Width="860" Height="200"
-			SelectedCellsChanged="DtgContactsToClient_SelectedCellsChanged"
-			AutoGeneratingColumn="Dtg_AutoGeneratingColumn"
-			LoadingRow="Dtg_LoadingRow" Margin="10,825,0,0"/>
-		<Label x:Name="lblSelTable" Content="Table:" HorizontalAlignment="Left" FontSize="30" Margin="10,14,0,0" VerticalAlignment="Top"/>
+		<Label x:Name="lblSelTable" Content="Table:" HorizontalAlignment="Left" Foreground="#D5D5D5" FontSize="30" Margin="10,14,0,0" VerticalAlignment="Top"/>
 		<ComboBox x:Name="cmbTable" HorizontalAlignment="Left" Margin="130,33,0,0" VerticalAlignment="Top" Width="120" SelectionChanged="CmbTable_SelectionChanged" RenderTransformOrigin="0.5,0.5">
 			<ComboBox.RenderTransform>
 				<ScaleTransform ScaleX="1.5" ScaleY="1.5"/>
 			</ComboBox.RenderTransform>
 		</ComboBox>
+		<Label x:Name="lblSearchData" HorizontalAlignment="Left" VerticalAlignment="Top" Margin="0,100,0,0"/>
 
 		<Label x:Name="lblSidebar" HorizontalAlignment="Right" Width="950"/>
 
 		<Grid x:Name="grdFKeyErrorOuter" Width="550" Height="300" Background="#FFFFFF" Visibility="Hidden" Panel.ZIndex="1">
 			<Grid x:Name="grdFKeyErrorInner" Background="#111111" Margin="2,2,2,2">
-				<TextBlock x:Name="tblFKeyRefError" Text="Error message here" Margin="10,10,10,10" FontSize="30"/>
+				<Grid.Resources>
+					<Style TargetType="TextBlock">
+						<Setter Property="Foreground" Value="#D5D5D5"/>
+						<Setter Property="FontSize" Value="30"/>
+						<Setter Property="TextWrapping" Value="Wrap"/>
+					</Style>
+				</Grid.Resources>
+				<TextBlock x:Name="tblFKeyRefError" Text="Error message here" Margin="10,10,10,10"/>
 				<Button x:Name="btnFkeyErrorAccept" Click="BtnFkeyErrorAccept_Click" Content="Accept" HorizontalAlignment="Center" VerticalAlignment="Bottom" Margin="200,0,0,10"/>
 				<Button x:Name="btnFkeyErrorDecline" Click="BtnFkeyErrorDecline_Click" Content="Decline" HorizontalAlignment="Center" VerticalAlignment="Bottom" Margin="-200,0,0,10"/>
 			</Grid>
 		</Grid>
+		<Button x:Name="btnPrint" Content="Print" FontSize="24" Width="100" HorizontalAlignment="Left" Margin="770,28,0,0" VerticalAlignment="Top" Click="BtnPrint_Click"/>
+		<Button x:Name="btnEmail" Content="Email" FontSize="24" Width="100" HorizontalAlignment="Left" Margin="663,28,0,0" VerticalAlignment="Top" Click="BtnEmail_Click"/>
 	</Grid>
 </Window>

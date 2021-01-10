@@ -41,9 +41,6 @@ namespace A2_Project.ContentWindows
 
 		private bool toExit = false;
 
-		// Stores data about all appointment types
-		private List<List<string>> appTypes;
-
 		// The date picker used for selecting a week to display
 		private CustomDatePicker datePicker;
 		// The name of the appointment table
@@ -71,11 +68,10 @@ namespace A2_Project.ContentWindows
 			// Get the number of rooms
 			appRoomCount = Convert.ToInt32(DBMethods.MiscRequests.GetMinKeyNotUsed("Grooming Room", "Grooming Room ID"));
 			// For now, filtering by staff is default
+			// TODO: This requests more data than is needed, just to discard it
 			keyLabels = DBMethods.MetaRequests.GetAllFromTable("Staff").Select(x => x[1]).ToArray();
 			// Get the column data for the appointment table
 			columns = DBMethods.MetaRequests.GetColumnDataFromTable(tableName);
-			// Get all data for the different appointment types
-			appTypes = DBMethods.MetaRequests.GetAllFromTable("Appointment Type");
 
 			// Get the colours for filters
 			colours[0] = Color.FromRgb(183, 28, 28); // Red
@@ -88,6 +84,7 @@ namespace A2_Project.ContentWindows
 
 			// Start the thread for moving the selected element to the mouse when needed
 			Thread loopThread = new Thread(Loop);
+			loopThread.IsBackground = true;
 			loopThread.Start();
 
 			// Create a DatePicker used for selecting a date to display
