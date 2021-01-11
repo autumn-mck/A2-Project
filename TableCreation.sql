@@ -9,7 +9,7 @@ DROP TABLE Client;
 
 CREATE TABLE [Client] (
 	[Client ID] INT NOT NULL PRIMARY KEY,
-	[Client Notes] VARCHAR(100),
+	[Client Notes] VARCHAR(127),
 	[Client Join Date] DATE NOT NULL,
 	[Client Payment Method] VARCHAR(15) NOT NULL
 );
@@ -17,10 +17,10 @@ CREATE TABLE [Client] (
 CREATE TABLE [Contact] (
 	[Contact ID] INT NOT NULL PRIMARY KEY,
 	[Client ID] INT NOT NULL FOREIGN KEY REFERENCES [Client] ON DELETE CASCADE,
-	[Client Name] VARCHAR(30) NOT NULL,
-	[Client Email] VARCHAR(40),
-	[Client Address] VARCHAR(100),
-	[Client Postcode] VARCHAR(10),
+	[Client Name] VARCHAR(70) NOT NULL,
+	[Client Email] VARCHAR(257),
+	[Client Address] VARCHAR(127),
+	[Client Postcode] VARCHAR(8),
 	[Client Phone No] VARCHAR(15)
 );
 
@@ -35,10 +35,10 @@ CREATE TABLE [Dog] (
 
 CREATE TABLE [Staff] (
 	[Staff ID] INT NOT NULL PRIMARY KEY,
-	[Staff Name] VARCHAR(30) NOT NULL,
+	[Staff Name] VARCHAR(70) NOT NULL,
 	[Staff Password] VARCHAR(64) NOT NULL,
 	[Password Salt] VARCHAR(32) NOT NULL,
-	[Staff Email] VARCHAR(128),
+	[Staff Email] VARCHAR(257),
 	[Staff Phone No] VARCHAR(15), 
 	[Staff Uses 2FA] BIT NOT NULL
 );
@@ -95,9 +95,9 @@ INSERT INTO [Staff] VALUES (
 
 CREATE TABLE [Appointment Type] (
 	[Appointment Type ID] INT NOT NULL PRIMARY KEY,
-	[Base Time Taken] DECIMAL (10, 5) NOT NULL,
+	[Base Time Taken] DECIMAL (7, 5) NOT NULL,
 	[Base Price] DECIMAL (10, 2) NOT NULL,
-	[Description] VARCHAR(100) NOT NULL
+	[Description] VARCHAR(127) NOT NULL
 );
 
 INSERT INTO [Appointment Type] VALUES (
@@ -123,8 +123,8 @@ INSERT INTO [Appointment Type] VALUES (
 
 CREATE TABLE [Grooming Room] (
 	[Grooming Room ID] INT NOT NULL PRIMARY KEY,
-	[Grooming Room Name] VARCHAR(20) NOT NULL,
-	[Grooming Room Notes] VARCHAR(50)
+	[Grooming Room Name] VARCHAR(31) NOT NULL,
+	[Grooming Room Notes] VARCHAR(63)
 );
 
 INSERT INTO [Grooming Room] VALUES (
