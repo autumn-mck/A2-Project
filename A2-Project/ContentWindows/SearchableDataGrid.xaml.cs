@@ -90,6 +90,11 @@ namespace A2_Project.ContentWindows
 			// Note that an exception is thrown if there are other items which reference the item to be deleted
 			// This means this method must be called from within a try/catch block
 			DBMethods.MiscRequests.DeleteItem(tableName, columns[0].Name, drv.Row.ItemArray[0].ToString(), deleteRef);
+
+			string id = drv.Row.ItemArray[0].ToString();
+			List<string> oldData = currentData.Where(x => x[0] == id).First();
+			currentData.Remove(oldData);
+
 			dataTable.Rows.Remove(drv.Row);
 		}
 

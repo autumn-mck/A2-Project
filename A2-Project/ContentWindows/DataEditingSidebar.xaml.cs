@@ -498,6 +498,7 @@ namespace A2_Project.ContentWindows
 
 				if (succeeded)
 				{
+					//if (isNew) AddToEdit();
 					// Tell the user their changes have been saved without displaying an intrusive message
 					b.Content = "Changes saved!";
 					await Task.Delay(2000);
