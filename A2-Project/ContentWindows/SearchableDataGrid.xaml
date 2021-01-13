@@ -56,8 +56,8 @@
 
 		<DataGrid Name="dtgData"
 			SelectedCellsChanged="Dtg_SelectedCellsChanged"
-			Width="860" Height="700"
+			Height="700"
 			AutoGeneratingColumn="Dtg_AutoGeneratingColumn"
-			LoadingRow="Dtg_LoadingRow" Margin="0,60,0,0" HorizontalAlignment="Center"/>
+			LoadingRow="Dtg_LoadingRow" Margin="0,60,0,0" HorizontalAlignment="Left"/>
 	</Grid>
 </Window>
