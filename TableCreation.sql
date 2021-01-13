@@ -17,13 +17,13 @@ CREATE TABLE [Client] (
 CREATE TABLE [Contact] (
 	[Contact ID] INT NOT NULL PRIMARY KEY,
 	[Client ID] INT NOT NULL FOREIGN KEY REFERENCES [Client] ON DELETE CASCADE,
-	[Client Name] VARCHAR(70) NOT NULL,
-	[Client Email] VARCHAR(257),
-	[Client Address] VARCHAR(127),
+	[Contact Name] VARCHAR(70) NOT NULL,
+	[Contact Email] VARCHAR(257),
+	[Contact Address] VARCHAR(127),
 	[Contact Town] VARCHAR(63),
 	[Contact County] VARCHAR(31),
-	[Client Postcode] VARCHAR(8),
-	[Client Phone No] VARCHAR(15)
+	[Contact Postcode] VARCHAR(8),
+	[Contact Phone No] VARCHAR(15)
 );
 
 CREATE TABLE [Dog] (
