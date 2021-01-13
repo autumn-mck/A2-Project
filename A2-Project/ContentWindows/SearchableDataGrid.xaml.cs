@@ -2,16 +2,9 @@
 using System.Collections.Generic;
 using System.Data;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls;
-using System.Windows.Data;
-using System.Windows.Documents;
-using System.Windows.Input;
 using System.Windows.Media;
-using System.Windows.Media.Imaging;
-using System.Windows.Shapes;
 
 namespace A2_Project.ContentWindows
 {
@@ -28,9 +21,14 @@ namespace A2_Project.ContentWindows
 
 		private Window containingWindow;
 
-		public SearchableDataGrid(string _tableName, DBObjects.Column[] _columns, Window _containingWindow)
+		private bool shouldUpdateSearch = true;
+
+		public SearchableDataGrid(double _height, double _width, string _tableName, DBObjects.Column[] _columns, Window _containingWindow)
 		{
 			InitializeComponent();
+
+			dtgData.Height = _height;
+			//dtgData.Width = _width;
 
 			tableName = _tableName;
 			columns = _columns;
@@ -50,9 +48,16 @@ namespace A2_Project.ContentWindows
 			catch { }
 		}
 
-		private void Search()
+		private void Search(bool isExact = false)
 		{
-			DtgMethods.UpdateSearch(currentData, cmbColumn.SelectedIndex, tbxSearch.Text, tableName, ref dtgData, columns, ref dataTable);
+			if (shouldUpdateSearch)
+			{
+				DataRowView drv = (DataRowView)dtgData.SelectedItem;
+				string[] prevSelection;
+				if (drv is null) prevSelection = null;
+				else prevSelection = drv.Row.ItemArray.Select(a => a.ToString()).ToArray();
+				DtgMethods.UpdateSearch(currentData, cmbColumn.SelectedIndex, tbxSearch.Text, tableName, ref dtgData, columns, ref dataTable, true, isExact, prevSelection);
+			}
 		}
 
 		public void UpdateData(string[] data, bool isNew)
@@ -108,6 +113,32 @@ namespace A2_Project.ContentWindows
 			return dtgData;
 		}
 
+		public void ChangeSearch(int index, string query)
+		{
+			shouldUpdateSearch = false;
+			tbxSearch.Text = query;
+			cmbColumn.SelectedIndex = index + 1;
+			shouldUpdateSearch = true;
+			Search(true);
+		}
+
+		public void ClearSearch()
+		{
+			tbxSearch.Text = "";
+		}
+
+		public string[] GetSelectedData()
+		{
+			System.Collections.IList selectedItems = dtgData.SelectedItems;
+			if (selectedItems.Count == 0) return null;
+			return ((DataRowView)selectedItems[0]).Row.ItemArray.OfType<string>().ToArray();
+		}
+
+		public void UpdateSelectedIndex(int newSelIndex)
+		{
+			dtgData.SelectedIndex = newSelIndex;
+		}
+
 		#region Events
 
 		#region DataGrid Events
@@ -131,6 +162,9 @@ namespace A2_Project.ContentWindows
 			dgtc.CellTemplate = dataTemplate;
 			tb.SetBinding(TextBlock.TextProperty, dgTextC.Binding);
 
+			dgtc.MinWidth = 70;
+			dgtc.MaxWidth = 160;
+
 			// Add column back to data grid
 			if (sender is DataGrid dg) dg.Columns.Add(dgtc);
 		}
@@ -144,6 +178,7 @@ namespace A2_Project.ContentWindows
 			string[] newData = ((DataRowView)dtgData.SelectedItems[0]).Row.ItemArray.OfType<string>().ToArray();
 
 			if (containingWindow is ContactManagement contactManagement) contactManagement.TableSelectionChanged(newData);
+			else if (containingWindow is ClientManagement clientManagement) clientManagement.TableSelectionChanged(this, newData);
 		}
 
 		/// <summary>
@@ -158,12 +193,14 @@ namespace A2_Project.ContentWindows
 
 			switch (tableName)
 			{
+				case "Dog":
 				case "Contact": // Group contacts together by their ClientID
 					if (Convert.ToInt32(strArr[1]) % 2 == 0) row.Background = (SolidColorBrush)new BrushConverter().ConvertFrom("#161616");
 					else row.Background = (SolidColorBrush)new BrushConverter().ConvertFrom("#252526");
 					break;
 				default:
-					row.Background = (SolidColorBrush)new BrushConverter().ConvertFrom("#252526");
+					if (Convert.ToInt32(strArr[0]) % 2 == 0) row.Background = (SolidColorBrush)new BrushConverter().ConvertFrom("#161616");
+					else row.Background = (SolidColorBrush)new BrushConverter().ConvertFrom("#252526");
 					break;
 			}
 

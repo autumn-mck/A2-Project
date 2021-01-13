@@ -76,7 +76,7 @@ namespace A2_Project.ContentWindows
 			lblSidebar.Content = editingSidebar.Content;
 
 			if (!(searchableDataGrid is null)) searchableDataGrid.Close();
-			searchableDataGrid = new SearchableDataGrid(tableName, columns, this);
+			searchableDataGrid = new SearchableDataGrid(700, 850, tableName, columns, this);
 			lblSearchData.Content = searchableDataGrid.Content;
 		}
 

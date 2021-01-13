@@ -20,6 +20,8 @@ CREATE TABLE [Contact] (
 	[Client Name] VARCHAR(70) NOT NULL,
 	[Client Email] VARCHAR(257),
 	[Client Address] VARCHAR(127),
+	[Contact Town] VARCHAR(63),
+	[Contact County] VARCHAR(31),
 	[Client Postcode] VARCHAR(8),
 	[Client Phone No] VARCHAR(15)
 );

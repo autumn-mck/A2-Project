@@ -32,6 +32,7 @@ namespace A2_Project
 		private CalandarView calWindow;
 		private ContactManagement contactManWindow;
 		private Stats statsWindow;
+		private ClientManagement cliWindow;
 		private readonly Login loginWindow;
 
 		private SolidColorBrush notHighlighted = new SolidColorBrush(Color.FromRgb(161, 161, 161));
@@ -181,7 +182,9 @@ namespace A2_Project
 
 		private void GrdInvoices_MouseDown(object sender, MouseButtonEventArgs e)
 		{
-			// TODO: Add InvoiceManagement window
+			if (cliWindow == null)
+				cliWindow = new ClientManagement() { Owner = this };
+			lblContents.Content = cliWindow.Content;
 		}
 
 		private void GrdAddStaff_MouseDown(object sender, MouseButtonEventArgs e)
