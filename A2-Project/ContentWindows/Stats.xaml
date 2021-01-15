@@ -7,17 +7,32 @@
         mc:Ignorable="d"
         Title="Stats" Height="1080" Width="1876" Background="#151515">
 	<Grid Height="1080" Width="1876">
-		<Grid x:Name="grdAppTypes" Width="500" Height="270" HorizontalAlignment="Left" VerticalAlignment="Top" Margin="50,50,0,0"/>
-		<Grid x:Name="grdStaffBusiness" Width="500" Height="270" HorizontalAlignment="Left" VerticalAlignment="Top" Margin="50,400,0,0"/>
-		<Grid x:Name="grdGrowth" Width="500" Height="270" HorizontalAlignment="Left" VerticalAlignment="Top" Margin="50,750,0,0"/>
-		<Grid x:Name="grdDaysOfWeek" Width="500" Height="270" HorizontalAlignment="Left" VerticalAlignment="Top" Margin="600,50,0,0"/>
-		<Grid x:Name="grdAppByMonth" Width="500" Height="270" HorizontalAlignment="Left" VerticalAlignment="Top" Margin="600,400,0,0"/>
-		<Grid x:Name="grdAppCancelRate" Width="500" Height="270" HorizontalAlignment="Left" VerticalAlignment="Top" Margin="600,750,0,0"/>
-		<Grid x:Name="grdIncome" Width="500" Height="270" HorizontalAlignment="Left" VerticalAlignment="Top" Margin="1150,50,0,0"/>
-		<Grid x:Name="grdRepeatCustomers" Width="500" Height="270" HorizontalAlignment="Left" VerticalAlignment="Top" Margin="1150,750,0,0"/>
-		<ComboBox x:Name="cmbTimescale" HorizontalAlignment="Left" Margin="672,325,0,0" VerticalAlignment="Top" Width="120" RenderTransformOrigin="0.5,0.5">
+		<Grid.Resources>
+			<Style TargetType="Grid">
+				<Setter Property="Width" Value="500"/>
+				<Setter Property="Height" Value="270"/>
+				<Setter Property="VerticalAlignment" Value="Top"/>
+			</Style>
+		</Grid.Resources>
+		<Grid x:Name="grdAppTypes" HorizontalAlignment="Left"		Margin="150,100,0,0"/>
+		<Grid x:Name="grdStaffBusiness" HorizontalAlignment="Left"	Margin="150,425,0,0"/>
+		<Grid x:Name="grdGrowth" HorizontalAlignment="Left"			Margin="150,750,0,0"/>
+		<Grid x:Name="grdDaysOfWeek" HorizontalAlignment="Center"	Margin="0,100,0,0"/>
+		<Grid x:Name="grdMiscStats" HorizontalAlignment="Center"	Margin="0,425,0,0">
+			<Grid.Resources>
+				<Style TargetType="Label">
+					<Setter Property="FontSize" Value="16"/>
+					<Setter Property="Foreground" Value="#F0F0F0"/>
+				</Style>
+			</Grid.Resources>
+		</Grid>
+		<Grid x:Name="grdAppCancelRate" HorizontalAlignment="Center" Margin="0,750,0,0"/>
+		<Grid x:Name="grdIncome" HorizontalAlignment="Right"		Margin="0,100,150,0"/>
+		<Grid x:Name="grdAppByMonth" HorizontalAlignment="Right"	Margin="0,425,150,0"/>
+		<Grid x:Name="grdRepeatCustomers" HorizontalAlignment="Right" Margin="0,750,150,0"/>
+		<ComboBox x:Name="cmbTimescale" HorizontalAlignment="Center" Margin="0,40,0,0" VerticalAlignment="Top" Width="120" RenderTransformOrigin="0.5,0.5">
 			<ComboBox.RenderTransform>
-				<ScaleTransform ScaleX="2" ScaleY="1.85"/>
+				<ScaleTransform ScaleX="2" ScaleY="2"/>
 			</ComboBox.RenderTransform>
 		</ComboBox>
 	</Grid>
