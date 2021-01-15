@@ -589,9 +589,12 @@ namespace A2_Project.ContentWindows
 			DBMethods.DBAccess.UpdateTable(tableName, columns.Select(x => x.Name).ToArray(), data, isNew);
 		}
 
-		internal void DeleteItem()
+		internal void CancelApp()
 		{
-			throw new NotImplementedException();
+			// TODO: Should the appointment be deleted, or just cancelled?
+			string[] data = (string[])currentlySelected.Tag;
+			DBMethods.MiscRequests.DeleteItem(tableName, columns[0].Name, data[0].ToString());
+			grdResults.Children.Remove(currentlySelected);
 		}
 
 		/// <summary>
