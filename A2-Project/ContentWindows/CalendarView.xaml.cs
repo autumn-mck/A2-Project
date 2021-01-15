@@ -580,10 +580,18 @@ namespace A2_Project.ContentWindows
 		/// </summary>
 		public void UpdateFromSidebar(string[] data, bool isNew)
 		{
-			Rectangle r = grdResults.Children.OfType<Rectangle>().Where(r => r.Tag != null && ((string[])r.Tag)[0] == data[0]).First();
-			grdResults.Children.Remove(r);
+			if (!isNew)
+			{
+				Rectangle r = grdResults.Children.OfType<Rectangle>().Where(r => !(r.Tag is null) && ((string[])r.Tag)[0] == data[0]).First();
+				grdResults.Children.Remove(r);
+			}
 			GenRectFromData(data);
 			DBMethods.DBAccess.UpdateTable(tableName, columns.Select(x => x.Name).ToArray(), data, isNew);
+		}
+
+		internal void DeleteItem()
+		{
+			throw new NotImplementedException();
 		}
 
 		/// <summary>

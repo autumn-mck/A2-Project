@@ -65,6 +65,13 @@ namespace A2_Project.DBMethods
 			return DBAccess.GetStringsWithQuery($"SELECT TOP 1 t1.[{col}]+1 FROM [{table}] t1 WHERE NOT EXISTS(SELECT * FROM [{table}] t2 WHERE t2.[{col}] = t1.[{col}] + 1) ORDER BY t1.[{col}]")[0];
 		}
 
+		public static bool IsAppointmentInitial(string[] data)
+		{
+			string dogID = data[1];
+			string clientFirstAppID = DBAccess.GetStringsWithQuery($"SELECT TOP 1 [Appointment].[Appointment ID] FROM [Appointment] INNER JOIN [Dog] ON [Dog].[Dog ID] = [Appointment].[Dog ID] WHERE [Dog].[Dog ID] = {dogID} ORDER BY [Appointment].[Appointment Date], [Appointment].[Appointment Time];")[0];
+			return data[0] == clientFirstAppID;
+		}
+
 		public static bool IsAppointmentInitial(string appID)
 		{
 			string dogID = DBAccess.GetStringsWithQuery($"SELECT [Dog].[Dog ID] FROM [Dog] INNER JOIN [Appointment] ON [Appointment].[Dog ID] = [Dog].[Dog ID] WHERE [Appointment].[Appointment ID] = {appID};")[0];
@@ -103,7 +110,14 @@ namespace A2_Project.DBMethods
 
 		public static int GetAppLength(string[] data)
 		{
-			return GetAppLength(Convert.ToInt32(data[2]), data[6] == "True", data[0]);
+			if (AppTypes is null) AppTypes = MetaRequests.GetAllFromTable("Appointment Type");
+
+			// appLength is in minutes
+			int appLength = (int)(Convert.ToDouble(AppTypes[Convert.ToInt32(data[2])][1]) * 60);
+			if (data[6] == "True") appLength += 15;
+			if (IsAppointmentInitial(data)) appLength += 15;
+
+			return appLength;
 		}
 
 		public static int GetAppLength(int typeID, bool includesNailAndTeeth, string appID)
