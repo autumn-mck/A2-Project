@@ -102,12 +102,41 @@ namespace A2_Project.ContentWindows
 			datePicker.SelectedDateChanged += DatePicker_SelectedDateChanged;
 			datePicker.SelectedDate = DateTime.Today;
 
+			Label lblPrevWeek = new Label()
+			{
+				Content = "<",
+				FontSize = 30,
+				FontWeight = FontWeights.Bold,
+				Margin = new Thickness(500, 0, 0, 0)
+			};
+			lblPrevWeek.MouseDown += LblPrevWeek_MouseDown;
+			grd.Children.Add(lblPrevWeek);
+			Label lblNextWeek = new Label()
+			{
+				Content = ">",
+				FontSize = 30,
+				FontWeight = FontWeights.Bold,
+				Margin = new Thickness(760, 0, 0, 0)
+			};
+			lblNextWeek.MouseDown += LblNextWeek_MouseDown;
+			grd.Children.Add(lblNextWeek);
+
 			// Instantiate the editing sidebar
 			editingSidebar = new DataEditingSidebar(columns, tableName, this);
 			lblSidebar.Content = editingSidebar.Content;
 
 			// Start the process of adding the key for the appointment view
 			AddKey();
+		}
+
+		private void LblNextWeek_MouseDown(object sender, MouseButtonEventArgs e)
+		{
+			datePicker.SelectedDate = ((DateTime)datePicker.SelectedDate).AddDays(7);
+		}
+
+		private void LblPrevWeek_MouseDown(object sender, MouseButtonEventArgs e)
+		{
+			datePicker.SelectedDate = ((DateTime)datePicker.SelectedDate).AddDays(-7);
 		}
 
 		private void AddKey(FrameworkElement frPrev = null)
