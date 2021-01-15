@@ -49,6 +49,47 @@ namespace A2_Project.ContentWindows
 			GraphAppCancelRate();
 			GraphCustReturn();
 			GraphIncome();
+			ShowMiscStats();
+		}
+
+		private void ShowMiscStats()
+		{
+			DrawFullArea(grdMiscStats);
+			double baseY = 40;
+			double lblHeight = 30;
+			string timePeriod = cmbTimescale.SelectedItem.ToString().ToLower();
+
+			double sales = DBMethods.GraphingRequests.GetIncomeSinceDate(minDate, DateTime.Now);
+			Label lblSalesLast = new Label()
+			{
+				Content = $"Sales {timePeriod}: £{sales}",
+				Margin = new Thickness(40, baseY, 0, 0)
+			};
+			grdMiscStats.Children.Add(lblSalesLast);
+
+			string gpp = "";
+			Label lblGPP = new Label()
+			{
+				Content = $"Gross profit % {timePeriod}: {gpp}%",
+				Margin = new Thickness(40, baseY + lblHeight, 0, 0)
+			};
+			grdMiscStats.Children.Add(lblGPP);
+
+			string newCustCount = DBMethods.GraphingRequests.GetNewCusts(minDate);
+			Label lblNewCliCount = new Label()
+			{
+				Content = $"No. new customers over {timePeriod}: {newCustCount}",
+				Margin = new Thickness(40, baseY + lblHeight * 2, 0, 0)
+			};
+			grdMiscStats.Children.Add(lblNewCliCount);
+
+			string percCap = "";
+			Label lblPercCap = new Label()
+			{
+				Content = $"% capacity over {timePeriod}: {percCap}%",
+				Margin = new Thickness(40, baseY + lblHeight * 3, 0, 0)
+			};
+			grdMiscStats.Children.Add(lblPercCap);
 		}
 
 		private static void GenerateBarGraph(GetData getData, Grid grid, string title, string prefix = "", string suffix = "")
