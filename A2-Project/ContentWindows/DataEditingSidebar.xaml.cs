@@ -55,7 +55,7 @@ namespace A2_Project.ContentWindows
 			}
 			else if (containingWindow is CalandarView calanderView)
 			{
-				calanderView.DeleteItem();
+				calanderView.CancelApp();
 			}
 		}
 
