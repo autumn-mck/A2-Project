@@ -112,6 +112,16 @@ namespace A2_Project {
         /// <summary>
         ///   Looks up a localized resource of type System.Byte[].
         /// </summary>
+        public static byte[] gbp {
+            get {
+                object obj = ResourceManager.GetObject("gbp", resourceCulture);
+                return ((byte[])(obj));
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized resource of type System.Byte[].
+        /// </summary>
         public static byte[] logowhite {
             get {
                 object obj = ResourceManager.GetObject("logowhite", resourceCulture);

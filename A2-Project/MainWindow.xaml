@@ -48,7 +48,7 @@
 						<Image Source="/Resources/accounts.png"/>
 						<Label Content="Manage Clients"/>
 					</Grid>
-					<Grid x:Name="grdInvoices" Height="50" Width="300" Margin="6, 186, 0, 0" VerticalAlignment="Top">
+					<Grid x:Name="grdClientManagement" Height="50" Width="300" Margin="6, 186, 0, 0" VerticalAlignment="Top">
 						<Image Source="/Resources/notebook.png"/>
 						<Label Content="Manage Invoices"/>
 					</Grid>
@@ -59,6 +59,10 @@
 					<Grid x:Name="grdViewStats" Height="50" Width="300" Margin="6, 306, 0, 0" VerticalAlignment="Top">
 						<Image Source="/Resources/charts.png"/>
 						<Label Content="View Statistics"/>
+					</Grid>
+					<Grid x:Name="grdInvoiceManagement" Height="50" Width="300" Margin="6, 306, 0, 0" VerticalAlignment="Top">
+						<Image Source="/Resources/gbp.png"/>
+						<Label Content="Send Invoices"/>
 					</Grid>
 				</Grid>
 			</Grid>
