@@ -1,4 +1,5 @@
-﻿using System.Windows;
+﻿using System.Linq;
+using System.Windows;
 
 namespace A2_Project.ContentWindows
 {
@@ -19,6 +20,10 @@ namespace A2_Project.ContentWindows
 
 		private string mode = "";
 
+		private bool editingClientData = false;
+		private DBObjects.Column[] clientColumns;
+		private DataEditingSidebar clientEditing;
+
 		public ClientManagement()
 		{
 			InitializeComponent();
@@ -30,6 +35,8 @@ namespace A2_Project.ContentWindows
 			dogsColumns = DBMethods.MetaRequests.GetColumnDataFromTable("Dog");
 			dtgDogs = new SearchableDataGrid(400, 600, "Dog", dogsColumns, this);
 			lblDogs.Content = dtgDogs.Content;
+
+			clientColumns = DBMethods.MetaRequests.GetColumnDataFromTable("Client");
 		}
 
 		public void TableSelectionChanged(SearchableDataGrid sender, string[] newData)
@@ -74,16 +81,60 @@ namespace A2_Project.ContentWindows
 			{
 				if (dogsEditing is null) dogsEditing = new DataEditingSidebar(dogsColumns, "Dog", this);
 				dogsEditing.ChangeSelectedData(newData);
-				lblEditing.Content = dogsEditing.Content;
 				dtgContacts.UpdateSelectedIndex(-1);
 			}
 			else
 			{
 				if (contactEditing is null) contactEditing = new DataEditingSidebar(contactsColumns, "Contact", this);
 				contactEditing.ChangeSelectedData(newData);
-				lblEditing.Content = contactEditing.Content;
 				dtgDogs.UpdateSelectedIndex(-1);
 			}
+
+			UpdateClientEditor();
+		}
+
+		private void UpdateClientEditor()
+		{
+			if (editingClientData)
+			{
+				string clientID;
+				if (mode == "Contacts")
+				{
+					string[] selectedData = dtgContacts.GetSelectedData();
+					if (selectedData is null) return;
+					clientID = selectedData[1];
+				}
+				else
+				{
+					string[] selectedData = dtgDogs.GetSelectedData();
+					if (selectedData is null) return;
+					clientID = selectedData[1];
+				}
+				string[] clientData = DBMethods.MiscRequests.GetByColumnData("Client", "Client ID", clientID, clientColumns.Select(c => c.Name).ToArray()).First().ToArray();
+				clientEditing.ChangeSelectedData(clientData);
+
+				lblEditing.Content = clientEditing.Content;
+			}
+			else
+			{
+				if (mode == "Dogs")
+				{
+					lblEditing.Content = dogsEditing.Content;
+				}
+				else
+				{
+					lblEditing.Content = contactEditing.Content;
+				}
+			}
+		}
+
+		private void BtnToggleClientEditing_Click(object sender, RoutedEventArgs e)
+		{
+			if (clientEditing is null) clientEditing = new DataEditingSidebar(clientColumns, "Client", this);
+
+			editingClientData = !editingClientData;
+
+			UpdateClientEditor();
 		}
 	}
 }

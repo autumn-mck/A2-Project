@@ -19,7 +19,7 @@ namespace A2_Project.DBMethods
 			return DBAccess.GetListStringsWithQuery("SELECT * FROM [Appointment] WHERE [Appointment Date] = '" + day.ToString("yyyy-MM-dd") + "' AND [Is Cancelled] = 'False';", headers);
 		}
 
-		public static List<List<string>> GetByColumnData(string table, string column, string toMatch, string[] headers)
+		public static List<List<string>> GetByColumnData(string table, string column, string toMatch, string[] headers = null)
 		{
 			return DBAccess.GetListStringsWithQuery($"SELECT * FROM [{table}] WHERE [{column}] = '{toMatch}';", headers);
 		}
