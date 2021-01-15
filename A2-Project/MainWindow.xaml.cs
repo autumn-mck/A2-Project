@@ -33,6 +33,7 @@ namespace A2_Project
 		private ContactManagement contactManWindow;
 		private Stats statsWindow;
 		private ClientManagement cliWindow;
+		private InvoiceManagement invoiceWindow;
 		private readonly Login loginWindow;
 
 		private SolidColorBrush notHighlighted = new SolidColorBrush(Color.FromRgb(161, 161, 161));
@@ -56,9 +57,10 @@ namespace A2_Project
 			// DEBUG: Allows easy access to the content windows. Currently in place to make testing easier
 			grdAccounts.MouseDown += GrdAccounts_MouseDown;
 			grdCalander.MouseDown += GrdCalander_MouseDown;
-			grdInvoices.MouseDown += GrdInvoices_MouseDown;
+			grdClientManagement.MouseDown += GrdClientManagement_MouseDown;
 			grdAddStaff.MouseDown += GrdAddStaff_MouseDown;
 			grdViewStats.MouseDown += GrdViewStats_MouseDown;
+			grdInvoiceManagement.MouseDown += GrdInvoiceManagement_MouseDown;
 
 			foreach (Grid g in grdButtons)
 			{
@@ -131,7 +133,7 @@ namespace A2_Project
 			lblContents.Content = null;
 			grdAccounts.MouseDown += GrdAccounts_MouseDown;
 			grdCalander.MouseDown += GrdCalander_MouseDown;
-			grdInvoices.MouseDown += GrdInvoices_MouseDown;
+			grdClientManagement.MouseDown += GrdClientManagement_MouseDown;
 			grdAddStaff.MouseDown += GrdAddStaff_MouseDown;
 			grdViewStats.MouseDown += GrdViewStats_MouseDown;
 		}
@@ -168,37 +170,44 @@ namespace A2_Project
 		// TODO: See if the following methods can be simplified
 		private void GrdCalander_MouseDown(object sender, MouseButtonEventArgs e)
 		{
-			if (calWindow == null)
+			if (calWindow is null)
 				calWindow = new CalandarView() { Owner = this };
 			lblContents.Content = calWindow.Content;
 		}
 
 		private void GrdAccounts_MouseDown(object sender, MouseButtonEventArgs e)
 		{
-			if (contactManWindow == null)
+			if (contactManWindow is null)
 				contactManWindow = new ContactManagement() { Owner = this };
 			lblContents.Content = contactManWindow.Content;
 		}
 
-		private void GrdInvoices_MouseDown(object sender, MouseButtonEventArgs e)
+		private void GrdClientManagement_MouseDown(object sender, MouseButtonEventArgs e)
 		{
-			if (cliWindow == null)
+			if (cliWindow is null)
 				cliWindow = new ClientManagement() { Owner = this };
 			lblContents.Content = cliWindow.Content;
 		}
 
 		private void GrdAddStaff_MouseDown(object sender, MouseButtonEventArgs e)
 		{
-			if (regWindow == null)
+			if (regWindow is null)
 				regWindow = new RegStaff() { Owner = this };
 			lblContents.Content = regWindow.Content;
 		}
 
 		private void GrdViewStats_MouseDown(object sender, MouseButtonEventArgs e)
 		{
-			if (statsWindow == null)
+			if (statsWindow is null)
 				statsWindow = new Stats() { Owner = this };
 			lblContents.Content = statsWindow.Content;
+		}
+
+		private void GrdInvoiceManagement_MouseDown(object sender, MouseButtonEventArgs e)
+		{
+			if (invoiceWindow is null)
+				invoiceWindow = new InvoiceManagement() { Owner = this };
+			lblContents.Content = invoiceWindow.Content;
 		}
 		#endregion MouseDown Events
 		#endregion Events

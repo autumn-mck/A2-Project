@@ -21,6 +21,7 @@
     <None Remove="Resources\calendar.png" />
     <None Remove="Resources\chart-box.png" />
     <None Remove="Resources\charts.png" />
+    <None Remove="Resources\gbp.png" />
     <None Remove="Resources\logowhite.png" />
     <None Remove="Resources\menu.png" />
     <None Remove="Resources\menubar.png" />
@@ -37,6 +38,7 @@
     <Resource Include="Resources\addStaff.png" />
     <Resource Include="Resources\calendar.png" />
     <Resource Include="Resources\charts.png" />
+    <Resource Include="Resources\gbp.png" />
     <Resource Include="Resources\logowhite.png" />
     <Resource Include="Resources\menu.png" />
     <Resource Include="Resources\notebook.png" />
