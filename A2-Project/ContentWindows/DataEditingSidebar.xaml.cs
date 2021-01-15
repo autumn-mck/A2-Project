@@ -47,11 +47,15 @@ namespace A2_Project.ContentWindows
 			}
 		}
 
-		private void DeleteRowOwner()
+		private void DeleteItemOwner()
 		{
-			if (containingWindow is ContactManagement c)
+			if (containingWindow is ContactManagement contactManagement)
 			{
-				c.DeleteRow();
+				contactManagement.DeleteItem();
+			}
+			else if (containingWindow is CalandarView calanderView)
+			{
+				calanderView.DeleteItem();
 			}
 		}
 
@@ -458,7 +462,7 @@ namespace A2_Project.ContentWindows
 
 		private void BtnDeleteItem_Click(object sender, RoutedEventArgs e)
 		{
-			DeleteRowOwner();
+			DeleteItemOwner();
 		}
 		#endregion Programmatic UI Generation
 

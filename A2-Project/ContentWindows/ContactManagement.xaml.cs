@@ -39,7 +39,7 @@ namespace A2_Project.ContentWindows
 		/// <summary>
 		/// Tries to delete the selected row
 		/// </summary>
-		public void DeleteRow(bool deleteRef = false)
+		public void DeleteItem(bool deleteRef = false)
 		{
 			try
 			{
@@ -100,7 +100,7 @@ namespace A2_Project.ContentWindows
 		/// </summary>
 		private void BtnFkeyErrorAccept_Click(object sender, RoutedEventArgs e)
 		{
-			DeleteRow(true);
+			DeleteItem(true);
 			grdFKeyErrorOuter.Visibility = Visibility.Hidden;
 		}
 
