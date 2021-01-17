@@ -76,9 +76,9 @@ namespace A2_Project
 		/// <summary>
 		/// Sends the contents of the DataTable as an email
 		/// </summary>
-		public static void SendInvoiceEmail(string recipient, DataTable table, string[] tableHeaders)
+		public static void SendInvoiceEmail(string recipient, DataTable table, string[] tableHeaders, string[] contactData)
 		{
-			SendEmail(recipient, "Monthly Invoice", GenerateInvoiceHTML(DataTableToStringArrays(table), tableHeaders));
+			SendEmail(recipient, "Monthly Invoice", GenerateInvoiceHTML(DataTableToStringArrays(table), tableHeaders, contactData));
 		}
 
 		private static string[][] DataTableToStringArrays(DataTable table)
@@ -94,14 +94,14 @@ namespace A2_Project
 		/// <summary>
 		/// Generates the body HTML for an invoice email
 		/// </summary>
-		private static string GenerateInvoiceHTML(string[][] tableArr, string[] headers)
+		private static string GenerateInvoiceHTML(string[][] tableArr, string[] headers, string[] contactData)
 		{
 			string header = @"
 <!doctype html>
 <html>
 	<head>
 		<meta charset=""utf-8"">
-		<title> A simple, clean, and responsive HTML invoice template </title>
+		<title> JD Dog Care - Invoice </title>
 		<style>
 			.invoice-box {
 				max-width: 800px;
@@ -173,7 +173,7 @@ namespace A2_Project
 					text-align: center;
 				}
 
-				invoice-box table tr.information table td {
+				.invoice-box table tr.information table td {
 					width: 100%;
 					display: block;
 					text-align: center;
@@ -201,22 +201,22 @@ namespace A2_Project
 							</tr>
 						</table>
 					</td>
-				</tr>", new string[] { "1", DateTime.Now.ToString("dd-MM-yyyy") });
+				</tr>", new string[] { "1", DateTime.Now.ToString("dd/MM/yyyy") });
 
-			body += @"
+			body += String.Format(@"
 				<tr class=""information"">
 					<td colspan=""2"">
 						<table>
 							<tr>
 								<td>
 									JD Dog Care<br>
-									7 Bryn Ln<br>
-									Newtown, Wales
+									164 Kilbroney Rd<br>
+									Newtown, Rostrevor
 								</td>
 								<td>
-									Jon<br>
-									07700 900620<br>
-									jon@example.com
+									{0}<br>
+									{1}<br>
+									{2}
 								</td>
 							</tr>
 						</table>
@@ -229,11 +229,14 @@ namespace A2_Project
 				</tr>
 
 				<tr class=""details"">
-					<td>Cheque</td>
+					<td>{3}</td>
 					<td>1000</td>
-				</tr>";
+				</tr>
+			</table>", contactData[0], contactData[1], contactData[2], contactData[3]);
 
-			body += @"<tr class=""heading"">";
+			body += @"
+			<table cellpadding=""0"" cellspacing=""0"">
+				<tr class=""heading"">";
 			for (int i = 0; i < headers.Length; i++)
 				body += String.Format("<td>{0}</td>", headers[i]);
 			body += "</tr>";

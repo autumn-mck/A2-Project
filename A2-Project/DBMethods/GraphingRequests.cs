@@ -191,11 +191,9 @@ namespace A2_Project.DBMethods
 			return price;
 		}
 
-		private static double GetBookingDiscount(string bookingID)
+		public static double GetBookingDiscount(string bookingID)
 		{
-			int count = Convert.ToInt32(DBAccess.GetStringsWithQuery($"SELECT Count([Appointment ID]) FROM [Appointment] WHERE [Appointment].[Booking ID] = {bookingID};")[0]);
-			if (count > 2) return 5;
-			else return 0;
+			return Convert.ToInt32(DBAccess.GetStringsWithQuery($"SELECT CASE WHEN Count([Appointment ID]) > 2 THEN 5 ELSE 0 END FROM [Appointment] WHERE [Appointment].[Booking ID] = {bookingID};")[0]);
 		}
 
 		/// <summary>
