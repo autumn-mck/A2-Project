@@ -131,5 +131,33 @@ namespace A2_Project.DBMethods
 
 			return appLength;
 		}
+
+		public static List<List<string>> GetInvoiceData(string clientID)
+		{
+			double[] basePrices = DBAccess.GetStringsWithQuery("SELECT [Base Price] FROM [Appointment Type];").Select(double.Parse).ToArray();
+			string query = "SELECT [Appointment].[Booking ID], [Appointment].[Appointment ID], [Dog].[Dog Name], " +
+			"[Appointment Type].[Description], [Staff].[Staff Name], [Appointment].[Includes Nail And Teeth], " +
+			"[Appointment].[Appointment Date], [Appointment].[Appointment Time], " +
+			"[Appointment].[Appointment Type ID] " +
+			"FROM [Appointment] INNER JOIN [Staff] ON [Staff].[Staff ID] = [Appointment].[Staff ID] " +
+			"INNER JOIN [Dog] ON [Dog].[Dog ID] = [Appointment].[Dog ID] " +
+			"INNER JOIN [Appointment Type] ON [Appointment Type].[Appointment Type ID] = [Appointment].[Appointment Type ID] " +
+			$"WHERE [Dog].[Client ID] = {clientID} AND " +
+			$"[Appointment].[Appointment Date] BETWEEN '{DateTime.Now.AddMonths(-12):yyyy-MM-dd}' AND '{DateTime.Now:yyyy-MM-dd}' " +
+			"AND [Appointment].[Is Cancelled] = 'False' ORDER BY [Appointment].[Appointment Date];";
+			List<List<string>> results = DBAccess.GetListStringsWithQuery(query);
+			foreach (List<string> ls in results)
+			{
+				int appTypeID = Convert.ToInt32(ls[^1]);
+				ls.Remove(ls[^1]);
+				double price = basePrices[appTypeID];
+				if (ls[5] == "True") price += 10;
+				if (IsAppointmentInitial(ls[1])) price += 5;
+				price = price * (100.0 - GraphingRequests.GetBookingDiscount(ls[0])) / 100.0;
+				ls.Add('£' + Math.Round(price, 2).ToString());
+			}
+
+			return results;
+		}
 	}
 }

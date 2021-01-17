@@ -125,7 +125,7 @@ namespace A2_Project.ContentWindows
 
 		private void BtnEmail_Click(object sender, RoutedEventArgs e)
 		{
-			EmailManagement.SendInvoiceEmail("atempmailfortestingcsharp@gmail.com", searchableDataGrid.GetDataTable(), columns.Select(c => c.Name).ToArray());
+			//EmailManagement.SendInvoiceEmail("atempmailfortestingcsharp@gmail.com", searchableDataGrid.GetDataTable(), columns.Select(c => c.Name).ToArray());
 		}
 	}
 }

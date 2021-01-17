@@ -23,15 +23,21 @@ namespace A2_Project.DBMethods
 				if (headers != null)
 				{
 					// Ensures dates are formatted correctly
-					if (obj is DateTime time)
+					if (obj is DateTime dt)
 					{
-						string str = headers[i];
-						if (str.Contains("DOB")
-						|| str.Contains("Date") && !str.Contains("Time"))
-							obj = time.ToString("dd/MM/yyyy");
+						//string str = headers[i];
+						//if (str.Contains("DOB")
+						//|| str.Contains("Date") && !str.Contains("Time"))
+						obj = dt.ToString("dd/MM/yyyy");
 					}
 					else if (obj is TimeSpan timeSpan) obj = timeSpan.ToString("hh\\:mm");
 				}
+				if (obj is DateTime date)
+				{
+					obj = date.ToString("dd/MM/yyyy");
+				}
+				else if (obj is TimeSpan timeSpan) obj = timeSpan.ToString("hh\\:mm");
+
 				results.Add(obj.ToString());
 			}
 			return results;

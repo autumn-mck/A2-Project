@@ -1,12 +1,36 @@
 ﻿<Window x:Class="A2_Project.ContentWindows.InvoiceManagement"
-        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
-        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
-        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
-        xmlns:local="clr-namespace:A2_Project.ContentWindows"
-        mc:Ignorable="d"
-        Title="InvoiceManagement" Height="1080" Width="1876" Background="#111111">
+		xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+		xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+		xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+		xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+		xmlns:local="clr-namespace:A2_Project.ContentWindows"
+		mc:Ignorable="d"
+		Title="InvoiceManagement" Height="1080" Width="1876" Background="#111111">
 	<Grid Height="1080" Width="1876">
-
+		<Label Content="Client ID:" HorizontalAlignment="Left" FontSize="24" Foreground="#F1F1F1" VerticalAlignment="Top"/>
+		<TextBox x:Name="tbxClientID" TextChanged="TbxClientID_TextChanged" FontSize="24" MinWidth="100" Margin="110, 5, 0, 0" HorizontalAlignment="Left" VerticalAlignment="Top"/>
+		<Button x:Name="btnPrint" Content="Print" FontSize="24" Width="100" Margin="10,50,0,0" HorizontalAlignment="Left" VerticalAlignment="Top" Click="BtnPrint_Click"/>
+		<Button x:Name="btnEmail" Content="Email" FontSize="24" Width="100" Margin="10,90,0,0" HorizontalAlignment="Left" VerticalAlignment="Top" Click="BtnEmail_Click"/>
+		<Grid x:Name="grdPaper" Background="#FFFFFF" Width="630" Height="891">
+			<Grid.Resources>
+				<Style TargetType="Label">
+					<Setter Property="HorizontalAlignment" Value="Left"/>
+					<Setter Property="VerticalAlignment" Value="Top"/>
+					<Setter Property="Foreground" Value="#333333"/>
+					<Setter Property="FontSize" Value="14"/>
+				</Style>
+				<Style TargetType="DataGrid">
+					<Setter Property="HorizontalAlignment" Value="Center"/>
+					<Setter Property="VerticalAlignment" Value="Top"/>
+				</Style>
+			</Grid.Resources>
+			<Image Source="/Resources/logoblack.png" Width="250" Margin="10" HorizontalAlignment="Left" VerticalAlignment="Top"/>
+			<Label Name="lblInvoiceDetails" Content="Invoice No: 1&#xD;&#xA;Date Created: 01/01/2021&#xD;&#xA;Any other information?" HorizontalAlignment="Right" Margin="0,10,10,0"/>
+			<Label Name="lblDogCareDetails" Content="JD Dog Care&#xD;&#xA;164 Kilbroney Road&#xD;&#xA;Newtown&#xD;&#xA;Rostrevor" Margin="10,80,0,0"/>
+			<Label Name="lblContactDetails" Content="Contact Name&#xD;&#xA;Contact  Phone No&#xD;&#xA;Contact Email&#xD;&#xA;Contact Address?" Margin="0, 80, 10, 0" HorizontalAlignment="Right"/>
+			<Viewbox Margin="20, 170, 20, 0" VerticalAlignment="Top">
+				<DataGrid x:Name="dtgData" IsHitTestVisible="False" CanUserAddRows="False"/>
+			</Viewbox>
+		</Grid>
 	</Grid>
 </Window>
