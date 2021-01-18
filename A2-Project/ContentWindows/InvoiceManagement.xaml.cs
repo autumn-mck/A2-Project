@@ -28,11 +28,11 @@ namespace A2_Project.ContentWindows
 		{
 			string[] contactData = new string[] { "Test1", "Test2", "Test3", "Test4" };
 			EmailManagement.SendInvoiceEmail("atempmailfortestingcsharp@gmail.com", table, columns, contactData);
-			//throw new NotImplementedException();
 		}
 
 		private void TbxClientID_TextChanged(object sender, System.Windows.Controls.TextChangedEventArgs e)
 		{
+			if (tbxClientID.Text == "") return;
 			data = DBMethods.MiscRequests.GetInvoiceData(tbxClientID.Text);
 			if (data == null) return;
 			table = new DataTable();
@@ -41,6 +41,11 @@ namespace A2_Project.ContentWindows
 			for (int i = 0; i < data.Count; i++)
 				table.Rows.Add(data[i].ToArray());
 			dtgData.ItemsSource = table.DefaultView;
+		}
+
+		private void TbxClientID_PreviewTextInput(object sender, System.Windows.Input.TextCompositionEventArgs e)
+		{
+			if (!int.TryParse(e.Text, out _)) e.Handled = true;
 		}
 	}
 }

@@ -8,7 +8,7 @@
 		Title="InvoiceManagement" Height="1080" Width="1876" Background="#111111">
 	<Grid Height="1080" Width="1876">
 		<Label Content="Client ID:" HorizontalAlignment="Left" FontSize="24" Foreground="#F1F1F1" VerticalAlignment="Top"/>
-		<TextBox x:Name="tbxClientID" TextChanged="TbxClientID_TextChanged" FontSize="24" MinWidth="100" Margin="110, 5, 0, 0" HorizontalAlignment="Left" VerticalAlignment="Top"/>
+		<TextBox x:Name="tbxClientID" PreviewTextInput="TbxClientID_PreviewTextInput" TextChanged="TbxClientID_TextChanged" FontSize="24" MinWidth="100" Margin="110, 5, 0, 0" HorizontalAlignment="Left" VerticalAlignment="Top"/>
 		<Button x:Name="btnPrint" Content="Print" FontSize="24" Width="100" Margin="10,50,0,0" HorizontalAlignment="Left" VerticalAlignment="Top" Click="BtnPrint_Click"/>
 		<Button x:Name="btnEmail" Content="Email" FontSize="24" Width="100" Margin="10,90,0,0" HorizontalAlignment="Left" VerticalAlignment="Top" Click="BtnEmail_Click"/>
 		<Grid x:Name="grdPaper" Background="#FFFFFF" Width="630" Height="891">
