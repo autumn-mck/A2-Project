@@ -30,7 +30,7 @@ namespace A2_Project
 						}
 						else
 						{
-							if (s.Contains(searchTerm)) contained = true;
+							if (s.ToLower().Contains(searchTerm)) contained = true;
 						}
 					}
 
@@ -47,7 +47,7 @@ namespace A2_Project
 					}
 					else
 					{
-						if (ls[columnSearch - 1].Contains(searchTerm)) searched.Add(ls);
+						if (ls[columnSearch - 1].ToLower().Contains(searchTerm)) searched.Add(ls);
 					}
 				}
 			}
