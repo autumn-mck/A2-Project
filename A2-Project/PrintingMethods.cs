@@ -22,16 +22,16 @@ namespace A2_Project
 				double scale = Math.Min(sz.Width / toPrint.ActualWidth, sz.Height / toPrint.ActualHeight);
 
 				// Prepare the Element to be printed by resizing it so that it fits fully onto the page
-				toPrint.LayoutTransform = new ScaleTransform(scale, scale);
-				toPrint.Measure(sz);
-				toPrint.Arrange(new Rect(origin, sz));
+				//toPrint.LayoutTransform = new ScaleTransform(scale, scale);
+				//toPrint.Measure(sz);
+				//toPrint.Arrange(new Rect(origin, sz));
 
 				prntDlg.PrintVisual(toPrint, "Invoice");
 
 				// Return the element to its original size and shape
-				toPrint.LayoutTransform = oldTransform;
-				toPrint.Measure(oldSize);
-				toPrint.Arrange(new Rect(new Point(0, 0), oldSize));
+				//toPrint.LayoutTransform = oldTransform;
+				//toPrint.Measure(oldSize);
+				//toPrint.Arrange(new Rect(new Point(0, 0), oldSize));
 			}
 		}
 	}

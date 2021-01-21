@@ -145,7 +145,9 @@ namespace A2_Project.DBMethods
 			$"WHERE [Dog].[Client ID] = {clientID} AND " +
 			$"[Appointment].[Appointment Date] BETWEEN '{DateTime.Now.AddMonths(-12):yyyy-MM-dd}' AND '{DateTime.Now:yyyy-MM-dd}' " +
 			"AND [Appointment].[Is Cancelled] = 'False' ORDER BY [Appointment].[Appointment Date];";
+
 			List<List<string>> results = DBAccess.GetListStringsWithQuery(query);
+
 			foreach (List<string> ls in results)
 			{
 				int appTypeID = Convert.ToInt32(ls[^1]);
@@ -158,6 +160,11 @@ namespace A2_Project.DBMethods
 			}
 
 			return results;
+		}
+
+		public static List<List<string>> GetContactDataFromClient(string clientID)
+		{
+			return DBAccess.GetListStringsWithQuery($"SELECT [Contact].[Contact Name], [Contact].[Contact Phone No], [Contact].[Contact Email], 'Test' FROM [Contact] WHERE [Contact].[Client ID] = {clientID};");
 		}
 	}
 }

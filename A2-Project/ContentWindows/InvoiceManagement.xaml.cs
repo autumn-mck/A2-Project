@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Data;
+using System.Linq;
 using System.Windows;
 
 namespace A2_Project.ContentWindows
@@ -10,13 +11,14 @@ namespace A2_Project.ContentWindows
 	/// </summary>
 	public partial class InvoiceManagement : Window
 	{
-		DataTable table;
-		List<List<string>> data;
-		string[] columns = { "Booking ID", "ID", "Dog", "App Type", "Staff", "Nails and Teeth", "Date", "Time", "Price" };
+		private DataTable table;
+		private List<List<string>> data;
+		private string[][] contactData;
+		private string[] columns = { "Booking ID", "ID", "Dog", "App Type", "Staff", "Nails and Teeth", "Date", "Time", "Price" };
+
 		public InvoiceManagement()
 		{
 			InitializeComponent();
-			//DtgMethods.CreateTable
 		}
 
 		private void BtnPrint_Click(object sender, RoutedEventArgs e)
@@ -26,13 +28,15 @@ namespace A2_Project.ContentWindows
 
 		private void BtnEmail_Click(object sender, RoutedEventArgs e)
 		{
-			string[] contactData = new string[] { "Test1", "Test2", "Test3", "Test4" };
 			EmailManagement.SendInvoiceEmail("atempmailfortestingcsharp@gmail.com", table, columns, contactData);
 		}
 
 		private void TbxClientID_TextChanged(object sender, System.Windows.Controls.TextChangedEventArgs e)
 		{
 			if (tbxClientID.Text == "") return;
+			contactData = DBMethods.MiscRequests.GetContactDataFromClient(tbxClientID.Text).Select(x => x.ToArray()).ToArray();
+			lblContactDetails.Content = $"{contactData[0][0]}\n{contactData[0][1]}\n{contactData[0][2]}";
+
 			data = DBMethods.MiscRequests.GetInvoiceData(tbxClientID.Text);
 			if (data == null) return;
 			table = new DataTable();
@@ -40,6 +44,8 @@ namespace A2_Project.ContentWindows
 				table.Columns.Add(str);
 			for (int i = 0; i < data.Count; i++)
 				table.Rows.Add(data[i].ToArray());
+
+			dtgData.Visibility = Visibility.Visible;
 			dtgData.ItemsSource = table.DefaultView;
 		}
 
