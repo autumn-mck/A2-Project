@@ -76,9 +76,12 @@ namespace A2_Project
 		/// <summary>
 		/// Sends the contents of the DataTable as an email
 		/// </summary>
-		public static void SendInvoiceEmail(string recipient, DataTable table, string[] tableHeaders, string[] contactData)
+		public static void SendInvoiceEmail(string recipient, DataTable table, string[] tableHeaders, string[][] contactData)
 		{
-			SendEmail(recipient, "Monthly Invoice", GenerateInvoiceHTML(DataTableToStringArrays(table), tableHeaders, contactData));
+			foreach (string[] contact in contactData)
+			{
+				SendEmail(recipient, "Monthly Invoice", GenerateInvoiceHTML(DataTableToStringArrays(table), tableHeaders, contact));
+			}
 		}
 
 		private static string[][] DataTableToStringArrays(DataTable table)
@@ -241,19 +244,20 @@ namespace A2_Project
 				body += String.Format("<td>{0}</td>", headers[i]);
 			body += "</tr>";
 
-			int total = 0;
+			double total = 0;
 			for (int i = 0; i < tableArr.Length - 1; i++)
 			{
 				body += @"<tr class=""item"">";
 				for (int j = 0; j < tableArr[i].Length; j++)
 					body += String.Format("<td>{0}</td>", tableArr[i][j]);
 				body += "</tr>";
+				total += Convert.ToDouble(tableArr[i][^1].Substring(1));
 			}
 			body += @"<tr class=""item last"">";
 			for (int j = 0; j < tableArr[tableArr.Length - 1].Length; j++)
 				body += String.Format("<td>{0}</td>", tableArr[tableArr.Length - 1][j]);
-			body += "</tr>";
-			body += String.Format(@"<tr class=""total""><td></td><td>Total: {0}</td></tr>", total);
+			body += "</tr></table>";
+			body += String.Format(@"<table cellpadding=""0"" cellspacing=""0""><tr class=""total""><td></td><td>Total: £{0}</td></tr>", total);
 			body += @"
 			</table>
 		</div>
