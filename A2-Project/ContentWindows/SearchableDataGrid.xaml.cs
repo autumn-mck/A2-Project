@@ -56,7 +56,7 @@ namespace A2_Project.ContentWindows
 				string[] prevSelection;
 				if (drv is null) prevSelection = null;
 				else prevSelection = drv.Row.ItemArray.Select(a => a.ToString()).ToArray();
-				DtgMethods.UpdateSearch(currentData, cmbColumn.SelectedIndex, tbxSearch.Text, tableName, ref dtgData, columns, ref dataTable, true, isExact, prevSelection);
+				DtgMethods.UpdateSearch(currentData, cmbColumn.SelectedIndex, tbxSearch.Text.ToLower(), tableName, ref dtgData, columns, ref dataTable, true, isExact, prevSelection);
 			}
 		}
 
