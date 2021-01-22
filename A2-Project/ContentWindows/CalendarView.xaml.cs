@@ -642,6 +642,9 @@ namespace A2_Project.ContentWindows
 		/// </summary>
 		private void GenRectFromData(string[] data)
 		{
+			// Do not generate rectangles for cancelled appointments
+			if (data[7] == "True") return;
+
 			int roomID = Convert.ToInt32(data[5]);
 			int typeID = Convert.ToInt32(data[2]);
 			DateTime d = DateTime.Parse(data[9]).Add(TimeSpan.Parse(data[10]));
