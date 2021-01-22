@@ -4,6 +4,7 @@ using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Media;
+using A2_Project.UserControls;
 
 namespace A2_Project.ContentWindows
 {
@@ -15,8 +16,6 @@ namespace A2_Project.ContentWindows
 		private readonly Window containingWindow;
 		private FrameworkElement[] displayElements;
 		private FrameworkElement[] labelElements;
-		private string errCol1;
-		private string errCol2;
 		private readonly DBObjects.Column[] columns;
 		private string[] selectedData;
 		private readonly string tableName;
@@ -66,12 +65,16 @@ namespace A2_Project.ContentWindows
 		{
 			bool isAllValid = true;
 
-			// Used to display error messages to the user
-			errCol1 = "";
-			errCol2 = "";
-
 			for (int i = 0; i < columns.Length; i++)
 			{
+				if (displayElements[i] is ValidationTextbox tbx)
+				{
+					isAllValid = isAllValid && tbx.IsValid;
+					continue;
+				}
+
+
+
 				// Gets the data to be validated in string form
 				string str = "";
 				bool patternReq = true;
@@ -79,7 +82,7 @@ namespace A2_Project.ContentWindows
 				bool fKeyReq = true;
 				bool pKeyReq = true;
 
-				if (displayElements[i] is TextBox tbx) str = tbx.Text;
+				if (displayElements[i] is ValidationTextbox vtbx) str = vtbx.Text;
 				else if (displayElements[i] is Label) continue; // If the item to be checked is a label, it is not user editable, so it is assumed to already contain valid data.
 				else if (displayElements[i] is CheckBox) continue;
 				else if (displayElements[i] is CustomDatePicker cd)
@@ -89,59 +92,6 @@ namespace A2_Project.ContentWindows
 
 				string patternError = "";
 				DBObjects.Column col = columns[i];
-
-				if (displayElements[i] is TextBox)
-				{
-					// Check if the string meets a specific pattern
-					if (col.Name.Contains("Email"))
-					{
-						patternReq = PatternValidation.IsValidEmail(str);
-						patternError = "Please enter a valid email address.";
-					}
-					else if (col.Name.Contains("Postcode"))
-					{
-						patternReq = PatternValidation.IsValidPostcode(str);
-						patternError = "Please enter a valid postcode. ";
-					}
-					else if (col.Name.Contains("PhoneNo"))
-					{
-						patternReq = PatternValidation.IsValidPhoneNo(str);
-						patternError = "Please enter a valid phone number. ";
-					}
-					else if (col.Name.Contains("DogGender"))
-					{
-						patternReq = PatternValidation.IsValidDogGender(str);
-						patternError = "Please enter a valid dog gender. (M/F)";
-					}
-
-					if (col.Constraints.CanBeNull && str == "") patternReq = true;
-					else if (!col.Constraints.CanBeNull && str == "")
-					{
-						patternReq = false;
-						patternError = "This value cannot be left empty! ";
-					}
-
-					// Checks if the data meets the requirements for the type of data it should be
-					switch (col.Constraints.Type)
-					{
-						case "int":
-							typeReq = !string.IsNullOrEmpty(str) && str.All(char.IsDigit);
-							break;
-						case "time":
-							typeReq = TimeSpan.TryParse(str, out TimeSpan t);
-							typeReq = typeReq && t.TotalMinutes % 1.0 == 0;
-							break;
-					}
-
-					// Checks if the data meets foreign key requirements if needed
-					if (col.Constraints.ForeignKey != null && typeReq)
-						fKeyReq = DBMethods.MiscRequests.DoesMeetForeignKeyReq(col.Constraints.ForeignKey, str);
-
-					// Checks if the data meets primary key requirements if needed
-					if (col.Constraints.IsPrimaryKey && typeReq)
-						pKeyReq = DBMethods.MiscRequests.IsPKeyFree(tableName, col.Name, str);
-				}
-				// Note: No good way to validate names/addresses
 
 				bool isInstanceValid = patternReq && typeReq && fKeyReq && pKeyReq;
 				isAllValid = isAllValid && isInstanceValid;
@@ -156,19 +106,10 @@ namespace A2_Project.ContentWindows
 					{
 						switch (col.Constraints.Type)
 						{
-							case "int": instErr += "Please enter a number!"; break;
-							case "bit": instErr += "Please enter True/False/1/0!"; break;
 							case "date": instErr += "Please enter a valid date!"; break;
 							case "time": instErr += "Please enter a valid time! (hh:mm)"; break;
 						}
 					}
-
-					if (!fKeyReq) instErr += $"References a non-existent {col.Constraints.ForeignKey.ReferencedTable}.";
-					if (!pKeyReq) instErr += "This ID is already taken!";
-
-					// Allows the error messages to be readable when there are more than 6 of them by dividing them into 2 columns
-					if (errCol1.Count(x => x == '\n') < 6) errCol1 += instErr;
-					else errCol2 += instErr;
 				}
 
 				// Allow the user to clearly see which data is incorrect
@@ -187,9 +128,34 @@ namespace A2_Project.ContentWindows
 						g.Background = Brushes.Red;
 				}
 			}
+			UpdateErrorMessages();
+			return isAllValid;
+		}
+
+		public void UpdateErrorEvent(object sender, EventArgs e)
+		{
+			UpdateErrorMessages();
+		}
+
+		private void UpdateErrorMessages()
+		{
+			// Used to display error messages to the user
+			string errCol1 = "";
+			string errCol2 = "";
+			for (int i = 0; i < columns.Length; i++)
+			{
+				string instErr = "";
+				if (displayElements[i] is ValidationTextbox tbx)
+				{
+					if (tbx.IsValid) continue;
+					instErr = tbx.ErrorMessage;
+				}
+				// Allows the error messages to be readable when there are more than 6 of them by dividing them into 2 columns
+				if (errCol1.Count(x => x == '\n') < 6) errCol1 += instErr;
+				else errCol2 += instErr;
+			}
 			tbcErr1.Text = errCol1;
 			tbcErr2.Text = errCol2;
-			return isAllValid;
 		}
 
 		/// <summary>
@@ -204,21 +170,22 @@ namespace A2_Project.ContentWindows
 			{
 				FrameworkElement c = displayElements[i];
 				// Reset the values in the controls
-				if (c is TextBox t) t.Text = GetSuggestedValue(columns[i]).ToString();
+				if (c is ValidationTextbox tbx) tbx.Text = GetSuggestedValue(columns[i]).ToString();
 				else if (c is DatePicker d) d.SelectedDate = (DateTime)GetSuggestedValue(columns[i]);
 				else if (c is CheckBox cbx) cbx.IsChecked = (bool)GetSuggestedValue(columns[i]);
 				// Any labels which were used to display primary keys now need to be editable
 				else if (c is Label l)
 				{
 					grd.Children.Remove(l);
-					c = new TextBox()
+					c = new ValidationTextbox(columns[i])
 					{
-						Height = 34,
 						Margin = new Thickness(l.Margin.Left + 5, l.Margin.Top, 0, 0),
 						Tag = "Primary Key",
-						Text = GetSuggestedValue(columns[i]).ToString()
+						Text = GetSuggestedValue(columns[i]).ToString(),
+						HorizontalAlignment = HorizontalAlignment.Left,
+						VerticalAlignment = VerticalAlignment.Top
 					};
-					((TextBox)c).TextChanged += Tbx_TextChanged;
+					((ValidationTextbox)c).AddChangedEvent(UpdateErrorEvent);
 					displayElements[i] = c;
 					grd.Children.Add(c);
 				}
@@ -246,7 +213,7 @@ namespace A2_Project.ContentWindows
 			{
 				FrameworkElement c = displayElements[i];
 				// Reset the displayed values
-				if (c is TextBox t) t.Text = "";
+				if (c is ValidationTextbox t) t.Text = "";
 				// If the element is to display a primary key, it should not be editable, so a label is used instead of a text box
 				if (c.Tag != null && c.Tag.ToString() == "Primary Key")
 				{
@@ -272,7 +239,7 @@ namespace A2_Project.ContentWindows
 			for (int i = 0; i < selectedData.Length; i++)
 			{
 				if (displayElements[i] is Label l) l.Content = selectedData[i];
-				else if (displayElements[i] is TextBox t) t.Text = selectedData[i];
+				else if (displayElements[i] is ValidationTextbox t) t.Text = selectedData[i];
 				else if (displayElements[i] is CheckBox c) c.IsChecked = selectedData[i] == "True";
 				else if (displayElements[i] is CustomDatePicker cDP) cDP.SelectedDate = DateTime.Parse(selectedData[i]);
 			}
@@ -311,7 +278,7 @@ namespace A2_Project.ContentWindows
 				if (yOffset > 620)
 				{
 					yOffset = 40;
-					xOffset += 250;
+					xOffset += 280;
 				}
 
 				// Generate the label used for displaying the column name
@@ -321,7 +288,7 @@ namespace A2_Project.ContentWindows
 					Margin = new Thickness(xOffset, yOffset, 0, 0)
 				};
 				labelElements[i] = lbl;
-				yOffset += 35;
+				yOffset += 40;
 
 				FrameworkElement c;
 				// If the item displays a primary key, it is not editable by the user, so a label is used to display the data without it being editable
@@ -330,9 +297,9 @@ namespace A2_Project.ContentWindows
 					c = new Label()
 					{
 						Content = "",
-						Margin = new Thickness(xOffset, yOffset, 0, 0)
+						Margin = new Thickness(xOffset, yOffset - 5, 0, 0)
 					};
-					yOffset += 35;
+					yOffset += 40;
 				}
 				// An SQL bit is a boolean value, so a checkbox can be used to help prevent insertion of invalid data
 				else if (columns[i].Constraints.Type == "bit")
@@ -359,21 +326,31 @@ namespace A2_Project.ContentWindows
 					((CustomDatePicker)c).AddNewTextChanged(CustomDatePicker_TextChanged);
 					yOffset += 100;
 				}
+				else if (columns[i].Name == "Appointment Type ID")
+				{
+					c = new ComboBox()
+					{
+						ItemsSource = DBMethods.MetaRequests.GetAllFromTable("Appointment Type").Select(x => x[3]),
+						Margin = new Thickness(5 + xOffset, yOffset, 0, 0)
+					};
+					yOffset += 40;
+				}
 				// Otherwise, a text box is used to allow the user to enter data
 				else
 				{
-					c = new TextBox()
+					c = new ValidationTextbox(columns[i])
 					{
-						Height = 34,
-						Margin = new Thickness(5 + xOffset, yOffset, 0, 0)
+						Margin = new Thickness(5 + xOffset, yOffset, 0, 0),
+						HorizontalAlignment = HorizontalAlignment.Left,
+						VerticalAlignment = VerticalAlignment.Top
 					};
-					((TextBox)c).TextChanged += Tbx_TextChanged;
+					((ValidationTextbox)c).AddChangedEvent(UpdateErrorEvent);
 
 					// If the text box has the potential of containing a lot of data, double its height to allow the text it contains to be easier to read.
 					// TODO: Enforce max length
 					if (columns[i].Constraints.Type == "varchar")
 						if (Convert.ToInt32(columns[i].Constraints.MaxSize) > 50)
-							c.Height *= 2;
+							((ValidationTextbox)c).SetHeight(c.Height * 2); ;
 					yOffset += c.Height + 10;
 				}
 				displayElements[i] = c;
@@ -481,7 +458,7 @@ namespace A2_Project.ContentWindows
 				for (int i = 0; i < selectedData.Length; i++)
 				{
 					if (displayElements[i] is Label l) selectedData[i] = l.Content.ToString();
-					else if (displayElements[i] is TextBox t) selectedData[i] = t.Text;
+					else if (displayElements[i] is ValidationTextbox tbx) selectedData[i] = tbx.Text;
 					else if (displayElements[i] is CheckBox c) selectedData[i] = c.IsChecked.ToString();
 					else if (displayElements[i] is CustomDatePicker d) selectedData[i] = ((DateTime)d.SelectedDate).ToString("dd/MM/yyyy");
 				}
@@ -538,14 +515,6 @@ namespace A2_Project.ContentWindows
 		#endregion AddMode
 
 		public void CustomDatePicker_TextChanged(object sender, TextChangedEventArgs e)
-		{
-			IsValid();
-		}
-
-		/// <summary>
-		/// Allows the user to be given feedback on the validity of their changes as they types
-		/// </summary>
-		private void Tbx_TextChanged(object sender, TextChangedEventArgs e)
 		{
 			IsValid();
 		}

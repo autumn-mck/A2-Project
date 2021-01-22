@@ -21,6 +21,8 @@
     <None Remove="Resources\calendar.png" />
     <None Remove="Resources\chart-box.png" />
     <None Remove="Resources\charts.png" />
+    <None Remove="Resources\circle-invalid.png" />
+    <None Remove="Resources\circle-valid.png" />
     <None Remove="Resources\gbp.png" />
     <None Remove="Resources\logoblack.png" />
     <None Remove="Resources\logowhite.png" />
@@ -39,6 +41,12 @@
     <Resource Include="Resources\addStaff.png" />
     <Resource Include="Resources\calendar.png" />
     <Resource Include="Resources\charts.png" />
+    <Resource Include="Resources\circle-invalid.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Resource>
+    <Resource Include="Resources\circle-valid.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Resource>
     <Resource Include="Resources\gbp.png" />
     <Resource Include="Resources\logoblack.png" />
     <Resource Include="Resources\logowhite.png" />

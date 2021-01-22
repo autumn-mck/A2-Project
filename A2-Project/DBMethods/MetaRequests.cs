@@ -1,4 +1,5 @@
 ﻿using A2_Project.DBObjects;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 
@@ -49,7 +50,7 @@ namespace A2_Project.DBMethods
 			Column[] columns = new Column[types.Count];
 			for (int i = 0; i < types.Count; i++)
 			{
-				columns[i] = new Column(types[i][0])
+				columns[i] = new Column(types[i][0], tableName)
 				{
 					Constraints = new Constraint(IsColumnPrimaryKey(types[i][0], tableName), CanBeNull(types[i][0], tableName), types[i][1], types[i][2])
 				};

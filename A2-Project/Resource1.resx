@@ -130,6 +130,12 @@
   <data name="charts" type="System.Resources.ResXFileRef, System.Windows.Forms">
     <value>Resources\charts.png;System.Byte[], mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </data>
+  <data name="circle_invalid" type="System.Resources.ResXFileRef, System.Windows.Forms">
+    <value>Resources\circle-invalid.png;System.Byte[], mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </data>
+  <data name="circle_valid" type="System.Resources.ResXFileRef, System.Windows.Forms">
+    <value>Resources\circle-valid.png;System.Byte[], mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </data>
   <data name="emailPassword" type="System.Resources.ResXFileRef, System.Windows.Forms">
     <value>Resources\emailPassword.txt;System.String, mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089;Windows-1252</value>
   </data>
