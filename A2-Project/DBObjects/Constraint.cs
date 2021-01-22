@@ -7,13 +7,14 @@
 			IsPrimaryKey = isPrimaryKey;
 			CanBeNull = canBeNull;
 			Type = type;
-			MaxSize = maxSize;
+			int.TryParse(maxSize, out int size);
+			MaxSize = size;
 		}
 
 		public ForeignKey ForeignKey { get; set; }
 		public bool CanBeNull { get; set; }
 		public bool IsPrimaryKey { get; set; }
 		public string Type { get; set; }
-		public string MaxSize { get; set; }
+		public int MaxSize { get; set; }
 	}
 }

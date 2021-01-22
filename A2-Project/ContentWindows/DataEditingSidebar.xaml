@@ -21,18 +21,17 @@
 				<Setter Property="VerticalAlignment" Value="Top"/>
 				<Setter Property="TextWrapping" Value="Wrap"/>
 			</Style>
-			<Style TargetType="TextBox">
-				<Setter Property="FontSize" Value="24"/>
-				<Setter Property="TextWrapping" Value="Wrap"/>
-				<Setter Property="HorizontalAlignment" Value="Left"/>
-				<Setter Property="VerticalAlignment" Value="Top"/>
-				<Setter Property="MinWidth" Value="200"/>
-				<Setter Property="MaxWidth" Value="250"/>
-			</Style>
 			<Style TargetType="Button">
 				<Setter Property="Height" Value="37"/>
 				<Setter Property="FontSize" Value="24"/>
 				<Setter Property="Width" Value="170"/>
+				<Setter Property="HorizontalAlignment" Value="Left"/>
+				<Setter Property="VerticalAlignment" Value="Top"/>
+			</Style>
+			<Style TargetType="ComboBox">
+				<Setter Property="Height" Value="40"/>
+				<Setter Property="FontSize" Value="20"/>
+				<Setter Property="Width" Value="250"/>
 				<Setter Property="HorizontalAlignment" Value="Left"/>
 				<Setter Property="VerticalAlignment" Value="Top"/>
 			</Style>
