@@ -30,7 +30,7 @@ namespace A2_Project.ContentWindows
 		private const int baseYOffset = 30;
 
 		// The colours used for colouring appointments based on the applied filter
-		private readonly Color[] colours = new Color[5];
+		private readonly Color[] colours;
 
 		// The difference between the position of the mouse and the currently selected element
 		private Point diffMouseAndElem;
@@ -74,11 +74,14 @@ namespace A2_Project.ContentWindows
 			columns = DBMethods.MetaRequests.GetColumnDataFromTable(tableName);
 
 			// Get the colours for filters
-			colours[0] = Color.FromRgb(183, 28, 28); // Red
-			colours[1] = Color.FromRgb(13, 71, 161); // Blue
-			colours[2] = Color.FromRgb(190, 96, 0); // Dark orange? Not quite brown
-			colours[3] = Color.FromRgb(27, 94, 32); // Green
-			colours[4] = Color.FromRgb(49, 27, 146); // Deep Purple
+			colours = new Color[]
+			{
+				Color.FromRgb(183, 28, 28), // Red
+				Color.FromRgb(13, 71, 161), // Blue
+				Color.FromRgb(190, 96, 0), // Dark orange? Not quite brown
+				Color.FromRgb(27, 94, 32), // Green
+				Color.FromRgb(49, 27, 146) // Deep Purple
+			};
 
 			InitializeComponent();
 
