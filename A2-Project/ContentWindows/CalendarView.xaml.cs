@@ -292,7 +292,11 @@ namespace A2_Project.ContentWindows
 			while (!toExit)
 			{
 				Dispatcher.Invoke(() => {
-					if (mouseDown) mouseDown = Mouse.LeftButton == MouseButtonState.Pressed;
+					if (mouseDown && Mouse.LeftButton == MouseButtonState.Released)
+					{
+						UpdateAfterMouseUp(currentlySelected);
+					}
+
 					if (mouseDown && currentlySelected is FrameworkElement elem && elem.Parent is FrameworkElement parent)
 					{
 						Point mousePos = Mouse.GetPosition(parent);
@@ -465,37 +469,42 @@ namespace A2_Project.ContentWindows
 		/// </summary>
 		private void RctRect_MouseUp(object sender, MouseButtonEventArgs e)
 		{
-			mouseDown = false;
 			if (sender != currentlySelected) return;
 
 			if (sender is FrameworkElement f)
 			{
-				Panel.SetZIndex(f, 0);
-
-				// Get the middle of the selected element
-				double midLeft = f.Margin.Left + f.Width / 2;
-
-				// Gets the difference in days between the start of the week and the day the selected appointment should be on
-				int dDiff = (int)(midLeft / (dayWidth * spaceBetweenDays));
-				// Gets the x offset that can be used to calculate which room/day the appointment should be placed into.
-				int roomID = (int)(midLeft % (dayWidth * spaceBetweenDays) / (dayWidth / appRoomCount));
-
-				string idColumnName = "Appointment ID";
-				DateTime startOfWeek = GetStartOfWeek();
-				DateTime appDate = startOfWeek.AddDays(dDiff);
-				// Save the user's changes to the database
-				string appID = ((string[])f.Tag)[0];
-				DBMethods.MiscRequests.UpdateColumn(tableName, appDate.ToString("yyyy-MM-dd"), "Appointment Date", idColumnName, appID);
-
-				TimeSpan t = TimeSpan.FromHours(dayStartTime - 1 + f.Margin.Top / hourHeight);
-				DBMethods.MiscRequests.UpdateColumn(tableName, t.ToString("hh\\:mm"), "Appointment Time", idColumnName, appID);
-
-				DBMethods.MiscRequests.UpdateColumn(tableName, roomID.ToString(), "Grooming Room ID", idColumnName, appID);
-
-				string[] newData = DBMethods.MiscRequests.GetByColumnData(tableName, idColumnName, appID, columns.Select(x => x.Name).ToArray())[0].ToArray();
-				f.Tag = newData;
-				editingSidebar.ChangeSelectedData(newData);
+				UpdateAfterMouseUp(f);
 			}
+		}
+
+		private void UpdateAfterMouseUp(FrameworkElement f)
+		{
+			mouseDown = false;
+			Panel.SetZIndex(f, 0);
+
+			// Get the middle of the selected element
+			double midLeft = f.Margin.Left + f.Width / 2;
+
+			// Gets the difference in days between the start of the week and the day the selected appointment should be on
+			int dDiff = (int)(midLeft / (dayWidth * spaceBetweenDays));
+			// Gets the x offset that can be used to calculate which room/day the appointment should be placed into.
+			int roomID = (int)(midLeft % (dayWidth * spaceBetweenDays) / (dayWidth / appRoomCount));
+
+			string idColumnName = "Appointment ID";
+			DateTime startOfWeek = GetStartOfWeek();
+			DateTime appDate = startOfWeek.AddDays(dDiff);
+			// Save the user's changes to the database
+			string appID = ((string[])f.Tag)[0];
+			DBMethods.MiscRequests.UpdateColumn(tableName, appDate.ToString("yyyy-MM-dd"), "Appointment Date", idColumnName, appID);
+
+			TimeSpan t = TimeSpan.FromHours(dayStartTime - 1 + f.Margin.Top / hourHeight);
+			DBMethods.MiscRequests.UpdateColumn(tableName, t.ToString("hh\\:mm"), "Appointment Time", idColumnName, appID);
+
+			DBMethods.MiscRequests.UpdateColumn(tableName, roomID.ToString(), "Grooming Room ID", idColumnName, appID);
+
+			string[] newData = DBMethods.MiscRequests.GetByColumnData(tableName, idColumnName, appID, columns.Select(x => x.Name).ToArray())[0].ToArray();
+			f.Tag = newData;
+			editingSidebar.ChangeSelectedData(newData);
 		}
 
 		/// <summary>
