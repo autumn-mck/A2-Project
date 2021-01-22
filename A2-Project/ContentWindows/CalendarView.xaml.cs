@@ -530,6 +530,7 @@ namespace A2_Project.ContentWindows
 				Label lblTime = new Label()
 				{
 					Content = TimeSpan.FromHours(i).ToString(@"hh\:mm") + "   ",
+					IsHitTestVisible = false,
 					HorizontalAlignment = HorizontalAlignment.Right,
 					Margin = new Thickness(0, (i - dayStartTime + 1) * hourHeight - 24 + baseYOffset, grdResults.Width + grdResults.Margin.Right, 0)
 				};
@@ -542,6 +543,7 @@ namespace A2_Project.ContentWindows
 					Margin = new Thickness(0, (i - dayStartTime + 1) * hourHeight + baseYOffset - 1, grdResults.Margin.Right + 4, 0),
 					Fill = new SolidColorBrush(Color.FromRgb(230, 230, 230)),
 					Opacity = 0.15,
+					IsHitTestVisible = false,
 					VerticalAlignment = VerticalAlignment.Top,
 					HorizontalAlignment = HorizontalAlignment.Right
 				};
