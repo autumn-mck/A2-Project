@@ -1,7 +1,5 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Linq;
-using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Media;
@@ -115,6 +113,147 @@ namespace A2_Project.ContentWindows
 			int min = GetMin(data);
 			LabelGraph(grid, data[0].Length, xAxisLabels, title, prefix, suffix, max, min);
 			GenerateLines(grid, data, max, data.Length > 1, min);
+		}
+
+		private static void GeneratePieChart(GetData getData, Grid grid, string title)
+		{
+			int[][] data = new int[1][];
+			// TODO: headers should probably be out, not ref
+			string[] headers = Array.Empty<string>();
+			getData(ref data, ref headers, minDate);
+
+			GenerateTitle(grid, title);
+			GeneratePie(grid, data, headers);
+		}
+
+		private static void GeneratePie(Grid grid, int[][] data, string[] headers)
+		{
+			DrawFullArea(grid);
+
+			// A stack panel which contains the pie chart and the key
+			StackPanel stpAll = new StackPanel()
+			{
+				Orientation = Orientation.Horizontal,
+				Margin = new Thickness(65, 10, 0, 0),
+				HorizontalAlignment = HorizontalAlignment.Left,
+				VerticalAlignment = VerticalAlignment.Top
+			};
+
+			// Note: For now, only generates 1 pie chart, regardless of how much data it is given.
+			int[] arr = data[0];
+			double sum = arr.Sum();
+			double totalSoFar = 0;
+
+			// A stack panel to contain the keys
+			StackPanel stpKey = new StackPanel()
+			{
+				VerticalAlignment = VerticalAlignment.Center,
+				HorizontalAlignment = HorizontalAlignment.Left
+			};
+
+			// The brushes used to colour the appointment types
+			// TODO: This means that currently the application will crash if there are more than 5 appointment types
+			Brush[] brushes = new Brush[]
+			{ 
+				new SolidColorBrush(Color.FromRgb(74, 20, 140)), // Purple
+				new SolidColorBrush(Color.FromRgb(191, 54, 12)), // Orange
+				new SolidColorBrush(Color.FromRgb(27, 94, 32)), // Green
+				new SolidColorBrush(Color.FromRgb(183, 28, 28)), // Red
+				new SolidColorBrush(Color.FromRgb(25, 118, 210)) // Blue
+			};
+
+			// A grid to contain the pie chart
+			Grid pie = new Grid();
+
+			// Radius of the pie chart
+			double radius = 90;
+			// The centre of the pie chart
+			Point startPos = new Point(radius + 15, radius + 35);
+
+			for (int i = 0; i < arr.Length; i++)
+			{
+				// The angle travelled through so far, in radians
+				double angleSoFar = totalSoFar / sum * Math.PI * 2;
+				// The first point on the corner between the line between the centre and the arc
+				Point p1 = new Point(Math.Sin(angleSoFar) * radius + startPos.X, Math.Cos(angleSoFar) * radius - startPos.Y);
+				totalSoFar += arr[i];
+
+				angleSoFar = totalSoFar / sum * Math.PI * 2;
+				// The second point on the corner between the line between the centre and the arc
+				Point p2 = new Point(Math.Sin(angleSoFar) * radius + startPos.X, Math.Cos(angleSoFar) * radius - startPos.Y);
+
+				// The path will try to take the shorter arc unless told otherwise.
+				// However, the longer path is needed instead if the sector needs to take up > 1/2 the circle
+				string isLargeArcStr = arr[i] / sum > 0.5 ? "1" : "0";
+
+				// Creates a circle sector for the pie chart to represent arr[i]
+				Path sector = new Path()
+				{
+					Fill = brushes[i],
+					Data = Geometry.Parse($"M{startPos.X},{startPos.Y} L{p1.X},{-p1.Y} A{radius},{radius} 0 {isLargeArcStr} 1 {p2.X},{-p2.Y} z")
+				};
+				pie.Children.Add(sector);
+
+				// Creates a line to create a boundary between the sectors
+				Path sectorDiv = new Path()
+				{
+					StrokeThickness = 1.5,
+					Stroke = Brushes.Black,
+					Data = Geometry.Parse($"M{startPos.X},{startPos.Y} L{p1.X},{-p1.Y}")
+				};
+				// The divider should appear on top of the sectors
+				Panel.SetZIndex(sectorDiv, 1);
+				pie.Children.Add(sectorDiv);
+
+				// A stack panel used to give a key for the current sector
+				StackPanel label = new StackPanel()
+				{
+					Orientation = Orientation.Horizontal
+				};
+
+				// Creates a rectangle with the colour of the sector as part of the key
+				Rectangle rct = new Rectangle()
+				{
+					Fill = brushes[i],
+					Height = 20,
+					Width = 20,
+					Stroke = Brushes.Black,
+					StrokeThickness = 1.5,
+					VerticalAlignment = VerticalAlignment.Top,
+					Margin = new Thickness(0, 8, 0, 0)
+				};
+
+				// Creates a label to show what the key is marking, and gives the actual value the sector is representing 
+				Label lbl = new Label()
+				{
+					Content = headers[i] + $"\n{arr[i]}",
+					Foreground = Brushes.White
+				};
+
+				label.Children.Add(rct);
+				label.Children.Add(lbl);
+
+				stpKey.Children.Add(label);
+			}
+
+			// Scale the pie chart size by a factor of this to get its background
+			double bgScale = 1.02;
+			// Draws a slightly larger circle to act as a background to the pie chart
+			Path backPath = new Path()
+			{
+				Fill = Brushes.Black,
+				Data = Geometry.Parse($"M{startPos.X},{startPos.Y - radius * bgScale} " +
+				$"A{radius * bgScale},{radius * bgScale} 0 1 1 {startPos.X},{startPos.Y + radius * bgScale} " +
+				$"A{radius * bgScale},{radius * bgScale} 0 1 1 {startPos.X},{startPos.Y - radius * bgScale} " +
+				$"z")
+			};
+			// Place the background behind the pie chart
+			Panel.SetZIndex(backPath, -1);
+			pie.Children.Add(backPath);
+
+			stpAll.Children.Add(stpKey);
+			stpAll.Children.Add(pie);
+			grid.Children.Add(stpAll);
 		}
 
 		private static void LabelGraph(Grid grid, int length, string[] xAxisLabels, string title, string prefix, string suffix, int max, int min)
@@ -422,6 +561,7 @@ namespace A2_Project.ContentWindows
 				VerticalAlignment = VerticalAlignment.Top,
 				HorizontalAlignment = HorizontalAlignment.Center
 			};
+			Panel.SetZIndex(tblTitle, 1);
 			grid.Children.Add(tblTitle);
 		}
 
@@ -442,7 +582,7 @@ namespace A2_Project.ContentWindows
 		private void GraphAppTypes()
 		{
 			GetData getData = new GetData(DBMethods.GraphingRequests.GetCountOfAppointmentTypes);
-			GenerateBarGraph(getData, grdAppTypes, "Appointment Types");
+			GeneratePieChart(getData, grdAppTypes, "Appointment Types");
 		}
 
 		private void GraphStaffBusiness()
