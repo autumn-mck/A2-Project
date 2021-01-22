@@ -293,6 +293,8 @@ namespace A2_Project.ContentWindows
 				labelElements[i] = lbl;
 				yOffset += 40;
 
+				double cmbYOffset = 50;
+
 				FrameworkElement c;
 				// If the item displays a primary key, it is not editable by the user, so a label is used to display the data without it being editable
 				if (columns[i].Constraints.IsPrimaryKey)
@@ -312,7 +314,7 @@ namespace A2_Project.ContentWindows
 						Margin = new Thickness(5 + xOffset, yOffset, 0, 0),
 						RenderTransform = new ScaleTransform(2, 2)
 					};
-					yOffset += 30;
+					yOffset += 40;
 				}
 				else if (columns[i].Constraints.Type == "date")
 				{
@@ -337,7 +339,7 @@ namespace A2_Project.ContentWindows
 						Margin = new Thickness(5 + xOffset, yOffset, 0, 0)
 					};
 					lbl.Content = "Appointment Type";
-					yOffset += 40;
+					yOffset += cmbYOffset;
 				}
 				else if (columns[i].Name == "Staff ID" && i != 0)
 				{
@@ -347,7 +349,7 @@ namespace A2_Project.ContentWindows
 						Margin = new Thickness(5 + xOffset, yOffset, 0, 0)
 					};
 					lbl.Content = "Staff Member";
-					yOffset += 40;
+					yOffset += cmbYOffset;
 				}
 				else if (columns[i].Name == "Grooming Room ID" && i != 0)
 				{
@@ -357,7 +359,7 @@ namespace A2_Project.ContentWindows
 						Margin = new Thickness(5 + xOffset, yOffset, 0, 0)
 					};
 					lbl.Content = "Grooming Room";
-					yOffset += 40;
+					yOffset += cmbYOffset;
 				}
 				// Otherwise, a text box is used to allow the user to enter data
 				else
@@ -375,7 +377,7 @@ namespace A2_Project.ContentWindows
 					if (columns[i].Constraints.Type == "varchar")
 						if (Convert.ToInt32(columns[i].Constraints.MaxSize) > 50)
 							((ValidationTextbox)c).SetHeight(c.Height * 2); ;
-					yOffset += c.Height + 10;
+					yOffset += c.Height + 15;
 				}
 				displayElements[i] = c;
 				maxYOffset = Math.Max(maxYOffset, yOffset);
@@ -394,14 +396,14 @@ namespace A2_Project.ContentWindows
 		{
 			grdEditMode = new Grid()
 			{
-				Margin = new Thickness(5, yOffset, 0, 0),
+				Margin = new Thickness(5, yOffset + 20, 0, 0),
 				HorizontalAlignment = HorizontalAlignment.Left,
 				VerticalAlignment = VerticalAlignment.Top
 			};
 
 			grdAddMode = new Grid()
 			{
-				Margin = new Thickness(5, yOffset, 0, 0),
+				Margin = new Thickness(5, yOffset + 20, 0, 0),
 				HorizontalAlignment = HorizontalAlignment.Left,
 				VerticalAlignment = VerticalAlignment.Top,
 				Visibility = Visibility.Hidden
