@@ -106,21 +106,21 @@ INSERT INTO [Appointment Type] VALUES (
 	0,
 	1,
 	35,
-	'Wash, Shampoo & Brush'
+	'Wash & Brush'
 );
 
 INSERT INTO [Appointment Type] VALUES (
 	1,
 	1.5,
 	40,
-	'Wash, Shampoo, Brush & Trim'
+	'Wash, Brush & Trim'
 );
 
 INSERT INTO [Appointment Type] VALUES (
 	2,
 	2,
 	50,
-	'Wash, Shampoo, Brush & Full Cut'
+	'Wash, Brush & Full Cut'
 );
 
 CREATE TABLE [Grooming Room] (
