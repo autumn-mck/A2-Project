@@ -171,6 +171,7 @@ namespace A2_Project.ContentWindows
 				FrameworkElement c = displayElements[i];
 				// Reset the values in the controls
 				if (c is ValidationTextbox tbx) tbx.Text = GetSuggestedValue(columns[i]).ToString();
+				else if (c is ComboBox cmb) cmb.SelectedIndex = -1;
 				else if (c is DatePicker d) d.SelectedDate = (DateTime)GetSuggestedValue(columns[i]);
 				else if (c is CheckBox cbx) cbx.IsChecked = (bool)GetSuggestedValue(columns[i]);
 				// Any labels which were used to display primary keys now need to be editable
@@ -214,6 +215,7 @@ namespace A2_Project.ContentWindows
 				FrameworkElement c = displayElements[i];
 				// Reset the displayed values
 				if (c is ValidationTextbox t) t.Text = "";
+				else if (displayElements[i] is ComboBox cmb) cmb.SelectedIndex = -1;
 				// If the element is to display a primary key, it should not be editable, so a label is used instead of a text box
 				if (c.Tag != null && c.Tag.ToString() == "Primary Key")
 				{
@@ -240,6 +242,7 @@ namespace A2_Project.ContentWindows
 			{
 				if (displayElements[i] is Label l) l.Content = selectedData[i];
 				else if (displayElements[i] is ValidationTextbox t) t.Text = selectedData[i];
+				else if (displayElements[i] is ComboBox cmb) cmb.SelectedIndex = int.Parse(selectedData[i]);
 				else if (displayElements[i] is CheckBox c) c.IsChecked = selectedData[i] == "True";
 				else if (displayElements[i] is CustomDatePicker cDP) cDP.SelectedDate = DateTime.Parse(selectedData[i]);
 			}
@@ -326,13 +329,34 @@ namespace A2_Project.ContentWindows
 					((CustomDatePicker)c).AddNewTextChanged(CustomDatePicker_TextChanged);
 					yOffset += 100;
 				}
-				else if (columns[i].Name == "Appointment Type ID")
+				else if (columns[i].Name == "Appointment Type ID" && i != 0)
 				{
 					c = new ComboBox()
 					{
 						ItemsSource = DBMethods.MetaRequests.GetAllFromTable("Appointment Type").Select(x => x[3]),
 						Margin = new Thickness(5 + xOffset, yOffset, 0, 0)
 					};
+					lbl.Content = "Appointment Type";
+					yOffset += 40;
+				}
+				else if (columns[i].Name == "Staff ID" && i != 0)
+				{
+					c = new ComboBox()
+					{
+						ItemsSource = DBMethods.MetaRequests.GetAllFromTable("Staff").Select(x => x[1]),
+						Margin = new Thickness(5 + xOffset, yOffset, 0, 0)
+					};
+					lbl.Content = "Staff Member";
+					yOffset += 40;
+				}
+				else if (columns[i].Name == "Grooming Room ID" && i != 0)
+				{
+					c = new ComboBox()
+					{
+						ItemsSource = DBMethods.MetaRequests.GetAllFromTable("Grooming Room").Select(x => x[1]),
+						Margin = new Thickness(5 + xOffset, yOffset, 0, 0)
+					};
+					lbl.Content = "Grooming Room";
 					yOffset += 40;
 				}
 				// Otherwise, a text box is used to allow the user to enter data
@@ -459,6 +483,7 @@ namespace A2_Project.ContentWindows
 				{
 					if (displayElements[i] is Label l) selectedData[i] = l.Content.ToString();
 					else if (displayElements[i] is ValidationTextbox tbx) selectedData[i] = tbx.Text;
+					else if (displayElements[i] is ComboBox cmb) selectedData[i] = cmb.SelectedIndex.ToString();
 					else if (displayElements[i] is CheckBox c) selectedData[i] = c.IsChecked.ToString();
 					else if (displayElements[i] is CustomDatePicker d) selectedData[i] = ((DateTime)d.SelectedDate).ToString("dd/MM/yyyy");
 				}
