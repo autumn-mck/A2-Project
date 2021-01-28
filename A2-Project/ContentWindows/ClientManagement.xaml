@@ -48,9 +48,11 @@
 				</Style.Resources>
 			</Style>
 		</Grid.Resources>
+		<StackPanel x:Name="stpSelections" Orientation="Vertical">
 		<Label Name="lblContacts"/>
-		<Label Name="lblDogs" Margin="0, 500, 0, 0"/>
+		<Label Name="lblDogs"/>
+		<Label Name="lblClients"/>
+		</StackPanel>
 		<Label Name="lblEditing" Margin="1000, 10, 0, 0"/>
-		<Button x:Name="btnToggleClientEditing" Content="Editing Contact Data" Margin="1010, 10, 0, 0" Click="BtnToggleClientEditing_Click"/>
 	</Grid>
 </Window>

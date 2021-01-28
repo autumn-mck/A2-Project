@@ -6,7 +6,7 @@
         xmlns:local="clr-namespace:A2_Project.ContentWindows"
         mc:Ignorable="d"
         Title="SearchableDataGrid" Background="#111111">
-	<Grid>
+	<Grid x:Name="grdContent">
 		<Grid.Resources>
 			<Style TargetType="Label">
 				<Setter Property="Foreground" Value="#D5D5D5"/>
@@ -56,7 +56,6 @@
 
 		<DataGrid Name="dtgData"
 			SelectedCellsChanged="Dtg_SelectedCellsChanged"
-			Height="700"
 			AutoGeneratingColumn="Dtg_AutoGeneratingColumn"
 			LoadingRow="Dtg_LoadingRow" Margin="0,60,0,0" HorizontalAlignment="Left"/>
 	</Grid>
