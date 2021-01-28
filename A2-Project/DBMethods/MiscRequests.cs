@@ -81,10 +81,11 @@ namespace A2_Project.DBMethods
 
 		public static bool DoesAppointmentClash(string[] oldData, int roomID, DateTime date, TimeSpan time)
 		{
-			//return true;
 			TimeSpan appEnd = time.Add(new TimeSpan(0, GetAppLength(Convert.ToInt32(oldData[2]), oldData[6] == "True", oldData[0]), 0));
-			
-			List<List<string>> allOnDay = DBAccess.GetListStringsWithQuery($"SELECT * FROM [Appointment] WHERE [Appointment].[Appointment Date] = '{date:yyyy-MM-dd}' AND [Appointment].[Appointment Time] < '{appEnd}' AND [Appointment].[Is Cancelled] = 'False';");
+
+			string query = $"SELECT * FROM [Appointment] WHERE [Appointment].[Appointment Date] = '{date:yyyy-MM-dd}' " +
+			$"AND [Appointment].[Appointment Time] < '{appEnd}' AND [Appointment].[Is Cancelled] = 'False';";
+			List<List<string>> allOnDay = DBAccess.GetListStringsWithQuery(query);
 			// An appointment cannot clash with itself, so remove the appointment with the same unique ID (If it exists)
 			allOnDay.Remove(allOnDay.Where(a => a[0] == oldData[0]).FirstOrDefault());
 

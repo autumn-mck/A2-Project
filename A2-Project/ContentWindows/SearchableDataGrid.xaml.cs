@@ -27,7 +27,7 @@ namespace A2_Project.ContentWindows
 		{
 			InitializeComponent();
 
-			dtgData.Height = _height;
+			dtgData.MaxHeight = _height;
 			//dtgData.Width = _width;
 
 			tableName = _tableName;
@@ -46,6 +46,12 @@ namespace A2_Project.ContentWindows
 
 			try { dtgData.SelectedIndex = 0; }
 			catch { }
+		}
+
+		public void SetMaxHeight(double newMax)
+		{
+			dtgData.MaxHeight = newMax;
+			grdContent.Height = newMax + dtgData.Margin.Top;
 		}
 
 		private void Search(bool isExact = false)
@@ -124,7 +130,11 @@ namespace A2_Project.ContentWindows
 
 		public void ClearSearch()
 		{
+			shouldUpdateSearch = false;
+			cmbColumn.SelectedIndex = 0;
 			tbxSearch.Text = "";
+			shouldUpdateSearch = true;
+			Search();
 		}
 
 		public string[] GetSelectedData()
