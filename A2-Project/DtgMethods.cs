@@ -1,6 +1,7 @@
 ﻿using System.Collections.Generic;
 using System.Data;
 using System.Linq;
+using System.Threading.Tasks;
 using System.Windows.Controls;
 
 namespace A2_Project
@@ -16,39 +17,52 @@ namespace A2_Project
 			if (originalData == null) return null;
 			int columnSearch = selectedIndex;
 			List<List<string>> searched = new List<List<string>>();
-			if (columnSearch == 0)
+			if (searchTerm == "" && !isExact)
 			{
-				foreach (List<string> ls in originalData)
-				{
-					bool contained = false;
-
-					foreach (string s in ls)
-					{
-						if (isExact)
-						{
-							if (s == searchTerm) contained = true;
-						}
-						else
-						{
-							if (s.ToLower().Contains(searchTerm)) contained = true;
-						}
-					}
-
-					if (contained) searched.Add(ls);
-				}
+				searched = originalData;
 			}
 			else
 			{
-				foreach (List<string> ls in originalData)
+				if (columnSearch == 0)
 				{
-					if (isExact)
+					Parallel.ForEach(originalData, ls =>
 					{
-						if (ls[columnSearch - 1] == searchTerm) searched.Add(ls);
-					}
-					else
+						bool contained = false;
+
+						foreach (string s in ls)
+						{
+							if (isExact)
+							{
+								if (s == searchTerm) contained = true;
+							}
+							else
+							{
+								if (s.ToLower().Contains(searchTerm)) contained = true;
+							}
+						}
+
+						if (contained)
+						{
+							lock (searched)
+							{
+								searched.Add(ls);
+							}
+						}
+					});
+				}
+				else
+				{
+					Parallel.ForEach(originalData, ls =>
 					{
-						if (ls[columnSearch - 1].ToLower().Contains(searchTerm)) searched.Add(ls);
-					}
+						if (isExact)
+						{
+							if (ls[columnSearch - 1] == searchTerm) searched.Add(ls);
+						}
+						else
+						{
+							if (ls[columnSearch - 1].ToLower().Contains(searchTerm)) searched.Add(ls);
+						}
+					});
 				}
 			}
 
