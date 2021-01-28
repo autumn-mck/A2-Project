@@ -21,7 +21,7 @@ namespace A2_Project.ContentWindows
 
 		private Window containingWindow;
 
-		private bool shouldUpdateSearch = true;
+		private bool shouldUpdateSearch = false;
 
 		public SearchableDataGrid(double _height, double _width, string _tableName, DBObjects.Column[] _columns, Window _containingWindow)
 		{
@@ -46,6 +46,7 @@ namespace A2_Project.ContentWindows
 
 			try { dtgData.SelectedIndex = 0; }
 			catch { }
+			shouldUpdateSearch = true;
 		}
 
 		public void SetMaxHeight(double newMax)
