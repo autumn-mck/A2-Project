@@ -63,6 +63,7 @@ namespace A2_Project.ContentWindows
 
 		private void UpdateMode(string newMode)
 		{
+			if (mode == newMode) return;
 			mode = newMode;
 			
 			double notSelMax = 100;
