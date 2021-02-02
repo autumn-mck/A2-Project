@@ -54,5 +54,19 @@
 		<Label Name="lblClients"/>
 		</StackPanel>
 		<Label Name="lblEditing" Margin="1000, 10, 0, 0"/>
+		<Grid x:Name="grdFKeyErrorOuter" Width="550" Height="300" Background="#FFFFFF" Visibility="Hidden" Panel.ZIndex="1">
+			<Grid x:Name="grdFKeyErrorInner" Background="#111111" Margin="2,2,2,2">
+				<Grid.Resources>
+					<Style TargetType="TextBlock">
+						<Setter Property="Foreground" Value="#D5D5D5"/>
+						<Setter Property="FontSize" Value="30"/>
+						<Setter Property="TextWrapping" Value="Wrap"/>
+					</Style>
+				</Grid.Resources>
+				<TextBlock x:Name="tblFKeyRefError" Text="Error message here" Margin="10,10,10,10"/>
+				<Button x:Name="btnFkeyErrorAccept" Click="BtnFkeyErrorAccept_Click" Content="Accept" HorizontalAlignment="Center" VerticalAlignment="Bottom" Margin="200,0,0,10"/>
+				<Button x:Name="btnFkeyErrorDecline" Click="BtnFkeyErrorDecline_Click" Content="Decline" HorizontalAlignment="Center" VerticalAlignment="Bottom" Margin="-200,0,0,10"/>
+			</Grid>
+		</Grid>
 	</Grid>
 </Window>
