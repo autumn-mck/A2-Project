@@ -44,6 +44,10 @@ namespace A2_Project.ContentWindows
 			{
 				calandar.UpdateFromSidebar(data, isNew);
 			}
+			else if (containingWindow is ClientManagement cliMan)
+			{
+				cliMan.UpdateFromSidebar(data, isNew);
+			}
 		}
 
 		private void DeleteItemOwner()
@@ -55,6 +59,10 @@ namespace A2_Project.ContentWindows
 			else if (containingWindow is CalandarView calanderView)
 			{
 				calanderView.CancelApp();
+			}
+			else if (containingWindow is ClientManagement cliMan)
+			{
+				cliMan.DeleteItem();
 			}
 		}
 

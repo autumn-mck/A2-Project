@@ -1,4 +1,5 @@
-﻿using System.Linq;
+﻿using System;
+using System.Linq;
 using System.Windows;
 
 namespace A2_Project.ContentWindows
@@ -39,6 +40,37 @@ namespace A2_Project.ContentWindows
 			clientsColumns = DBMethods.MetaRequests.GetColumnDataFromTable("Client");
 			dtgClients = new SearchableDataGrid(200, 600, "Client", clientsColumns, this);
 			lblClients.Content = dtgClients.Content;
+		}
+
+		internal void UpdateFromSidebar(string[] data, bool isNew)
+		{
+			switch (mode)
+			{
+				case "Contacts": dtgContacts.UpdateData(data, isNew); break;
+				case "Clients": dtgClients.UpdateData(data, isNew); break;
+				case "Dogs": dtgDogs.UpdateData(data, isNew); break;
+			}
+		}
+
+		internal void DeleteItem(bool deleteRef = false)
+		{
+			try
+			{
+				switch (mode)
+				{
+					case "Contacts": dtgContacts.TryDeleteSelected(deleteRef); break;
+					case "Clients": dtgClients.TryDeleteSelected(deleteRef); break;
+					case "Dogs": dtgDogs.TryDeleteSelected(deleteRef); break;
+				}
+			}
+			// An exception is thrown if there are other items which reference the item to be deleted
+			catch (Exception ex)
+			{
+				// Allow the user to make the choice to delete the item and everything which references it (And everything that references the references, and so on)
+				// Or cancel the deletion
+				grdFKeyErrorOuter.Visibility = Visibility.Visible;
+				tblFKeyRefError.Text = ex.Message;
+			}
 		}
 
 		public void TableSelectionChanged(SearchableDataGrid sender, string[] newData)
@@ -144,6 +176,23 @@ namespace A2_Project.ContentWindows
 			{
 				lblEditing.Content = clientsEditing.Content;
 			}
+		}
+
+		/// <summary>
+		/// The user wants to delete the item and anything else that references it
+		/// </summary>
+		private void BtnFkeyErrorAccept_Click(object sender, RoutedEventArgs e)
+		{
+			DeleteItem(true);
+			grdFKeyErrorOuter.Visibility = Visibility.Hidden;
+		}
+
+		/// <summary>
+		/// The user does not want to delete the selected item
+		/// </summary>
+		private void BtnFkeyErrorDecline_Click(object sender, RoutedEventArgs e)
+		{
+			grdFKeyErrorOuter.Visibility = Visibility.Hidden;
 		}
 	}
 }
