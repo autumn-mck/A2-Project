@@ -1,82 +1,16 @@
 ﻿using System;
-using System.IO;
-using System.Windows.Controls;
-using System.Windows.Media.Imaging;
 
 namespace A2_Project.UserControls
 {
-	/// <summary>
-	/// Interaction logic for ValidationTextbox.xaml
-	/// </summary>
-	public partial class ValidationTextbox : UserControl
+	public static class Validation
 	{
-		private DBObjects.Column col;
-
-		public string ErrorMessage { get; set; }
-
-		public string Text
+		public static bool Validate(string str, DBObjects.Column col, out string errorMessage)
 		{
-			get
-			{
-				if (col.Constraints.Type == "date") return DateTime.Parse(tbx.Text).ToString("yyyy-MM-dd");
-				else return tbx.Text;
-			}
-			set
-			{
-				tbx.Text = value;
-				Validate();
-			}
-		}
-
-		private bool isValid = false;
-		public bool IsValid
-		{
-			get { return isValid; }
-			set
-			{
-				if (value) img.Source = new BitmapImage(new Uri(Directory.GetCurrentDirectory() + "/Resources/circle-valid.png"));
-				else img.Source = new BitmapImage(new Uri(Directory.GetCurrentDirectory() + "/Resources/circle-invalid.png"));
-				isValid = value;
-			}
-		}
-
-		public ValidationTextbox(DBObjects.Column _column)
-		{
-			InitializeComponent();
-			col = _column;
-			if (col.Constraints.Type == "int") tbx.PreviewTextInput += Tbx_PreventInvalidInt;
-		}
-
-		private void Tbx_PreventInvalidInt(object sender, System.Windows.Input.TextCompositionEventArgs e)
-		{
-			if (!int.TryParse(e.Text, out _)) e.Handled = true;
-		}
-
-		private void Tbx_TextChanged(object sender, TextChangedEventArgs e)
-		{
-			Validate();
-		}
-
-		public void SetWidth(double newWidth)
-		{
-			Width = newWidth;
-			tbx.Width = newWidth - img.Width - img.Margin.Left;
-		}
-
-		public void SetHeight(double newHeight)
-		{
-			Height = newHeight;
-			tbx.Height = newHeight;
-		}
-
-		public void Validate()
-		{
+			bool isValid;
 			bool patternReq = true;
 			bool typeReq = true;
 			bool fKeyReq = true;
 			bool pKeyReq = true;
-
-			string str = tbx.Text;
 
 			string patternError = "";
 			// Check if the string meets a specific pattern
@@ -103,9 +37,9 @@ namespace A2_Project.UserControls
 
 			if (col.Constraints.CanBeNull && str == "")
 			{
-				IsValid = true;
-				ErrorMessage = "";
-				return;
+				isValid = true;
+				errorMessage = "";
+				return isValid;
 			}
 			else if (!col.Constraints.CanBeNull && str == "")
 			{
@@ -119,12 +53,16 @@ namespace A2_Project.UserControls
 				case "int":
 					typeReq = !string.IsNullOrEmpty(str) && int.TryParse(str, out _);
 					break;
+				case "date":
+					typeReq = DateTime.TryParse(str, out DateTime d);
+					typeReq = typeReq && d.TimeOfDay.TotalSeconds == 0;
+					break;
 				case "time":
 					typeReq = TimeSpan.TryParse(str, out TimeSpan t);
 					typeReq = typeReq && t.TotalMinutes % 1.0 == 0;
 					break;
 				case "varchar":
-					typeReq = Text.Length <= col.Constraints.MaxSize;
+					typeReq = str.Length <= col.Constraints.MaxSize;
 					break;
 			}
 
@@ -137,11 +75,11 @@ namespace A2_Project.UserControls
 				pKeyReq = DBMethods.MiscRequests.IsPKeyFree(col.TableName, col.Name, str);
 			// Note: No good way to validate names/addresses
 
-			IsValid = patternReq && typeReq && fKeyReq && pKeyReq;
+			isValid = patternReq && typeReq && fKeyReq && pKeyReq;
 
 			// If the current part is invalid, let the user know what the issue is.
 			string instErr = "";
-			if (!IsValid)
+			if (!isValid)
 			{
 				instErr = $"\n{col.Name}: ";
 				if (!patternReq) instErr += patternError;
@@ -161,12 +99,8 @@ namespace A2_Project.UserControls
 				if (!fKeyReq) instErr += $"References a non-existent {col.Constraints.ForeignKey.ReferencedTable}.";
 				if (!pKeyReq) instErr += "This ID is already taken!";
 			}
-			ErrorMessage = instErr;
-		}
-
-		public void AddChangedEvent(TextChangedEventHandler ev)
-		{
-			tbx.TextChanged += ev;
+			errorMessage = instErr;
+			return isValid;
 		}
 	}
 }

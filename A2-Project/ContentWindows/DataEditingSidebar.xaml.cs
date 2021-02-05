@@ -75,65 +75,10 @@ namespace A2_Project.ContentWindows
 
 			for (int i = 0; i < columns.Length; i++)
 			{
-				if (displayElements[i] is ValidationTextbox tbx)
+				if (displayElements[i] is ValidatedItem item)
 				{
-					isAllValid = isAllValid && tbx.IsValid;
+					isAllValid = isAllValid && item.IsValid;
 					continue;
-				}
-
-
-
-				// Gets the data to be validated in string form
-				string str = "";
-				bool patternReq = true;
-				bool typeReq = true;
-				bool fKeyReq = true;
-				bool pKeyReq = true;
-
-				if (displayElements[i] is ValidationTextbox vtbx) str = vtbx.Text;
-				else if (displayElements[i] is Label) continue; // If the item to be checked is a label, it is not user editable, so it is assumed to already contain valid data.
-				else if (displayElements[i] is CheckBox) continue;
-				else if (displayElements[i] is CustomDatePicker cd)
-				{
-					typeReq = cd.IsValid;
-				}
-
-				string patternError = "";
-				DBObjects.Column col = columns[i];
-
-				bool isInstanceValid = patternReq && typeReq && fKeyReq && pKeyReq;
-				isAllValid = isAllValid && isInstanceValid;
-
-				// If the current part is invalid, let the user know what the issue is.
-				if (!isInstanceValid)
-				{
-					string instErr = $"\n{col.Name}: ";
-					if (!patternReq) instErr += patternError;
-
-					if (!typeReq)
-					{
-						switch (col.Constraints.Type)
-						{
-							case "date": instErr += "Please enter a valid date!"; break;
-							case "time": instErr += "Please enter a valid time! (hh:mm)"; break;
-						}
-					}
-				}
-
-				// Allow the user to clearly see which data is incorrect
-				if (displayElements[i] is Control c)
-				{
-					if (isInstanceValid)
-						c.Background = Brushes.White;
-					else
-						c.Background = Brushes.Red;
-				}
-				else if (displayElements[i] is Grid g)
-				{
-					if (isInstanceValid)
-						g.Background = Brushes.White;
-					else
-						g.Background = Brushes.Red;
 				}
 			}
 			UpdateErrorMessages();
@@ -153,10 +98,10 @@ namespace A2_Project.ContentWindows
 			for (int i = 0; i < columns.Length; i++)
 			{
 				string instErr = "";
-				if (displayElements[i] is ValidationTextbox tbx)
+				if (displayElements[i] is ValidatedItem item)
 				{
-					if (tbx.IsValid) continue;
-					instErr = tbx.ErrorMessage;
+					if (item.IsValid) continue;
+					instErr = item.ErrorMessage;
 				}
 				// Allows the error messages to be readable when there are more than 6 of them by dividing them into 2 columns
 				if (errCol1.Count(x => x == '\n') < 6) errCol1 += instErr;
@@ -178,7 +123,7 @@ namespace A2_Project.ContentWindows
 			{
 				FrameworkElement c = displayElements[i];
 				// Reset the values in the controls
-				if (c is ValidationTextbox tbx) tbx.Text = GetSuggestedValue(columns[i]).ToString();
+				if (c is ValidatedTextbox tbx) tbx.Text = GetSuggestedValue(columns[i]).ToString();
 				else if (c is ComboBox cmb) cmb.SelectedIndex = -1;
 				else if (c is DatePicker d) d.SelectedDate = (DateTime)GetSuggestedValue(columns[i]);
 				else if (c is CheckBox cbx) cbx.IsChecked = (bool)GetSuggestedValue(columns[i]);
@@ -186,7 +131,7 @@ namespace A2_Project.ContentWindows
 				else if (c is Label l)
 				{
 					grd.Children.Remove(l);
-					c = new ValidationTextbox(columns[i])
+					c = new ValidatedTextbox(columns[i])
 					{
 						Margin = new Thickness(l.Margin.Left + 5, l.Margin.Top, 0, 0),
 						Tag = "Primary Key",
@@ -194,12 +139,11 @@ namespace A2_Project.ContentWindows
 						HorizontalAlignment = HorizontalAlignment.Left,
 						VerticalAlignment = VerticalAlignment.Top
 					};
-					((ValidationTextbox)c).AddChangedEvent(UpdateErrorEvent);
+					((ValidatedTextbox)c).AddTextChangedEvent(UpdateErrorEvent);
 					displayElements[i] = c;
 					grd.Children.Add(c);
 				}
 			}
-			IsValid();
 		}
 
 		private object GetSuggestedValue(DBObjects.Column column)
@@ -222,7 +166,7 @@ namespace A2_Project.ContentWindows
 			{
 				FrameworkElement c = displayElements[i];
 				// Reset the displayed values
-				if (c is ValidationTextbox t) t.Text = "";
+				if (c is ValidatedTextbox t) t.Text = "";
 				else if (displayElements[i] is ComboBox cmb) cmb.SelectedIndex = -1;
 				// If the element is to display a primary key, it should not be editable, so a label is used instead of a text box
 				if (c.Tag != null && c.Tag.ToString() == "Primary Key")
@@ -236,7 +180,6 @@ namespace A2_Project.ContentWindows
 					grd.Children.Add(c);
 				}
 			}
-			IsValid();
 		}
 
 		/// <summary>
@@ -249,12 +192,11 @@ namespace A2_Project.ContentWindows
 			for (int i = 0; i < selectedData.Length; i++)
 			{
 				if (displayElements[i] is Label l) l.Content = selectedData[i];
-				else if (displayElements[i] is ValidationTextbox t) t.Text = selectedData[i];
+				else if (displayElements[i] is ValidatedTextbox t) t.Text = selectedData[i];
 				else if (displayElements[i] is ComboBox cmb) cmb.SelectedIndex = int.Parse(selectedData[i]);
 				else if (displayElements[i] is CheckBox c) c.IsChecked = selectedData[i] == "True";
-				else if (displayElements[i] is CustomDatePicker cDP) cDP.SelectedDate = DateTime.Parse(selectedData[i]);
+				else if (displayElements[i] is ValidatedDatePicker cDP) cDP.SelectedDate = DateTime.Parse(selectedData[i]);
 			}
-			IsValid();
 		}
 
 		#region Programmatic UI Generation
@@ -326,17 +268,14 @@ namespace A2_Project.ContentWindows
 				}
 				else if (columns[i].Constraints.Type == "date")
 				{
-					c = new CustomDatePicker()
+					c = new ValidatedDatePicker(columns[i])
 					{
 						Margin = new Thickness(5 + xOffset, yOffset, 0, 0),
-						Width = 200 / 1.5,
-						Height = 40,
 						FontSize = 16,
-						RenderTransform = new ScaleTransform(1.5, 1.5),
 						HorizontalAlignment = HorizontalAlignment.Left,
 						VerticalAlignment = VerticalAlignment.Top
 					};
-					((CustomDatePicker)c).AddNewTextChanged(CustomDatePicker_TextChanged);
+					((ValidatedDatePicker)c).AddTextChangedEvent(UpdateErrorEvent);
 					yOffset += 100;
 				}
 				else if (columns[i].Name == "Appointment Type ID" && i != 0)
@@ -372,29 +311,24 @@ namespace A2_Project.ContentWindows
 				// Otherwise, a text box is used to allow the user to enter data
 				else
 				{
-					c = new ValidationTextbox(columns[i])
+					c = new ValidatedTextbox(columns[i])
 					{
 						Margin = new Thickness(5 + xOffset, yOffset, 0, 0),
 						HorizontalAlignment = HorizontalAlignment.Left,
 						VerticalAlignment = VerticalAlignment.Top
 					};
-					((ValidationTextbox)c).AddChangedEvent(UpdateErrorEvent);
+					((ValidatedTextbox)c).AddTextChangedEvent(UpdateErrorEvent);
 
 					// If the text box has the potential of containing a lot of data, double its height to allow the text it contains to be easier to read.
 					// TODO: Enforce max length
 					if (columns[i].Constraints.Type == "varchar")
 						if (Convert.ToInt32(columns[i].Constraints.MaxSize) > 50)
-							((ValidationTextbox)c).SetHeight(c.Height * 2); ;
+							((ValidatedTextbox)c).SetHeight(c.Height * 2); ;
 					yOffset += c.Height + 15;
 				}
 				displayElements[i] = c;
 				maxYOffset = Math.Max(maxYOffset, yOffset);
 			}
-		}
-
-		private void DatePicker_SelectedDateChanged(object sender, SelectionChangedEventArgs e)
-		{
-			IsValid();
 		}
 
 		/// <summary>
@@ -492,10 +426,10 @@ namespace A2_Project.ContentWindows
 				for (int i = 0; i < selectedData.Length; i++)
 				{
 					if (displayElements[i] is Label l) selectedData[i] = l.Content.ToString();
-					else if (displayElements[i] is ValidationTextbox tbx) selectedData[i] = tbx.Text;
+					else if (displayElements[i] is ValidatedTextbox tbx) selectedData[i] = tbx.Text;
 					else if (displayElements[i] is ComboBox cmb) selectedData[i] = cmb.SelectedIndex.ToString();
 					else if (displayElements[i] is CheckBox c) selectedData[i] = c.IsChecked.ToString();
-					else if (displayElements[i] is CustomDatePicker d) selectedData[i] = ((DateTime)d.SelectedDate).ToString("dd/MM/yyyy");
+					else if (displayElements[i] is ValidatedDatePicker d) selectedData[i] = ((DateTime)d.SelectedDate).ToString("dd/MM/yyyy");
 				}
 
 				// Allows the user to be alerted if an error occurred while trying to save their changes
@@ -548,10 +482,5 @@ namespace A2_Project.ContentWindows
 			AddToEdit();
 		}
 		#endregion AddMode
-
-		public void CustomDatePicker_TextChanged(object sender, TextChangedEventArgs e)
-		{
-			IsValid();
-		}
 	}
 }
