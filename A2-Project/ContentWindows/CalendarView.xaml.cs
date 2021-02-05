@@ -7,6 +7,7 @@ using System.Windows.Controls;
 using System.Windows.Input;
 using System.Windows.Media;
 using System.Windows.Shapes;
+using A2_Project.UserControls;
 
 namespace A2_Project.ContentWindows
 {
@@ -42,7 +43,7 @@ namespace A2_Project.ContentWindows
 		private bool toExit = false;
 
 		// The date picker used for selecting a week to display
-		private CustomDatePicker datePicker;
+		private DatePicker datePicker;
 		// The name of the appointment table
 		private readonly string tableName = "Appointment";
 		// The columns of the appointment table
@@ -91,7 +92,7 @@ namespace A2_Project.ContentWindows
 			loopThread.Start();
 
 			// Create a DatePicker used for selecting a date to display
-			datePicker = new CustomDatePicker()
+			datePicker = new DatePicker()
 			{
 				Margin = new Thickness(544, 10, 0, 0),
 				Width = 200 / 1.5,
@@ -101,7 +102,6 @@ namespace A2_Project.ContentWindows
 				VerticalAlignment = VerticalAlignment.Top
 			};
 			grd.Children.Add(datePicker);
-			//c.AddNewTextChanged(CustomDatePicker_TextChanged);
 			datePicker.SelectedDateChanged += DatePicker_SelectedDateChanged;
 			datePicker.SelectedDate = DateTime.Today;
 
