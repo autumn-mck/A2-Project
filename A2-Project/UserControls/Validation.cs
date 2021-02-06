@@ -14,25 +14,26 @@ namespace A2_Project.UserControls
 
 			string patternError = "";
 			// Check if the string meets a specific pattern
-			if (col.Name.Contains("Email"))
+			string name = col.Name.ToLower();
+			if (name.Contains("email"))
 			{
 				patternReq = PatternValidation.IsValidEmail(str);
-				patternError = "Please enter a valid email address.";
+				patternError = "Please enter a valid email address. ";
 			}
-			else if (col.Name.Contains("Postcode"))
+			else if (name.Contains("postcode"))
 			{
 				patternReq = PatternValidation.IsValidPostcode(str);
 				patternError = "Please enter a valid postcode. ";
 			}
-			else if (col.Name.Contains("PhoneNo"))
+			else if (name.Contains("phone"))
 			{
 				patternReq = PatternValidation.IsValidPhoneNo(str);
 				patternError = "Please enter a valid phone number. ";
 			}
-			else if (col.Name.Contains("DogGender"))
+			else if (name.Contains("dog gender"))
 			{
 				patternReq = PatternValidation.IsValidDogGender(str);
-				patternError = "Please enter a valid dog gender. (M/F)";
+				patternError = "Please enter a valid dog gender. (M/F) ";
 			}
 
 			if (col.Constraints.CanBeNull && str == "")
@@ -88,16 +89,16 @@ namespace A2_Project.UserControls
 				{
 					switch (col.Constraints.Type)
 					{
-						case "int": instErr += "Please enter a number!"; break;
-						case "bit": instErr += "Please enter True/False/1/0!"; break;
-						case "date": instErr += "Please enter a valid date!"; break;
-						case "time": instErr += "Please enter a valid time! (hh:mm)"; break;
-						case "varchar": instErr += $"Input too long, it must be less than {col.Constraints.MaxSize} characters!"; break;
+						case "int": instErr += "Please enter a number! "; break;
+						case "bit": instErr += "Please enter True/False/1/0! "; break;
+						case "date": instErr += "Please enter a valid date!" ; break;
+						case "time": instErr += "Please enter a valid time! (hh:mm) "; break;
+						case "varchar": instErr += $"Input too long, it must be less than {col.Constraints.MaxSize} characters! "; break;
 					}
 				}
 
-				if (!fKeyReq) instErr += $"References a non-existent {col.Constraints.ForeignKey.ReferencedTable}.";
-				if (!pKeyReq) instErr += "This ID is already taken!";
+				if (!fKeyReq) instErr += $"References a non-existent {col.Constraints.ForeignKey.ReferencedTable}. ";
+				if (!pKeyReq) instErr += "This ID is already taken! ";
 			}
 			errorMessage = instErr;
 			return isValid;

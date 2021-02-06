@@ -34,7 +34,7 @@ namespace A2_Project.UserControls
 				CaretBrush = new SolidColorBrush(Color.FromRgb(241, 241, 241))
 			};
 			AddTextChangedEvent(Tbx_TextChanged);
-			if (col.Constraints.Type == "int") tbx.PreviewTextInput += Tbx_OnlyAllowNumbers;
+			if (col.Constraints.Type == "int" || col.Name.ToLower().Contains("phone")) tbx.PreviewTextInput += Tbx_OnlyAllowNumbers;
 			stpContent.Children.Add(tbx);
 			stpContent.Children.Add(img);
 		}
