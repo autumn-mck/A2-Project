@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Linq;
 using System.Windows;
 
 namespace A2_Project.ContentWindows
@@ -51,8 +50,8 @@ namespace A2_Project.ContentWindows
 			switch (mode)
 			{
 				case contactString: dtgContacts.UpdateData(data, isNew); break;
-				case clientString: dtgClients.UpdateData(data, isNew); break;
 				case dogString: dtgDogs.UpdateData(data, isNew); break;
+				case clientString: dtgClients.UpdateData(data, isNew); break;
 			}
 		}
 
@@ -63,8 +62,8 @@ namespace A2_Project.ContentWindows
 				switch (mode)
 				{
 					case contactString: dtgContacts.TryDeleteSelected(deleteRef); break;
-					case clientString: dtgClients.TryDeleteSelected(deleteRef); break;
 					case dogString: dtgDogs.TryDeleteSelected(deleteRef); break;
+					case clientString: dtgClients.TryDeleteSelected(deleteRef); break;
 				}
 			}
 			// An exception is thrown if there are other items which reference the item to be deleted
@@ -158,25 +157,25 @@ namespace A2_Project.ContentWindows
 				dtgClients.SetMaxHeight(selMax);
 			}
 
+			if (mode != contactString) dtgContacts.SetMaxHeight(notSelMax);
 			if (mode != dogString) dtgDogs.SetMaxHeight(notSelMax);
 			if (mode != clientString) dtgClients.SetMaxHeight(notSelMax);
-			if (mode != contactString) dtgContacts.SetMaxHeight(notSelMax);
 		}
 
 		private void UpdateEditingSidebar(string[] newData)
 		{
-			if (mode == dogString)
-			{
-				if (dogsEditing is null) dogsEditing = new DataEditingSidebar(dogsColumns, "Dog", this);
-				dogsEditing.ChangeSelectedData(newData);
-				dtgContacts.UpdateSelectedIndex(-1);
-				dtgClients.UpdateSelectedIndex(-1);
-			}
-			else if (mode == contactString)
+			if (mode == contactString)
 			{
 				if (contactEditing is null) contactEditing = new DataEditingSidebar(contactsColumns, "Contact", this);
 				contactEditing.ChangeSelectedData(newData);
 				dtgDogs.UpdateSelectedIndex(-1);
+				dtgClients.UpdateSelectedIndex(-1);
+			}
+			else if (mode == dogString)
+			{
+				if (dogsEditing is null) dogsEditing = new DataEditingSidebar(dogsColumns, "Dog", this);
+				dogsEditing.ChangeSelectedData(newData);
+				dtgContacts.UpdateSelectedIndex(-1);
 				dtgClients.UpdateSelectedIndex(-1);
 			}
 			else if (mode == clientString)
@@ -192,13 +191,13 @@ namespace A2_Project.ContentWindows
 
 		private void UpdateClientEditor()
 		{
-			if (mode == dogString)
-			{
-				lblEditing.Content = dogsEditing.Content;
-			}
-			else if (mode == contactString)
+			if (mode == contactString)
 			{
 				lblEditing.Content = contactEditing.Content;
+			}
+			else if (mode == dogString)
+			{
+				lblEditing.Content = dogsEditing.Content;
 			}
 			else if (mode == clientString)
 			{
