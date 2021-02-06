@@ -95,7 +95,32 @@ namespace A2_Project.ContentWindows
 
 		private void UpdateMode(string newMode)
 		{
-			if (mode == newMode) return;
+			if (newMode == mode)
+			{
+				if (mode == "Contacts")
+				{
+					string[] selectedData = dtgContacts.GetSelectedData();
+					if (selectedData is null) return;
+					dtgDogs.ChangeSearch(1, selectedData[1]);
+					dtgClients.ChangeSearch(0, selectedData[1]);
+				}
+				else if (mode == "Dogs")
+				{
+					string[] selectedData = dtgDogs.GetSelectedData();
+					if (selectedData is null) return;
+					dtgContacts.ChangeSearch(1, selectedData[1]);
+					dtgClients.ChangeSearch(0, selectedData[1]);
+				}
+				else if (mode == "Clients")
+				{
+					string[] selectedData = dtgClients.GetSelectedData();
+					if (selectedData is null) return;
+					dtgContacts.ChangeSearch(1, selectedData[0]);
+					dtgDogs.ChangeSearch(1, selectedData[0]);
+				}
+				return;
+			}
+
 			mode = newMode;
 			
 			double notSelMax = 100;
@@ -128,7 +153,6 @@ namespace A2_Project.ContentWindows
 				dtgDogs.ChangeSearch(1, selectedData[0]);
 				dtgClients.SetMaxHeight(selMax);
 			}
-
 
 			if (mode != "Dogs") dtgDogs.SetMaxHeight(notSelMax);
 			if (mode != "Clients") dtgClients.SetMaxHeight(notSelMax);
