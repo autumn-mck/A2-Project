@@ -217,6 +217,9 @@ namespace A2_Project.ContentWindows
 			foreach (UIElement e in displayElements) grd.Children.Add(e);
 
 			GenAddEditBtns(maxYOffset);
+
+			tbcErr1.Margin = new Thickness(tbcErr1.Margin.Left, maxYOffset + 100, 0, 0);
+			tbcErr2.Margin = new Thickness(tbcErr2.Margin.Left, maxYOffset + 100, 0, 0);
 		}
 
 		/// <summary>
