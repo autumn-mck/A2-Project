@@ -64,6 +64,10 @@
 						<Image Source="/Resources/gbp.png"/>
 						<Label Content="Send Invoices"/>
 					</Grid>
+					<Grid x:Name="grdTest" Height="50" Width="300" Margin="6, 426, 0, 0" VerticalAlignment="Top">
+						<Image Source="/Resources/gbp.png"/>
+						<Label Content="Test"/>
+					</Grid>
 				</Grid>
 			</Grid>
 		</Grid>

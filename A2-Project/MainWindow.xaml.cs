@@ -34,6 +34,7 @@ namespace A2_Project
 		private Stats statsWindow;
 		private ClientManagement cliWindow;
 		private InvoiceManagement invoiceWindow;
+		private AddingWindowTest testWindow;
 		private readonly Login loginWindow;
 
 		private SolidColorBrush notHighlighted = new SolidColorBrush(Color.FromRgb(161, 161, 161));
@@ -61,6 +62,7 @@ namespace A2_Project
 			grdAddStaff.MouseDown += GrdAddStaff_MouseDown;
 			grdViewStats.MouseDown += GrdViewStats_MouseDown;
 			grdInvoiceManagement.MouseDown += GrdInvoiceManagement_MouseDown;
+			grdTest.MouseDown += GrdTest_MouseDown;
 
 			foreach (Grid g in grdButtons)
 			{
@@ -208,6 +210,13 @@ namespace A2_Project
 			if (invoiceWindow is null)
 				invoiceWindow = new InvoiceManagement() { Owner = this };
 			lblContents.Content = invoiceWindow.Content;
+		}
+
+		private void GrdTest_MouseDown(object sender, MouseButtonEventArgs e)
+		{
+			if (testWindow is null)
+				testWindow = new AddingWindowTest() { Owner = this };
+			lblContents.Content = testWindow.Content;
 		}
 		#endregion MouseDown Events
 		#endregion Events
