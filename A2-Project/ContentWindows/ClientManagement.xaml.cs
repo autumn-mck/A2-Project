@@ -23,6 +23,10 @@ namespace A2_Project.ContentWindows
 		private DBObjects.Column[] clientsColumns;
 		private DataEditingSidebar clientsEditing;
 
+		private const string contactString = "Contacts";
+		private const string clientString = "Clients";
+		private const string dogString = "Dogs";
+
 		private string mode = "";
 
 		public ClientManagement()
@@ -46,9 +50,9 @@ namespace A2_Project.ContentWindows
 		{
 			switch (mode)
 			{
-				case "Contacts": dtgContacts.UpdateData(data, isNew); break;
-				case "Clients": dtgClients.UpdateData(data, isNew); break;
-				case "Dogs": dtgDogs.UpdateData(data, isNew); break;
+				case contactString: dtgContacts.UpdateData(data, isNew); break;
+				case clientString: dtgClients.UpdateData(data, isNew); break;
+				case dogString: dtgDogs.UpdateData(data, isNew); break;
 			}
 		}
 
@@ -58,9 +62,9 @@ namespace A2_Project.ContentWindows
 			{
 				switch (mode)
 				{
-					case "Contacts": dtgContacts.TryDeleteSelected(deleteRef); break;
-					case "Clients": dtgClients.TryDeleteSelected(deleteRef); break;
-					case "Dogs": dtgDogs.TryDeleteSelected(deleteRef); break;
+					case contactString: dtgContacts.TryDeleteSelected(deleteRef); break;
+					case clientString: dtgClients.TryDeleteSelected(deleteRef); break;
+					case dogString: dtgDogs.TryDeleteSelected(deleteRef); break;
 				}
 			}
 			// An exception is thrown if there are other items which reference the item to be deleted
@@ -79,15 +83,15 @@ namespace A2_Project.ContentWindows
 			shouldUpdate = false;
 			if (sender == dtgContacts)
 			{
-				UpdateMode("Contacts");
+				UpdateMode(contactString);
 			}
 			else if (sender == dtgDogs)
 			{
-				UpdateMode("Dogs");
+				UpdateMode(dogString);
 			}
 			else if (sender == dtgClients)
 			{
-				UpdateMode("Clients");
+				UpdateMode(clientString);
 			}
 			UpdateEditingSidebar(newData);
 			shouldUpdate = true;
@@ -97,21 +101,21 @@ namespace A2_Project.ContentWindows
 		{
 			if (newMode == mode)
 			{
-				if (mode == "Contacts")
+				if (mode == contactString)
 				{
 					string[] selectedData = dtgContacts.GetSelectedData();
 					if (selectedData is null) return;
 					dtgDogs.ChangeSearch(1, selectedData[1]);
 					dtgClients.ChangeSearch(0, selectedData[1]);
 				}
-				else if (mode == "Dogs")
+				else if (mode == dogString)
 				{
 					string[] selectedData = dtgDogs.GetSelectedData();
 					if (selectedData is null) return;
 					dtgContacts.ChangeSearch(1, selectedData[1]);
 					dtgClients.ChangeSearch(0, selectedData[1]);
 				}
-				else if (mode == "Clients")
+				else if (mode == clientString)
 				{
 					string[] selectedData = dtgClients.GetSelectedData();
 					if (selectedData is null) return;
@@ -126,7 +130,7 @@ namespace A2_Project.ContentWindows
 			double notSelMax = 100;
 			double selMax = 600;
 
-			if (mode == "Contacts")
+			if (mode == contactString)
 			{
 				dtgContacts.ClearSearch();
 				string[] selectedData = dtgContacts.GetSelectedData();
@@ -135,7 +139,7 @@ namespace A2_Project.ContentWindows
 				dtgClients.ChangeSearch(0, selectedData[1]);
 				dtgContacts.SetMaxHeight(selMax);
 			}
-			else if (mode == "Dogs")
+			else if (mode == dogString)
 			{
 				dtgDogs.ClearSearch();
 				string[] selectedData = dtgDogs.GetSelectedData();
@@ -144,7 +148,7 @@ namespace A2_Project.ContentWindows
 				dtgClients.ChangeSearch(0, selectedData[1]);
 				dtgDogs.SetMaxHeight(selMax);
 			}
-			else if (mode == "Clients")
+			else if (mode == clientString)
 			{
 				dtgClients.ClearSearch();
 				string[] selectedData = dtgClients.GetSelectedData();
@@ -154,28 +158,28 @@ namespace A2_Project.ContentWindows
 				dtgClients.SetMaxHeight(selMax);
 			}
 
-			if (mode != "Dogs") dtgDogs.SetMaxHeight(notSelMax);
-			if (mode != "Clients") dtgClients.SetMaxHeight(notSelMax);
-			if (mode != "Contacts") dtgContacts.SetMaxHeight(notSelMax);
+			if (mode != dogString) dtgDogs.SetMaxHeight(notSelMax);
+			if (mode != clientString) dtgClients.SetMaxHeight(notSelMax);
+			if (mode != contactString) dtgContacts.SetMaxHeight(notSelMax);
 		}
 
 		private void UpdateEditingSidebar(string[] newData)
 		{
-			if (mode == "Dogs")
+			if (mode == dogString)
 			{
 				if (dogsEditing is null) dogsEditing = new DataEditingSidebar(dogsColumns, "Dog", this);
 				dogsEditing.ChangeSelectedData(newData);
 				dtgContacts.UpdateSelectedIndex(-1);
 				dtgClients.UpdateSelectedIndex(-1);
 			}
-			else if (mode == "Contacts")
+			else if (mode == contactString)
 			{
 				if (contactEditing is null) contactEditing = new DataEditingSidebar(contactsColumns, "Contact", this);
 				contactEditing.ChangeSelectedData(newData);
 				dtgDogs.UpdateSelectedIndex(-1);
 				dtgClients.UpdateSelectedIndex(-1);
 			}
-			else if (mode == "Clients")
+			else if (mode == clientString)
 			{
 				if (clientsEditing is null) clientsEditing = new DataEditingSidebar(clientsColumns, "Client", this);
 				clientsEditing.ChangeSelectedData(newData);
@@ -188,15 +192,15 @@ namespace A2_Project.ContentWindows
 
 		private void UpdateClientEditor()
 		{
-			if (mode == "Dogs")
+			if (mode == dogString)
 			{
 				lblEditing.Content = dogsEditing.Content;
 			}
-			else if (mode == "Contacts")
+			else if (mode == contactString)
 			{
 				lblEditing.Content = contactEditing.Content;
 			}
-			else if (mode == "Clients")
+			else if (mode == clientString)
 			{
 				lblEditing.Content = clientsEditing.Content;
 			}
