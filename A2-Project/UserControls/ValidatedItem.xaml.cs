@@ -43,7 +43,9 @@ namespace A2_Project.UserControls
 				Width = 40,
 				Margin = new System.Windows.Thickness(10, 0, 0, 0)
 			};
-			IsValid = false;
+
+			IsValid = Validation.Validate("", col, out string errMessage);
+			ErrorMessage = errMessage;
 		}
 
 		public virtual void SetWidth(double newWidth)
