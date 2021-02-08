@@ -24,6 +24,7 @@
     <None Remove="Resources\circle-invalid.png" />
     <None Remove="Resources\circle-valid.png" />
     <None Remove="Resources\gbp.png" />
+    <None Remove="Resources\invertedSelection.png" />
     <None Remove="Resources\logoblack.png" />
     <None Remove="Resources\logowhite.png" />
     <None Remove="Resources\menu.png" />
@@ -48,6 +49,7 @@
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Resource>
     <Resource Include="Resources\gbp.png" />
+    <Resource Include="Resources\invertedSelection.png" />
     <Resource Include="Resources\logoblack.png" />
     <Resource Include="Resources\logowhite.png" />
     <Resource Include="Resources\menu.png" />

@@ -25,6 +25,7 @@ namespace A2_Project
 			{
 				if (columnSearch == 0)
 				{
+					// TODO: Will not give results in correct order
 					Parallel.ForEach(originalData, ls =>
 					{
 						bool contained = false;

@@ -78,8 +78,10 @@ namespace A2_Project.UserControls
 
 		public override void OnApplyTemplate()
 		{
-			_datePickerTextBox = Template.FindName("PART_TextBox", this) as DatePickerTextBox;
 			base.OnApplyTemplate();
+			_datePickerTextBox = Template.FindName("PART_TextBox", this) as DatePickerTextBox;
+			_datePickerTextBox.Background = null;
+			_datePickerTextBox.Foreground = new SolidColorBrush(Color.FromRgb(241, 241, 241));
 		}
 	}
 }
