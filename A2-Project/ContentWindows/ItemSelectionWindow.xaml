@@ -1,0 +1,20 @@
+﻿<Window x:Class="A2_Project.ContentWindows.ItemSelectionWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:local="clr-namespace:A2_Project.ContentWindows"
+        mc:Ignorable="d"
+        Title="ItemSelectionWindow" Background="#151515">
+    <Grid x:Name="grd">
+		<Grid.Resources>
+			<Style TargetType="Button">
+				<Setter Property="VerticalAlignment" Value="Center"/>
+				<Setter Property="HorizontalAlignment" Value="Right"/>
+				<Setter Property="FontSize" Value="20"/>
+			</Style>
+        </Grid.Resources>
+        <!--TODO: If this is going to be a seperate window, it probably needs viewboxes?-->
+		<Label Name="lblDtg"/>
+	</Grid>
+</Window>
