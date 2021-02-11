@@ -669,6 +669,14 @@ namespace A2_Project.ContentWindows
 				VerticalAlignment = VerticalAlignment.Top,
 				HorizontalAlignment = HorizontalAlignment.Left
 			};
+
+			if (currentlySelected is not null && currentlySelected.Tag == data)
+			{
+				newRect.Stroke = Brushes.AliceBlue;
+				newRect.StrokeThickness *= 2;
+				currentlySelected = newRect;
+			}
+
 			newRect.MouseDown += Rectangle_MouseDown;
 			newRect.MouseUp += RctRect_MouseUp;
 			grdResults.Children.Add(newRect);

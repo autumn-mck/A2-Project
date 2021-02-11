@@ -159,7 +159,7 @@ CREATE TABLE [Appointment] (
 	[Staff ID] INT NOT NULL FOREIGN KEY REFERENCES [Staff] ON DELETE CASCADE,
 	[Booking ID] INT NOT NULL FOREIGN KEY REFERENCES [Booking] ON DELETE CASCADE,
 	[Grooming Room ID] INT NOT NULL FOREIGN KEY REFERENCES [Grooming Room] ON DELETE CASCADE,
-	[Includes Nail And Teeth] BIT NOT NULL,
+	[Nails And Teeth] BIT NOT NULL,
 	[Is Cancelled] BIT NOT NULL,
 	[Is Paid] BIT NOT NULL,
 	[Appointment Date] DATE NOT NULL,
