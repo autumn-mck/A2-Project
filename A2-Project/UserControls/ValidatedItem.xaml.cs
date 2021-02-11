@@ -13,7 +13,7 @@ namespace A2_Project.UserControls
 		private static BitmapImage invalidImage = new BitmapImage(new Uri(Directory.GetCurrentDirectory() + "/Resources/circle-invalid.png"));
 		private static BitmapImage validImage = new BitmapImage(new Uri(Directory.GetCurrentDirectory() + "/Resources/circle-valid.png"));
 
-		protected DBObjects.Column col;
+		public DBObjects.Column Column { get; set; }
 
 		public string ErrorMessage { get; set; }
 
@@ -36,7 +36,7 @@ namespace A2_Project.UserControls
 		public ValidatedItem(DBObjects.Column column)
 		{
 			InitializeComponent();
-			col = column;
+			Column = column;
 			img = new Image()
 			{
 				Height = 40,
@@ -44,7 +44,7 @@ namespace A2_Project.UserControls
 				Margin = new System.Windows.Thickness(10, 0, 0, 0)
 			};
 
-			IsValid = Validation.Validate("", col, out string errMessage);
+			IsValid = Validation.Validate("", Column, out string errMessage);
 			ErrorMessage = errMessage;
 		}
 

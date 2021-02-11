@@ -16,7 +16,7 @@ namespace A2_Project.UserControls
 			set
 			{
 				tbx.Text = value;
-				IsValid = Validation.Validate(Text, col, out string errorMessage);
+				IsValid = Validation.Validate(Text, Column, out string errorMessage);
 				ErrorMessage = errorMessage;
 			}
 		}
@@ -34,9 +34,26 @@ namespace A2_Project.UserControls
 				CaretBrush = new SolidColorBrush(Color.FromRgb(241, 241, 241))
 			};
 			AddTextChangedEvent(Tbx_TextChanged);
-			if (col.Constraints.Type == "int" || col.Name.ToLower().Contains("phone")) tbx.PreviewTextInput += Tbx_OnlyAllowNumbers;
+			if (Column.Constraints.Type == "int" || Column.Name.ToLower().Contains("phone")) tbx.PreviewTextInput += Tbx_OnlyAllowNumbers;
 			stpContent.Children.Add(tbx);
 			stpContent.Children.Add(img);
+
+			if (Column.Constraints.ForeignKey is not null)
+			{
+				Button b = new Button()
+				{
+					Content = "?",
+					Width = 20
+				};
+				b.Click += BtnSelectFKey_Click;
+				stpContent.Children.Add(b);
+			}
+		}
+
+		private void BtnSelectFKey_Click(object sender, System.Windows.RoutedEventArgs e)
+		{
+			ContentWindows.ItemSelectionWindow selWindow = new ContentWindows.ItemSelectionWindow(this);
+			selWindow.Show();
 		}
 
 		public override void SetWidth(double newWidth)
@@ -53,7 +70,7 @@ namespace A2_Project.UserControls
 
 		private void Tbx_TextChanged(object sender, TextChangedEventArgs e)
 		{
-			IsValid = Validation.Validate(Text, col, out string errorMessage);
+			IsValid = Validation.Validate(Text, Column, out string errorMessage);
 			ErrorMessage = errorMessage;
 		}
 

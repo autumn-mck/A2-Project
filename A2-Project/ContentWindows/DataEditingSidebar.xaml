@@ -6,8 +6,8 @@
         xmlns:local="clr-namespace:A2_Project.ContentWindows"
         mc:Ignorable="d"
         Title="DataEditingSidebar" Height="450" Width="800">
-    <Grid x:Name="grd">
-		<Grid.Resources>
+    <StackPanel x:Name="stp" Background="{x:Null}">
+		<StackPanel.Resources>
 			<Style TargetType="Label">
 				<Setter Property="Foreground" Value="#D5D5D5"/>
 				<Setter Property="FontSize" Value="24"/>
@@ -34,8 +34,6 @@
 				<Setter Property="HorizontalAlignment" Value="Left"/>
 				<Setter Property="VerticalAlignment" Value="Top"/>
 			</Style>
-		</Grid.Resources>
-		<TextBlock Name="tbcErr1" Text="" Margin="0, 750, 0, 0" MaxHeight="300"/>
-		<TextBlock Name="tbcErr2" Text="" Margin="410, 750, 0, 0" MaxHeight="300"/>
-	</Grid>
+		</StackPanel.Resources>
+	</StackPanel>
 </Window>

@@ -28,9 +28,8 @@ namespace A2_Project.UserControls
 			{
 				LayoutTransform = new ScaleTransform(scale, scale),
 				Width = 200 / scale,
-				Height = 40
+				Height = 60 / scale
 			};
-			Height *= scale;
 			stpContent.Children.Add(datePicker);
 			datePicker.AddNewTextChanged(IsValidDate_TextChanged);
 			stpContent.Children.Add(img);
@@ -61,7 +60,7 @@ namespace A2_Project.UserControls
 		private void IsValidDate_TextChanged(object sender, TextChangedEventArgs e)
 		{
 			// TODO: This bit should probably be integrated into Validation.Validate
-			IsValid = Validation.Validate(Text, col, out string errorMessage);
+			IsValid = Validation.Validate(Text, Column, out string errorMessage);
 			ErrorMessage = errorMessage;
 		}
 	}

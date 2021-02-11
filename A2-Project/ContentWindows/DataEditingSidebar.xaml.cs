@@ -1,10 +1,10 @@
-﻿using System;
+﻿using A2_Project.UserControls;
+using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls;
-using System.Windows.Media;
-using A2_Project.UserControls;
 
 namespace A2_Project.ContentWindows
 {
@@ -15,10 +15,14 @@ namespace A2_Project.ContentWindows
 	{
 		private readonly Window containingWindow;
 		private FrameworkElement[] displayElements;
+		// TODO: What is this for?
 		private FrameworkElement[] labelElements;
 		private readonly DBObjects.Column[] columns;
 		private string[] selectedData;
 		private readonly string tableName;
+
+		private TextBlock tbcErr1;
+		private TextBlock tbcErr2;
 
 		Grid grdEditMode;
 		Grid grdAddMode;
@@ -28,6 +32,13 @@ namespace A2_Project.ContentWindows
 			columns = _columns;
 			tableName = _tableName;
 			containingWindow = _containingWindow;
+
+			tbcErr1 = new TextBlock()
+			{
+				MaxHeight = 300,
+				Margin = new Thickness(5, -20, 0, 0)
+			};
+			tbcErr2 = new TextBlock();
 
 			InitializeComponent();
 
@@ -114,7 +125,7 @@ namespace A2_Project.ContentWindows
 		/// <summary>
 		/// Move from edit mode to add mode
 		/// </summary>
-		private void EditToAdd()
+		public void EditToAdd()
 		{
 			grdEditMode.Visibility = Visibility.Hidden;
 			grdAddMode.Visibility = Visibility.Visible;
@@ -130,7 +141,8 @@ namespace A2_Project.ContentWindows
 				// Any labels which were used to display primary keys now need to be editable
 				else if (c is Label l)
 				{
-					grd.Children.Remove(l);
+					Panel cOwner = (Panel)l.Parent;
+					cOwner.Children.Remove(l);
 					c = new ValidatedTextbox(columns[i])
 					{
 						Margin = new Thickness(l.Margin.Left + 5, l.Margin.Top, 0, 0),
@@ -141,7 +153,7 @@ namespace A2_Project.ContentWindows
 					};
 					((ValidatedTextbox)c).AddTextChangedEvent(UpdateErrorEvent);
 					displayElements[i] = c;
-					grd.Children.Add(c);
+					cOwner.Children.Add(c);
 				}
 			}
 		}
@@ -157,7 +169,7 @@ namespace A2_Project.ContentWindows
 		/// <summary>
 		/// Move from add mode to edit mode
 		/// </summary>
-		private void AddToEdit()
+		public void AddToEdit()
 		{
 			grdEditMode.Visibility = Visibility.Visible;
 			grdAddMode.Visibility = Visibility.Hidden;
@@ -171,13 +183,14 @@ namespace A2_Project.ContentWindows
 				// If the element is to display a primary key, it should not be editable, so a label is used instead of a text box
 				if (c.Tag != null && c.Tag.ToString() == "Primary Key")
 				{
-					grd.Children.Remove(c);
+					Panel cOwner = (Panel)c.Parent;
+					cOwner.Children.Remove(c);
 					c = new Label()
 					{
 						Margin = new Thickness(c.Margin.Left - 5, c.Margin.Top, 0, 0)
 					};
 					displayElements[i] = c;
-					grd.Children.Add(c);
+					cOwner.Children.Add(c);
 				}
 			}
 		}
@@ -207,131 +220,71 @@ namespace A2_Project.ContentWindows
 			labelElements = new FrameworkElement[count];
 			selectedData = new string[count];
 
-			// A yOffset and xOffset are used to display all elements in the correct position
-			double yOffset = 40;
-			double xOffset = 0;
-			GenDataEntry(count, ref yOffset, ref xOffset, out double maxYOffset);
+			GenDataEntry(count);
 
-			// Display the already generated elements
-			foreach (UIElement e in labelElements) grd.Children.Add(e);
-			foreach (UIElement e in displayElements) grd.Children.Add(e);
-
-			GenAddEditBtns(maxYOffset);
-
-			tbcErr1.Margin = new Thickness(tbcErr1.Margin.Left, maxYOffset + 100, 0, 0);
-			tbcErr2.Margin = new Thickness(tbcErr2.Margin.Left, maxYOffset + 100, 0, 0);
+			GenAddEditBtns(0);
 		}
 
 		/// <summary>
 		/// Generate the items used for entering data
 		/// </summary>
-		private void GenDataEntry(int count, ref double yOffset, ref double xOffset, out double maxYOffset)
+		private void GenDataEntry(int count)
 		{
-			maxYOffset = 0;
+			List<StackPanel> panels = new List<StackPanel>();
+			StackPanel currentPanel = new StackPanel()
+			{
+				Orientation = Orientation.Vertical,
+				HorizontalAlignment = HorizontalAlignment.Left,
+				VerticalAlignment = VerticalAlignment.Top
+			};
+			panels.Add(currentPanel);
+
 			for (int i = 0; i < count; i++)
 			{
 				// Split the items into multiple columns if needed
-				if (yOffset > 620)
+				if (currentPanel.Children.Count > 10)
 				{
-					yOffset = 40;
-					xOffset += 280;
+					currentPanel = new StackPanel()
+					{
+						Orientation = Orientation.Vertical,
+						HorizontalAlignment = HorizontalAlignment.Left,
+						VerticalAlignment = VerticalAlignment.Top,
+						Margin = new Thickness(-200, 0, 0, 0)
+					};
+					panels.Add(currentPanel);
 				}
 
 				// Generate the label used for displaying the column name
 				Label lbl = new Label()
 				{
-					Content = columns[i].Name,
-					Margin = new Thickness(xOffset, yOffset, 0, 0)
+					Margin = new Thickness(0, 20, 0, 0)
 				};
 				labelElements[i] = lbl;
-				yOffset += 40;
 
-				double cmbYOffset = 50;
-
-				FrameworkElement c;
-				// If the item displays a primary key, it is not editable by the user, so a label is used to display the data without it being editable
-				if (columns[i].Constraints.IsPrimaryKey)
+				FrameworkElement elem = UIMethods.GenAppropriateElement(columns[i], out string title);
+				lbl.Content = title;
+				if (elem is ValidatedItem v)
 				{
-					c = new Label()
-					{
-						Content = "",
-						Margin = new Thickness(xOffset, yOffset - 5, 0, 0)
-					};
-					yOffset += 40;
+					v.AddTextChangedEvent(UpdateErrorEvent);
 				}
-				// An SQL bit is a boolean value, so a checkbox can be used to help prevent insertion of invalid data
-				else if (columns[i].Constraints.Type == "bit")
-				{
-					c = new CheckBox()
-					{
-						Margin = new Thickness(5 + xOffset, yOffset, 0, 0),
-						RenderTransform = new ScaleTransform(2, 2)
-					};
-					yOffset += 40;
-				}
-				else if (columns[i].Constraints.Type == "date")
-				{
-					c = new ValidatedDatePicker(columns[i])
-					{
-						Margin = new Thickness(5 + xOffset, yOffset, 0, 0),
-						FontSize = 16,
-						HorizontalAlignment = HorizontalAlignment.Left,
-						VerticalAlignment = VerticalAlignment.Top
-					};
-					((ValidatedDatePicker)c).AddTextChangedEvent(UpdateErrorEvent);
-					yOffset += 100;
-				}
-				else if (columns[i].Name == "Appointment Type ID" && i != 0)
-				{
-					c = new ComboBox()
-					{
-						ItemsSource = DBMethods.MetaRequests.GetAllFromTable("Appointment Type").Select(x => x[3]),
-						Margin = new Thickness(5 + xOffset, yOffset, 0, 0)
-					};
-					lbl.Content = "Appointment Type";
-					yOffset += cmbYOffset;
-				}
-				else if (columns[i].Name == "Staff ID" && i != 0)
-				{
-					c = new ComboBox()
-					{
-						ItemsSource = DBMethods.MetaRequests.GetAllFromTable("Staff").Select(x => x[1]),
-						Margin = new Thickness(5 + xOffset, yOffset, 0, 0)
-					};
-					lbl.Content = "Staff Member";
-					yOffset += cmbYOffset;
-				}
-				else if (columns[i].Name == "Grooming Room ID" && i != 0)
-				{
-					c = new ComboBox()
-					{
-						ItemsSource = DBMethods.MetaRequests.GetAllFromTable("Grooming Room").Select(x => x[1]),
-						Margin = new Thickness(5 + xOffset, yOffset, 0, 0)
-					};
-					lbl.Content = "Grooming Room";
-					yOffset += cmbYOffset;
-				}
-				// Otherwise, a text box is used to allow the user to enter data
-				else
-				{
-					c = new ValidatedTextbox(columns[i])
-					{
-						Margin = new Thickness(5 + xOffset, yOffset, 0, 0),
-						HorizontalAlignment = HorizontalAlignment.Left,
-						VerticalAlignment = VerticalAlignment.Top
-					};
-					((ValidatedTextbox)c).AddTextChangedEvent(UpdateErrorEvent);
-
-					// If the text box has the potential of containing a lot of data, double its height to allow the text it contains to be easier to read.
-					// TODO: Enforce max length
-					if (columns[i].Constraints.Type == "varchar")
-						if (Convert.ToInt32(columns[i].Constraints.MaxSize) > 50)
-							((ValidatedTextbox)c).SetHeight(c.Height * 2); ;
-					yOffset += c.Height + 15;
-				}
-				displayElements[i] = c;
-				maxYOffset = Math.Max(maxYOffset, yOffset);
+				
+				displayElements[i] = elem;
+				currentPanel.Children.Add(lbl);
+				currentPanel.Children.Add(elem);
 			}
+
+			StackPanel panel = new StackPanel()
+			{
+				Orientation = Orientation.Horizontal,
+				HorizontalAlignment = HorizontalAlignment.Left,
+				VerticalAlignment = VerticalAlignment.Top,
+				Margin = new Thickness(0, 100, 0, 0)
+			};
+			foreach (StackPanel p in panels)
+			{
+				panel.Children.Add(p);
+			}
+			stp.Children.Add(panel);
 		}
 
 		/// <summary>
@@ -354,8 +307,10 @@ namespace A2_Project.ContentWindows
 				Visibility = Visibility.Hidden
 			};
 
-			grd.Children.Add(grdAddMode);
-			grd.Children.Add(grdEditMode);
+			// TODO: Does this bit work properly?
+			//stp.Children.Add(grdAddMode);
+			stp.Children.Add(grdEditMode);
+			stp.Children.Add(tbcErr1);
 
 			Button btnSave = new Button()
 			{
@@ -478,6 +433,12 @@ namespace A2_Project.ContentWindows
 			EditToAdd();
 		}
 		#endregion Edit Mode
+
+		public void HideButtons()
+		{
+			grdAddMode.Visibility = Visibility.Hidden;
+			grdEditMode.Visibility = Visibility.Hidden;
+		}
 
 		#region AddMode
 		private void BtnCancelAddition_Click(object sender, RoutedEventArgs e)

@@ -27,7 +27,7 @@ namespace A2_Project.ContentWindows
 		{
 			InitializeComponent();
 
-			dtgData.MaxHeight = _height;
+			if (!double.IsNaN(_height)) dtgData.MaxHeight = _height;
 			//dtgData.Width = _width;
 
 			tableName = _tableName;

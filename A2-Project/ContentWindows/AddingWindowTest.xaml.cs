@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
 using System.Threading;
@@ -7,7 +8,6 @@ using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Media;
 using System.Windows.Shapes;
-using A2_Project.UserControls;
 
 namespace A2_Project.ContentWindows
 {
@@ -63,61 +63,51 @@ namespace A2_Project.ContentWindows
 
 		private static void CreateNewUI(Grid grdContainer, DBObjects.Column[] columns)
 		{
-			Grid g = new Grid()
+			StackPanel stpAll = new StackPanel()
 			{
-				Background = null,
 				HorizontalAlignment = HorizontalAlignment.Center,
-				VerticalAlignment = VerticalAlignment.Center
+				VerticalAlignment = VerticalAlignment.Center,
+				Orientation = Orientation.Horizontal
 			};
-			double xOffset = 100;
-			double yOffset = 100;
+
+			List<StackPanel> panels = new List<StackPanel>();
+			StackPanel currentPanel = new StackPanel()
+			{
+				VerticalAlignment = VerticalAlignment.Center,
+				Orientation = Orientation.Vertical
+			};
+			panels.Add(currentPanel);
+
 			for (int i = 0; i < columns.Length; i++)
 			{
+				if (currentPanel.Children.Count >= 8 || currentPanel.Children.Count >= columns.Length / 2.0)
+				{
+					currentPanel = new StackPanel()
+					{
+						Orientation = Orientation.Vertical,
+						VerticalAlignment = VerticalAlignment.Center,
+						Margin = new Thickness(-200, 0, 0, 0)
+					};
+					panels.Add(currentPanel);
+				}
+
 				Label lblColName = new Label()
 				{
-					Content = columns[i].Name,
 					Foreground = new SolidColorBrush(Color.FromRgb(241, 241, 241)),
-					Margin = new Thickness(xOffset - 5, yOffset, 0, 0),
+					Margin = new Thickness(-5, 0, 0, 0),
 					FontSize = 30
 				};
-				yOffset += 40;
-				g.Children.Add(lblColName);
-				if (columns[i].Constraints.IsPrimaryKey)
-				{
-					Label lblPKey = new Label()
-					{
-						Content = "Test",
-						Foreground = new SolidColorBrush(Color.FromRgb(241, 241, 241)),
-						Margin = new Thickness(xOffset - 5, yOffset, 0, 0),
-						FontSize = 30
-					};
-					g.Children.Add(lblPKey);
-				}
-				else
-				{
-					ValidatedItem v;
-					if (columns[i].Constraints.Type == "date")
-					{
-						v = new ValidatedDatePicker(columns[i])
-						{
-							SelectedDate = DateTime.Now.Date
-						};
-					}
-					else
-					{
-						v = new ValidatedTextbox(columns[i])
-						{
-						};
-					}
-					v.Margin = new Thickness(xOffset, yOffset, 0, 0);
-					v.VerticalAlignment = VerticalAlignment.Top;
-					v.HorizontalAlignment = HorizontalAlignment.Left;
-					v.FontSize = 16;
-					g.Children.Add(v);
-				}
-				yOffset += 40;
+				currentPanel.Children.Add(lblColName);
+				FrameworkElement elem = UIMethods.GenAppropriateElement(columns[i], out string title, true);
+				lblColName.Content = title;
+				currentPanel.Children.Add(elem);
 			}
-			grdContainer.Children.Add(g);
+
+			foreach (StackPanel p in panels)
+			{
+				stpAll.Children.Add(p);
+			}
+			grdContainer.Children.Add(stpAll);
 		}
 
 
