@@ -35,6 +35,7 @@ namespace A2_Project.ContentWindows
 
 		// The difference between the position of the mouse and the currently selected element
 		private Point diffMouseAndElem;
+
 		// Is the mouse currently held down?
 		private bool mouseDown = false;
 		// The currently selected element to be moved with the mouse
@@ -63,6 +64,10 @@ namespace A2_Project.ContentWindows
 		private bool hasMoved = false;
 
 		private List<FrameworkElement> labelElements = new List<FrameworkElement>();
+
+		private ItemSelectionWindow selSpecificAppWindow;
+
+		private string[] dataToBeSelected = null;
 
 		public CalandarView()
 		{
@@ -128,8 +133,32 @@ namespace A2_Project.ContentWindows
 			editingSidebar = new DataEditingSidebar(columns, tableName, this);
 			lblSidebar.Content = editingSidebar.Content;
 
+			Button btnSpecificAppointment = new Button()
+			{
+				Content = "Find a specific appointment",
+				FontSize = 24,
+				VerticalAlignment = VerticalAlignment.Top,
+				HorizontalAlignment = HorizontalAlignment.Left,
+				Margin = new Thickness(33, 15, 0, 0)
+			};
+			btnSpecificAppointment.Click += BtnSpecificAppointment_Click;
+			grd.Children.Add(btnSpecificAppointment);
+
 			// Start the process of adding the key for the appointment view
 			AddKey();
+		}
+
+		private void BtnSpecificAppointment_Click(object sender, RoutedEventArgs e)
+		{
+			selSpecificAppWindow = new ItemSelectionWindow(this, "Appointment");
+			selSpecificAppWindow.Show();
+		}
+
+		public void SelectSpecificAppointment(string[] appData)
+		{
+			dataToBeSelected = appData;
+			DateTime d = DateTime.Parse(appData[9]);
+			datePicker.SelectedDate = d;
 		}
 
 		private void LblNextWeek_MouseDown(object sender, MouseButtonEventArgs e)
@@ -419,7 +448,11 @@ namespace A2_Project.ContentWindows
 		private void Rectangle_MouseDown(object sender, MouseButtonEventArgs e)
 		{
 			mouseDown = true;
+			SelectNewRect((Rectangle)sender);
+		}
 
+		private void SelectNewRect(Rectangle newSel)
+		{
 			// Reset the stroke around the previously selected element
 			if (currentlySelected is Rectangle rct)
 			{
@@ -428,7 +461,7 @@ namespace A2_Project.ContentWindows
 			}
 
 			// Update which element is currently selected
-			currentlySelected = (FrameworkElement)sender;
+			currentlySelected = newSel;
 
 			if (currentlySelected is FrameworkElement element && element.Parent is FrameworkElement parent)
 			{
@@ -675,6 +708,17 @@ namespace A2_Project.ContentWindows
 				newRect.Stroke = Brushes.AliceBlue;
 				newRect.StrokeThickness *= 2;
 				currentlySelected = newRect;
+			}
+
+			if (dataToBeSelected is not null)
+			{
+				if (dataToBeSelected[0] == data[0])
+				{
+					editingSidebar.ChangeSelectedData((string[])newRect.Tag);
+					currentlySelected = newRect;
+					newRect.Stroke = Brushes.AliceBlue;
+					newRect.StrokeThickness *= 2;
+				}
 			}
 
 			newRect.MouseDown += Rectangle_MouseDown;
