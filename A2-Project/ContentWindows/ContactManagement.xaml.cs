@@ -18,7 +18,7 @@ namespace A2_Project.ContentWindows
 
 		private DBObjects.Column[] columns;
 
-		SearchableDataGrid searchableDataGrid;
+		FilterableDataGrid filterableDataGrid;
 
 		public ContactManagement()
 		{
@@ -33,7 +33,7 @@ namespace A2_Project.ContentWindows
 
 		public void UpdateFromSidebar(string[] newData, bool isNew)
 		{
-			searchableDataGrid.UpdateData(newData, isNew);
+			filterableDataGrid.UpdateData(newData, isNew);
 		}
 
 		/// <summary>
@@ -43,7 +43,7 @@ namespace A2_Project.ContentWindows
 		{
 			try
 			{
-				searchableDataGrid.TryDeleteSelected(deleteRef);
+				filterableDataGrid.TryDeleteSelected(deleteRef);
 			}
 			// An exception is thrown if there are other items which reference the item to be deleted
 			catch (Exception ex)
@@ -75,9 +75,10 @@ namespace A2_Project.ContentWindows
 			editingSidebar = new DataEditingSidebar(columns, tableName, this);
 			lblSidebar.Content = editingSidebar.Content;
 
-			if (!(searchableDataGrid is null)) searchableDataGrid.Close();
-			searchableDataGrid = new SearchableDataGrid(700, 850, tableName, columns, this);
-			lblSearchData.Content = searchableDataGrid.Content;
+			if (!(filterableDataGrid is null)) filterableDataGrid.Close();
+			filterableDataGrid = new FilterableDataGrid(columns, this);
+			filterableDataGrid.SetMaxHeight(700);
+			lblSearchData.Content = filterableDataGrid.Content;
 		}
 
 		#region Events
@@ -101,7 +102,7 @@ namespace A2_Project.ContentWindows
 		private void BtnFkeyErrorAccept_Click(object sender, RoutedEventArgs e)
 		{
 			DeleteItem(true);
-			grdFKeyErrorOuter.Visibility = Visibility.Hidden;
+			grdFKeyErrorOuter.Visibility = Visibility.Collapsed;
 		}
 
 		/// <summary>
@@ -109,7 +110,7 @@ namespace A2_Project.ContentWindows
 		/// </summary>
 		private void BtnFkeyErrorDecline_Click(object sender, RoutedEventArgs e)
 		{
-			grdFKeyErrorOuter.Visibility = Visibility.Hidden;
+			grdFKeyErrorOuter.Visibility = Visibility.Collapsed;
 		}
 		#endregion Events
 
@@ -120,7 +121,7 @@ namespace A2_Project.ContentWindows
 
 		private void BtnPrint_Click(object sender, RoutedEventArgs e)
 		{
-			PrintingMethods.Print(searchableDataGrid.GetDataGrid());
+			PrintingMethods.Print(filterableDataGrid.GetDataGrid());
 		}
 
 		private void BtnEmail_Click(object sender, RoutedEventArgs e)

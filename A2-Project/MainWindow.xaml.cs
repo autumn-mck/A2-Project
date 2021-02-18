@@ -53,6 +53,7 @@ namespace A2_Project
 			if (db.Connect()) DBMethods.DBAccess.Db = db;
 			else MessageBox.Show("Database Connection Unsuccessful.", "Error");
 
+			DBObjects.DB.Initialise();
 
 			grdButtons = grdMenuButtons.Children.OfType<Grid>().ToArray();
 			// DEBUG: Allows easy access to the content windows. Currently in place to make testing easier

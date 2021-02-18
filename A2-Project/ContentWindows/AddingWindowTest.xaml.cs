@@ -20,15 +20,15 @@ namespace A2_Project.ContentWindows
 		private int selIndex = 0;
 
 		private DBObjects.Column[] clientColumns;
-		private SearchableDataGrid dtgClientSel;
+		private FilterableDataGrid dtgClientSel;
 		private DataEditingSidebar edtClient;
 
 		private DBObjects.Column[] contactColumns;
-		private SearchableDataGrid dtgContactSel;
+		private FilterableDataGrid dtgContactSel;
 		private DataEditingSidebar edtContact;
 
 		private DBObjects.Column[] dogColumns;
-		private SearchableDataGrid dtgDogSel;
+		private FilterableDataGrid dtgDogSel;
 		private DataEditingSidebar edtDog;
 
 		private const double circleHeight = 58;
@@ -40,21 +40,21 @@ namespace A2_Project.ContentWindows
 			rctProgress.Height = circleHeight;
 
 			clientColumns = DBMethods.MetaRequests.GetColumnDataFromTable("Client");
-			dtgClientSel = new SearchableDataGrid(600, 100, "Client", clientColumns, this);
+			dtgClientSel = new FilterableDataGrid(clientColumns, this);
 			lblClientSelection.Content = dtgClientSel.Content;
 			edtClient = new DataEditingSidebar(clientColumns, "Client", this);
 			lblClientEditing.Content = edtClient.Content;
 			CreateNewUI(grdClientNew, clientColumns);
 
 			contactColumns = DBMethods.MetaRequests.GetColumnDataFromTable("Contact");
-			dtgContactSel = new SearchableDataGrid(600, 100, "Contact", contactColumns, this);
+			dtgContactSel = new FilterableDataGrid(contactColumns, this);
 			lblContactSelection.Content = dtgContactSel.Content;
 			edtContact = new DataEditingSidebar(contactColumns, "Contact", this);
 			lblContactEditing.Content = edtContact.Content;
 			CreateNewUI(grdContactsNew, contactColumns);
 
 			dogColumns = DBMethods.MetaRequests.GetColumnDataFromTable("Dog");
-			dtgDogSel = new SearchableDataGrid(600, 100, "Dog", dogColumns, this);
+			dtgDogSel = new FilterableDataGrid(dogColumns, this);
 			lblDogSelection.Content = dtgDogSel.Content;
 			edtDog = new DataEditingSidebar(dogColumns, "Dog", this);
 			lblDogEditing.Content = edtDog.Content;
@@ -69,6 +69,7 @@ namespace A2_Project.ContentWindows
 				VerticalAlignment = VerticalAlignment.Center,
 				Orientation = Orientation.Horizontal
 			};
+			//stpAll.LayoutTransform = new ScaleTransform(0.5, 0.5);
 
 			List<StackPanel> panels = new List<StackPanel>();
 			StackPanel currentPanel = new StackPanel()
@@ -82,11 +83,14 @@ namespace A2_Project.ContentWindows
 			{
 				if (currentPanel.Children.Count >= 8 || currentPanel.Children.Count >= columns.Length / 2.0)
 				{
+					byte b = (byte)(i * 50);
 					currentPanel = new StackPanel()
 					{
 						Orientation = Orientation.Vertical,
 						VerticalAlignment = VerticalAlignment.Center,
-						Margin = new Thickness(-200, 0, 0, 0)
+						Margin = new Thickness(0, 0, 0, 0),
+						Background = new SolidColorBrush(Color.FromRgb(b, b, b)),
+						Opacity = 0.3
 					};
 					panels.Add(currentPanel);
 				}
@@ -94,11 +98,15 @@ namespace A2_Project.ContentWindows
 				Label lblColName = new Label()
 				{
 					Foreground = new SolidColorBrush(Color.FromRgb(241, 241, 241)),
-					Margin = new Thickness(-5, 0, 0, 0),
-					FontSize = 30
+					Margin = new Thickness(0, 0, 0, 0),
+					HorizontalAlignment = HorizontalAlignment.Left,
+					FontSize = 30,
+					Background = Brushes.Orange,
 				};
 				currentPanel.Children.Add(lblColName);
-				FrameworkElement elem = UIMethods.GenAppropriateElement(columns[i], out string title, true);
+				FrameworkElement elem = UIMethods.GenAppropriateElement(columns[i], out string title, true, true);
+				if (elem is UserControls.ValidatedItem v) v.Background = Brushes.Purple;
+				elem.Width = 250;
 				lblColName.Content = title;
 				currentPanel.Children.Add(elem);
 			}
@@ -107,7 +115,23 @@ namespace A2_Project.ContentWindows
 			{
 				stpAll.Children.Add(p);
 			}
-			grdContainer.Children.Add(stpAll);
+			StackPanel stpTest = new StackPanel()
+			{
+				HorizontalAlignment = HorizontalAlignment.Center,
+				VerticalAlignment = VerticalAlignment.Center,
+				Orientation = Orientation.Vertical
+			};
+			stpTest.Children.Add(stpAll);
+			grdContainer.Children.Add(stpTest);
+
+
+			Button btnAdd = new Button()
+			{
+				Content = "Add item",
+				Margin = new Thickness(0, 20, 0, 0),
+				Width = double.NaN
+			};
+			stpTest.Children.Add(btnAdd);
 		}
 
 
