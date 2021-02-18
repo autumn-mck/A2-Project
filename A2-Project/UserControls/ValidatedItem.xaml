@@ -5,6 +5,7 @@
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
              xmlns:local="clr-namespace:A2_Project.UserControls"
              mc:Ignorable="d"
-             Width="500">
-	<StackPanel Orientation="Horizontal" Name="stpContent"/>
+             Width="500"
+             HorizontalAlignment="Left" VerticalAlignment="Top">
+	<StackPanel HorizontalAlignment="Left" VerticalAlignment="Top" Orientation="Horizontal" Name="stpContent"/>
 </UserControl>

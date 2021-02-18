@@ -93,5 +93,10 @@ namespace A2_Project.DBMethods
 				toReturn[i] = new ForeignKey(results[i][4], results[i][5]);
 			return toReturn;
 		}
+
+		public static List<string> GetAllTableNames()
+		{
+			return DBAccess.GetStringsWithQuery("SELECT Table_Name FROM INFORMATION_SCHEMA.TABLES WHERE TABLE_TYPE='BASE TABLE'");
+		}
 	}
 }

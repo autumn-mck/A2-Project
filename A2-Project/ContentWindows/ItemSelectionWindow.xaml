@@ -5,16 +5,9 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:A2_Project.ContentWindows"
         mc:Ignorable="d"
-        Title="ItemSelectionWindow" Background="#151515">
-    <Grid x:Name="grd">
-		<Grid.Resources>
-			<Style TargetType="Button">
-				<Setter Property="VerticalAlignment" Value="Center"/>
-				<Setter Property="HorizontalAlignment" Value="Right"/>
-				<Setter Property="FontSize" Value="20"/>
-			</Style>
-        </Grid.Resources>
-        <!--TODO: If this is going to be a seperate window, it probably needs viewboxes?-->
-		<Label Name="lblDtg"/>
-	</Grid>
+        Title="ItemSelectionWindow" Background="#151515" SizeToContent="WidthAndHeight" MinWidth="500">
+	<StackPanel x:Name="stp" Orientation="Vertical" HorizontalAlignment="Left" VerticalAlignment="Top">
+		<!--TODO: If this is going to be a seperate window, it probably needs viewboxes?-->
+		<Label Name="lblDtg" VerticalAlignment="Top" HorizontalAlignment="Left"/>
+	</StackPanel>
 </Window>

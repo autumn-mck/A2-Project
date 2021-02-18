@@ -27,7 +27,7 @@ namespace A2_Project.ContentWindows
 		Grid grdEditMode;
 		Grid grdAddMode;
 
-		public DataEditingSidebar(DBObjects.Column[] _columns, string _tableName, Window _containingWindow)
+		public DataEditingSidebar(DBObjects.Column[] _columns, string _tableName, Window _containingWindow, bool canAddOrDelete = false)
 		{
 			columns = _columns;
 			tableName = _tableName;
@@ -42,7 +42,7 @@ namespace A2_Project.ContentWindows
 
 			InitializeComponent();
 
-			GenUI();
+			GenUI(canAddOrDelete);
 		}
 
 		private void UpdateToOwner(string[] data, bool isNew)
@@ -134,10 +134,10 @@ namespace A2_Project.ContentWindows
 			{
 				FrameworkElement c = displayElements[i];
 				// Reset the values in the controls
-				if (c is ValidatedTextbox tbx) tbx.Text = GetSuggestedValue(columns[i]).ToString();
+				if (c is ValidatedTextbox tbx) tbx.Text = UIMethods.GetSuggestedValue(columns[i]).ToString();
 				else if (c is ComboBox cmb) cmb.SelectedIndex = -1;
-				else if (c is DatePicker d) d.SelectedDate = (DateTime)GetSuggestedValue(columns[i]);
-				else if (c is CheckBox cbx) cbx.IsChecked = (bool)GetSuggestedValue(columns[i]);
+				else if (c is DatePicker d) d.SelectedDate = (DateTime)UIMethods.GetSuggestedValue(columns[i]);
+				else if (c is CheckBox cbx) cbx.IsChecked = (bool)UIMethods.GetSuggestedValue(columns[i]);
 				// Any labels which were used to display primary keys now need to be editable
 				else if (c is Label l)
 				{
@@ -147,7 +147,7 @@ namespace A2_Project.ContentWindows
 					{
 						Margin = new Thickness(l.Margin.Left + 5, l.Margin.Top, 0, 0),
 						Tag = "Primary Key",
-						Text = GetSuggestedValue(columns[i]).ToString(),
+						Text = UIMethods.GetSuggestedValue(columns[i]).ToString(),
 						HorizontalAlignment = HorizontalAlignment.Left,
 						VerticalAlignment = VerticalAlignment.Top
 					};
@@ -158,13 +158,7 @@ namespace A2_Project.ContentWindows
 			}
 		}
 
-		private object GetSuggestedValue(DBObjects.Column column)
-		{
-			if (column.Constraints.Type == "date") return DateTime.Now.Date;
-			else if (column.Constraints.Type == "bit") return false;
-			else if (column.Constraints.IsPrimaryKey && column.Constraints.ForeignKey == null) return DBMethods.MiscRequests.GetMinKeyNotUsed(tableName, column.Name);
-			else return "";
-		}
+		
 
 		/// <summary>
 		/// Move from add mode to edit mode
@@ -213,7 +207,7 @@ namespace A2_Project.ContentWindows
 		}
 
 		#region Programmatic UI Generation
-		private void GenUI()
+		private void GenUI(bool canAddOrDelete)
 		{
 			int count = columns.Length;
 			displayElements = new FrameworkElement[count];
@@ -222,7 +216,7 @@ namespace A2_Project.ContentWindows
 
 			GenDataEntry(count);
 
-			GenAddEditBtns(0);
+			GenAddEditBtns(0, canAddOrDelete);
 		}
 
 		/// <summary>
@@ -290,7 +284,7 @@ namespace A2_Project.ContentWindows
 		/// <summary>
 		/// Generate the buttons used in add mode and edit mode
 		/// </summary>
-		private void GenAddEditBtns(double yOffset)
+		private void GenAddEditBtns(double yOffset, bool canAddOrDelete)
 		{
 			grdEditMode = new Grid()
 			{

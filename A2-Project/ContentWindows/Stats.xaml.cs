@@ -612,7 +612,7 @@ namespace A2_Project.ContentWindows
 		private void GraphAppByMonth()
 		{
 			GetData getData = new GetData(DBMethods.GraphingRequests.GetBookingsInMonths);
-			GenerateBarGraph(getData, grdAppByMonth, "Appointments By Month");
+			GenerateBarGraph(getData, grdAppByMonth, "Appointments By Month (Last Year)");
 		}
 
 		private void GraphGrowth()

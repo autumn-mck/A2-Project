@@ -10,7 +10,7 @@ namespace A2_Project
 {
 	public static class UIMethods
 	{
-		public static FrameworkElement GenAppropriateElement(Column c, out string title, bool isPKeyEditable = false)
+		public static FrameworkElement GenAppropriateElement(Column c, out string title, bool isPKeyEditable = false, bool containsSuggestedValue = false)
 		{
 			FrameworkElement elem;
 			title = c.Name;
@@ -31,6 +31,7 @@ namespace A2_Project
 					Margin = new Thickness(5, 0, 0, 0),
 					RenderTransform = new ScaleTransform(2, 2)
 				};
+				if (containsSuggestedValue) ((CheckBox)elem).IsChecked = (bool)GetSuggestedValue(c);
 			}
 			else if (c.Constraints.Type == "date")
 			{
@@ -86,8 +87,18 @@ namespace A2_Project
 						((ValidatedTextbox)elem).SetHeight(elem.Height * 2);
 			}
 
+			if (elem is ValidatedItem item && containsSuggestedValue) item.Text = GetSuggestedValue(c).ToString();
+
 
 			return elem;
+		}
+
+		public static object GetSuggestedValue(Column column)
+		{
+			if (column.Constraints.Type == "date") return DateTime.Now.Date;
+			else if (column.Constraints.Type == "bit") return false;
+			else if (column.Constraints.IsPrimaryKey && column.Constraints.ForeignKey == null) return DBMethods.MiscRequests.GetMinKeyNotUsed(column.TableName, column.Name);
+			else return "";
 		}
 	}
 }

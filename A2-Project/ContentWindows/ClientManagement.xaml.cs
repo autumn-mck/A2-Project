@@ -10,15 +10,15 @@ namespace A2_Project.ContentWindows
 	{
 		private bool shouldUpdate = true;
 
-		private SearchableDataGrid dtgContacts;
+		private FilterableDataGrid dtgContacts;
 		private DBObjects.Column[] contactsColumns;
 		private DataEditingSidebar contactEditing;
 
-		private SearchableDataGrid dtgDogs;
+		private FilterableDataGrid dtgDogs;
 		private DBObjects.Column[] dogsColumns;
 		private DataEditingSidebar dogsEditing;
 
-		private SearchableDataGrid dtgClients;
+		private FilterableDataGrid dtgClients;
 		private DBObjects.Column[] clientsColumns;
 		private DataEditingSidebar clientsEditing;
 
@@ -33,15 +33,18 @@ namespace A2_Project.ContentWindows
 			InitializeComponent();
 
 			contactsColumns = DBMethods.MetaRequests.GetColumnDataFromTable("Contact");
-			dtgContacts = new SearchableDataGrid(300, 950, "Contact", contactsColumns, this);
+			dtgContacts = new FilterableDataGrid(contactsColumns, this);
+			dtgContacts.SetMaxHeight(300);
 			lblContacts.Content = dtgContacts.Content;
 
 			dogsColumns = DBMethods.MetaRequests.GetColumnDataFromTable("Dog");
-			dtgDogs = new SearchableDataGrid(300, 600, "Dog", dogsColumns, this);
+			dtgDogs = new FilterableDataGrid(dogsColumns, this);
+			dtgDogs.SetMaxHeight(300);
 			lblDogs.Content = dtgDogs.Content;
 
 			clientsColumns = DBMethods.MetaRequests.GetColumnDataFromTable("Client");
-			dtgClients = new SearchableDataGrid(200, 600, "Client", clientsColumns, this);
+			dtgClients = new FilterableDataGrid(clientsColumns, this);
+			dtgClients.SetMaxHeight(300);
 			lblClients.Content = dtgClients.Content;
 		}
 
@@ -76,7 +79,7 @@ namespace A2_Project.ContentWindows
 			}
 		}
 
-		public void TableSelectionChanged(SearchableDataGrid sender, string[] newData)
+		public void TableSelectionChanged(FilterableDataGrid sender, string[] newData)
 		{
 			if (!shouldUpdate) return;
 			shouldUpdate = false;
@@ -126,8 +129,8 @@ namespace A2_Project.ContentWindows
 
 			mode = newMode;
 			
-			double notSelMax = 100;
-			double selMax = 600;
+			double notSelMax = 150;
+			double selMax = 650;
 
 			if (mode == contactString)
 			{
@@ -211,7 +214,7 @@ namespace A2_Project.ContentWindows
 		private void BtnFkeyErrorAccept_Click(object sender, RoutedEventArgs e)
 		{
 			DeleteItem(true);
-			grdFKeyErrorOuter.Visibility = Visibility.Hidden;
+			grdFKeyErrorOuter.Visibility = Visibility.Collapsed;
 		}
 
 		/// <summary>
@@ -219,7 +222,7 @@ namespace A2_Project.ContentWindows
 		/// </summary>
 		private void BtnFkeyErrorDecline_Click(object sender, RoutedEventArgs e)
 		{
-			grdFKeyErrorOuter.Visibility = Visibility.Hidden;
+			grdFKeyErrorOuter.Visibility = Visibility.Collapsed;
 		}
 	}
 }
