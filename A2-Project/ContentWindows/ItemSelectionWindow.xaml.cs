@@ -1,4 +1,5 @@
-﻿using System.Windows;
+﻿using System;
+using System.Windows;
 using System.Windows.Controls;
 
 namespace A2_Project.ContentWindows
@@ -9,17 +10,26 @@ namespace A2_Project.ContentWindows
 	public partial class ItemSelectionWindow : Window
 	{
 		private FilterableDataGrid dtg;
-		private UserControls.ValidatedItem parent;
+		private object parent;
 
-		public ItemSelectionWindow(UserControls.ValidatedItem _parent)
+		public ItemSelectionWindow(UserControls.ValidatedTextbox _parent)
+		{
+			Initialise(_parent, _parent.Column.Constraints.ForeignKey.ReferencedTable);
+		}
+
+		public ItemSelectionWindow(object _parent, string _tableName)
+		{
+			Initialise(_parent, _tableName);
+		}
+
+		private void Initialise(object _parent, string _tableName)
 		{
 			InitializeComponent();
 			parent = _parent;
-			string refTable = parent.Column.Constraints.ForeignKey.ReferencedTable;
-			dtg = new FilterableDataGrid(refTable, this);
+			dtg = new FilterableDataGrid(_tableName, this);
 			dtg.SetMaxHeight(600);
 			lblDtg.Content = dtg.Content;
-			
+
 			Height = double.NaN;
 			Width = double.NaN;
 
@@ -35,7 +45,13 @@ namespace A2_Project.ContentWindows
 
 		private void BtnConfirm_Click(object sender, RoutedEventArgs e)
 		{
-			parent.Text = dtg.GetSelectedData()[0];
+			if (parent is UserControls.ValidatedTextbox tbx)
+				tbx.Text = dtg.GetSelectedData()[0];
+			else if (parent is CalandarView calView)
+				calView.SelectSpecificAppointment(dtg.GetSelectedData());
+			else
+				throw new NotImplementedException();
+
 			Close();
 		}
 	}
