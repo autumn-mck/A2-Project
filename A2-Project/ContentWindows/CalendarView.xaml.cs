@@ -130,7 +130,7 @@ namespace A2_Project.ContentWindows
 			grd.Children.Add(lblNextWeek);
 
 			// Instantiate the editing sidebar
-			editingSidebar = new DataEditingSidebar(columns, tableName, this);
+			editingSidebar = new DataEditingSidebar(columns, tableName, this, false);
 			lblEditingSidebar.Content = editingSidebar.Content;
 
 			Button btnSpecificAppointment = new Button()
@@ -751,7 +751,7 @@ namespace A2_Project.ContentWindows
 			SelectLbl(lblEditBtn);
 			DeselectLbl(lblBookBtn);
 
-			lblEditingSidebar.Visibility = Visibility.Visible;
+			grdEditingSidebar.Visibility = Visibility.Visible;
 		}
 
 		private void LblBook_MouseDown(object sender, MouseButtonEventArgs e)
@@ -759,7 +759,7 @@ namespace A2_Project.ContentWindows
 			SelectLbl(lblBookBtn);
 			DeselectLbl(lblEditBtn);
 
-			lblEditingSidebar.Visibility = Visibility.Collapsed;
+			grdEditingSidebar.Visibility = Visibility.Collapsed;
 		}
 
 		private static void SelectLbl(Label l)

@@ -27,7 +27,7 @@ namespace A2_Project.ContentWindows
 		Grid grdEditMode;
 		Grid grdAddMode;
 
-		public DataEditingSidebar(DBObjects.Column[] _columns, string _tableName, Window _containingWindow, bool canAddOrDelete = false)
+		public DataEditingSidebar(DBObjects.Column[] _columns, string _tableName, Window _containingWindow, bool canAddOrDelete = true)
 		{
 			columns = _columns;
 			tableName = _tableName;
@@ -127,7 +127,7 @@ namespace A2_Project.ContentWindows
 		/// </summary>
 		public void EditToAdd()
 		{
-			grdEditMode.Visibility = Visibility.Hidden;
+			grdEditMode.Visibility = Visibility.Collapsed;
 			grdAddMode.Visibility = Visibility.Visible;
 
 			for (int i = 0; i < displayElements.Length; i++)
@@ -166,7 +166,7 @@ namespace A2_Project.ContentWindows
 		public void AddToEdit()
 		{
 			grdEditMode.Visibility = Visibility.Visible;
-			grdAddMode.Visibility = Visibility.Hidden;
+			grdAddMode.Visibility = Visibility.Collapsed;
 
 			for (int i = 0; i < displayElements.Length; i++)
 			{
@@ -271,8 +271,7 @@ namespace A2_Project.ContentWindows
 			{
 				Orientation = Orientation.Horizontal,
 				HorizontalAlignment = HorizontalAlignment.Left,
-				VerticalAlignment = VerticalAlignment.Top,
-				Margin = new Thickness(0, 100, 0, 0)
+				VerticalAlignment = VerticalAlignment.Top
 			};
 			foreach (StackPanel p in panels)
 			{
@@ -298,7 +297,7 @@ namespace A2_Project.ContentWindows
 				Margin = new Thickness(5, yOffset + 20, 0, 0),
 				HorizontalAlignment = HorizontalAlignment.Left,
 				VerticalAlignment = VerticalAlignment.Top,
-				Visibility = Visibility.Hidden
+				Visibility = Visibility.Collapsed
 			};
 
 			// TODO: Does this bit work properly?
@@ -336,8 +335,12 @@ namespace A2_Project.ContentWindows
 			btnDeleteItem.Click += BtnDeleteItem_Click; ;
 			grdEditMode.Children.Add(btnSave);
 			grdEditMode.Children.Add(btnRevert);
-			grdEditMode.Children.Add(btnAddNew);
-			grdEditMode.Children.Add(btnDeleteItem);
+
+			if (canAddOrDelete)
+			{
+				grdEditMode.Children.Add(btnAddNew);
+				grdEditMode.Children.Add(btnDeleteItem);
+			}
 
 			Button btnInsertNew = new Button()
 			{
@@ -430,8 +433,9 @@ namespace A2_Project.ContentWindows
 
 		public void HideButtons()
 		{
-			grdAddMode.Visibility = Visibility.Hidden;
-			grdEditMode.Visibility = Visibility.Hidden;
+			// TODO: Why is this method here?
+			grdAddMode.Visibility = Visibility.Collapsed;
+			grdEditMode.Visibility = Visibility.Collapsed;
 		}
 
 		#region AddMode
