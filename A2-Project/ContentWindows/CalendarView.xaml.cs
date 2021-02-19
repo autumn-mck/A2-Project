@@ -131,7 +131,7 @@ namespace A2_Project.ContentWindows
 
 			// Instantiate the editing sidebar
 			editingSidebar = new DataEditingSidebar(columns, tableName, this);
-			lblSidebar.Content = editingSidebar.Content;
+			lblEditingSidebar.Content = editingSidebar.Content;
 
 			Button btnSpecificAppointment = new Button()
 			{
@@ -156,9 +156,11 @@ namespace A2_Project.ContentWindows
 
 		public void SelectSpecificAppointment(string[] appData)
 		{
+			if (appData is null) return;
 			dataToBeSelected = appData;
 			DateTime d = DateTime.Parse(appData[9]);
 			datePicker.SelectedDate = d;
+			dataToBeSelected = null;
 		}
 
 		private void LblNextWeek_MouseDown(object sender, MouseButtonEventArgs e)
@@ -742,6 +744,36 @@ namespace A2_Project.ContentWindows
 				DayOfWeek.Sunday => 6,
 				_ => throw new NotImplementedException(),
 			};
+		}
+
+		private void LblEdit_MouseDown(object sender, MouseButtonEventArgs e)
+		{
+			SelectLbl(lblEditBtn);
+			DeselectLbl(lblBookBtn);
+
+			lblEditingSidebar.Visibility = Visibility.Visible;
+		}
+
+		private void LblBook_MouseDown(object sender, MouseButtonEventArgs e)
+		{
+			SelectLbl(lblBookBtn);
+			DeselectLbl(lblEditBtn);
+
+			lblEditingSidebar.Visibility = Visibility.Collapsed;
+		}
+
+		private static void SelectLbl(Label l)
+		{
+			l.Width = 400;
+			l.Background = new SolidColorBrush(Color.FromRgb(64, 64, 64));
+			l.Foreground = new SolidColorBrush(Color.FromRgb(241, 241, 241));
+		}
+
+		private static void DeselectLbl(Label l)
+		{
+			l.Width = 200;
+			l.Background = new SolidColorBrush(Color.FromRgb(37, 37, 37));
+			l.Foreground = new SolidColorBrush(Color.FromRgb(213, 213, 213));
 		}
 	}
 }

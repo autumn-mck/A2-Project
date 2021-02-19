@@ -9,7 +9,7 @@
 	<Grid x:Name="grd" Width="1876" Height="1080">
 		<Grid.Resources>
 			<Style TargetType="Label">
-				<Setter Property="Foreground" Value="#D5D5D5"/>
+				<Setter Property="Foreground" Value="#F1F1F1"/>
 				<Setter Property="FontSize" Value="24"/>
 				<Setter Property="HorizontalAlignment" Value="Left"/>
 				<Setter Property="VerticalAlignment" Value="Top"/>
@@ -17,6 +17,12 @@
 		</Grid.Resources>
 		<Grid x:Name="grdResults" Width="1060" Height="1050" HorizontalAlignment="Right" VerticalAlignment="Top" Margin="0,30,700,0" />
 		<Grid x:Name="grdKey" Height="80" HorizontalAlignment="Left" VerticalAlignment="Bottom" Margin="115,0,0,0" />
-		<Label x:Name="lblSidebar" HorizontalAlignment="Left" Margin="1240, 0, 0, 0"/>
+		<StackPanel x:Name="stpSidebar" Margin="1240, 0, 0, 0" HorizontalAlignment="Left" VerticalAlignment="Top" Orientation="Vertical">
+			<StackPanel Orientation="Horizontal" Panel.ZIndex="1">
+				<Label x:Name="lblEditBtn" Content="Editing" Background="#404040" Foreground="#F1F1F1" Margin="5" Width="400" HorizontalContentAlignment="Center" MouseDown="LblEdit_MouseDown"/>
+				<Label x:Name="lblBookBtn" Content="Booking" Background="#252525" Foreground="#D5D5D5" Margin="5" Width="200" HorizontalContentAlignment="Center" MouseDown="LblBook_MouseDown"/>
+			</StackPanel>
+			<Label x:Name="lblEditingSidebar" HorizontalAlignment="Left" Margin="0, -60, 0, 0"/>
+		</StackPanel>
 	</Grid>
 </Window>
