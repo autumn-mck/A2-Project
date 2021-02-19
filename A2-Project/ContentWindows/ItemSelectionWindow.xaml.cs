@@ -45,10 +45,14 @@ namespace A2_Project.ContentWindows
 
 		private void BtnConfirm_Click(object sender, RoutedEventArgs e)
 		{
+			string[] data = dtg.GetSelectedData();
+
+			if (data is null) Close();
+
 			if (parent is UserControls.ValidatedTextbox tbx)
-				tbx.Text = dtg.GetSelectedData()[0];
+				tbx.Text = data[0];
 			else if (parent is CalandarView calView)
-				calView.SelectSpecificAppointment(dtg.GetSelectedData());
+				calView.SelectSpecificAppointment(data);
 			else
 				throw new NotImplementedException();
 
