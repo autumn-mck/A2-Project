@@ -723,6 +723,13 @@ namespace A2_Project.ContentWindows
 				}
 			}
 
+			if (currentlySelected is not null && data[0] == ((string[])currentlySelected.Tag)[0])
+			{
+				currentlySelected = newRect;
+				newRect.Stroke = Brushes.AliceBlue;
+				newRect.StrokeThickness *= 2;
+			}
+
 			newRect.MouseDown += Rectangle_MouseDown;
 			newRect.MouseUp += RctRect_MouseUp;
 			grdResults.Children.Add(newRect);
