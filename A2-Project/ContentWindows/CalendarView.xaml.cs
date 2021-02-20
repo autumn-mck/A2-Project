@@ -133,25 +133,32 @@ namespace A2_Project.ContentWindows
 			editingSidebar = new DataEditingSidebar(columns, tableName, this, false);
 			lblEditingSidebar.Content = editingSidebar.Content;
 
-			Button btnSpecificAppointment = new Button()
-			{
-				Content = "Find a specific appointment",
-				FontSize = 24,
-				VerticalAlignment = VerticalAlignment.Top,
-				HorizontalAlignment = HorizontalAlignment.Left,
-				Margin = new Thickness(33, 15, 0, 0)
-			};
-			btnSpecificAppointment.Click += BtnSpecificAppointment_Click;
-			grd.Children.Add(btnSpecificAppointment);
+			grdFindAppt.MouseEnter += GrdFindAppt_MouseEnter;
+			grdFindAppt.MouseLeave += GrdFindAppt_MouseLeave;
+			grdFindAppt.MouseDown += GrdFindAppt_MouseDown;
 
 			// Start the process of adding the key for the appointment view
 			AddKey();
 		}
 
-		private void BtnSpecificAppointment_Click(object sender, RoutedEventArgs e)
+		private void GrdFindAppt_MouseDown(object sender, MouseButtonEventArgs e)
 		{
 			selSpecificAppWindow = new ItemSelectionWindow(this, "Appointment");
 			selSpecificAppWindow.Show();
+		}
+
+		private void GrdFindAppt_MouseLeave(object sender, MouseEventArgs e)
+		{
+			Grid g = (Grid)sender;
+			Rectangle r = g.Children.OfType<Rectangle>().First();
+			r.Fill = new SolidColorBrush(Color.FromRgb(213, 213, 213));
+		}
+
+		private void GrdFindAppt_MouseEnter(object sender, MouseEventArgs e)
+		{
+			Grid g = (Grid)sender;
+			Rectangle r = g.Children.OfType<Rectangle>().First();
+			r.Fill = new SolidColorBrush(Color.FromRgb(241, 241, 241));
 		}
 
 		public void SelectSpecificAppointment(string[] appData)
@@ -712,7 +719,7 @@ namespace A2_Project.ContentWindows
 				currentlySelected = newRect;
 			}
 
-			if (dataToBeSelected is not null)
+			if (dataToBeSelected is not null && currentlySelected is null)
 			{
 				if (dataToBeSelected[0] == data[0])
 				{

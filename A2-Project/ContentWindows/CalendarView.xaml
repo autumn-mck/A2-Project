@@ -17,6 +17,10 @@
 		</Grid.Resources>
 		<Grid x:Name="grdResults" Width="1060" Height="1050" HorizontalAlignment="Right" VerticalAlignment="Top" Margin="0,30,700,0" />
 		<Grid x:Name="grdKey" Height="80" HorizontalAlignment="Left" VerticalAlignment="Bottom" Margin="115,0,0,0" />
+		<Grid x:Name="grdFindAppt" Height="40" Margin="25, 10, 0, 0" VerticalAlignment="Top" HorizontalAlignment="Left">
+			<Rectangle Fill="#D5D5D5" Stroke="#151515" StrokeThickness="2"/>
+			<Image Source="/Resources/FindAppt.png"/>
+		</Grid>
 		<StackPanel x:Name="stpSidebar" Margin="1240, 58 0, 0" HorizontalAlignment="Left" VerticalAlignment="Top" Orientation="Vertical">
 			<StackPanel Orientation="Horizontal" Panel.ZIndex="1">
 				<Label x:Name="lblEditBtn" Content="Editing" Background="#404040" Foreground="#F1F1F1" Margin="5" Width="400" HorizontalContentAlignment="Center" MouseDown="LblEdit_MouseDown"/>
