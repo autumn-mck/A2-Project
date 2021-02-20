@@ -100,7 +100,7 @@ namespace A2_Project.ContentWindows
 			int max = GetMax(data);
 			int min = GetMin(data);
 			LabelGraph(grid, data[0].Length, xAxisLabels, title, prefix, suffix, max, min);
-			GenerateBars(grid, data, max, min, brushes);
+			GenerateBars(grid, data, max, min, brushes, prefix);
 		}
 
 		private static void GenerateLineGraph(GetData getData, Grid grid, string title, string prefix = "", string suffix = "")
@@ -310,7 +310,7 @@ namespace A2_Project.ContentWindows
 			}
 		}
 
-		private static void GenerateBars(Grid grid, int[][] data, int max, int min, Brush[] brushes)
+		private static void GenerateBars(Grid grid, int[][] data, int max, int min, Brush[] brushes, string prefix)
 		{
 			DrawFullArea(grid);
 
@@ -336,7 +336,19 @@ namespace A2_Project.ContentWindows
 					else marginTop = zeroMarginTop - height;
 
 					Brush b;
-					if (brushes is null) b = Brushes.White;
+					if (prefix == "£")
+					{
+						
+						if (arr[i] < 0)
+						{
+							b = new SolidColorBrush(Color.FromRgb((byte)(255 * arr[i] / minHeight), 0, 0));
+						}
+						else
+						{
+							b = new SolidColorBrush(Color.FromRgb(0, (byte)(128 * arr[i] / maxHeight), 0));
+						}
+					}
+					else if (brushes is null) b = Brushes.White;
 					else b = brushes[i];
 
 					Rectangle newRect = new Rectangle
