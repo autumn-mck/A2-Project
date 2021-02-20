@@ -24,6 +24,7 @@
     <None Remove="Resources\circle-invalid.png" />
     <None Remove="Resources\circle-valid.png" />
     <None Remove="Resources\filter-icon.png" />
+    <None Remove="Resources\FindAppt.png" />
     <None Remove="Resources\gbp.png" />
     <None Remove="Resources\invertedSelection.png" />
     <None Remove="Resources\logoblack.png" />
@@ -50,6 +51,7 @@
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Resource>
     <Resource Include="Resources\filter-icon.png" />
+    <Resource Include="Resources\FindAppt.png" />
     <Resource Include="Resources\gbp.png" />
     <Resource Include="Resources\invertedSelection.png" />
     <Resource Include="Resources\logoblack.png" />
