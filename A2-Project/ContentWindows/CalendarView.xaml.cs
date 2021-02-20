@@ -719,14 +719,17 @@ namespace A2_Project.ContentWindows
 				currentlySelected = newRect;
 			}
 
-			if (dataToBeSelected is not null && currentlySelected is null)
+			if (dataToBeSelected is not null)
 			{
-				if (dataToBeSelected[0] == data[0])
+				if (currentlySelected is null || ((string[])currentlySelected.Tag)[0] != dataToBeSelected[0])
 				{
-					editingSidebar.ChangeSelectedData((string[])newRect.Tag);
-					currentlySelected = newRect;
-					newRect.Stroke = Brushes.AliceBlue;
-					newRect.StrokeThickness *= 2;
+					if (dataToBeSelected[0] == data[0])
+					{
+						editingSidebar.ChangeSelectedData((string[])newRect.Tag);
+						currentlySelected = newRect;
+						newRect.Stroke = Brushes.AliceBlue;
+						newRect.StrokeThickness *= 2;
+					}
 				}
 			}
 
