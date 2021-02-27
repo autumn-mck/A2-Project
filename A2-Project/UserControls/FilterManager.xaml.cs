@@ -93,10 +93,13 @@ namespace A2_Project.UserControls
 
 			for (int i = 0; i < filters.Count; i++)
 			{
+				string toAdd = filters[i].GetFilterText();
+				if (toAdd == "") continue;
+
 				// TODO: OR?
 				if (i != 0) text += " AND ";
 
-				text += filters[i].GetFilterText();
+				text += toAdd;
 			}
 
 			return text;

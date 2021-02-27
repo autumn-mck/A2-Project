@@ -327,6 +327,7 @@ namespace A2_Project.DBObjects
 				}
 				else
 				{
+					if (textBoxes[0].Text == "") return "";
 					toReturn = "(";
 
 					int countAdded = 0;
