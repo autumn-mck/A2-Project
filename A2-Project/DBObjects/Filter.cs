@@ -194,10 +194,15 @@ namespace A2_Project.DBObjects
 
 			if (currentColumn is not null)
 			{
+				// TODO: Not equal to?
 				string type = currentColumn.Constraints.Type;
 				if (type == "date" || type == "time" || type == "int")
 				{
 					filterSource = new List<string>() { "Equal To", "Between", "Less Than", "More Than" };
+				}
+				else if (type == "bit")
+				{
+					filterSource = new List<string>() { "Equal To" };
 				}
 				else
 				{
@@ -307,10 +312,10 @@ namespace A2_Project.DBObjects
 						{
 							"int" => $"{int.Parse(str)}",
 							"varchar" => $"'{str}'",
-							"datetime" => $"'{DateTime.Parse(str):yyyy-MM-dd}'",
+							"date" => $"'{DateTime.Parse(str):yyyy-MM-dd}'",
 							"time" => $"'{TimeSpan.Parse(str):hh\\:mm}'",
 							"decimal" => $"{double.Parse(str)}",
-							"bit" => $"{bool.Parse(str)}",
+							"bit" => $"{(bool.Parse(str) ? "1" : "0")}",
 							_ => throw new NotImplementedException(),
 						};
 					}

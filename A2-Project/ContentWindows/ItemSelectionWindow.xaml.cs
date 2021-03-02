@@ -58,5 +58,19 @@ namespace A2_Project.ContentWindows
 
 			Close();
 		}
+
+		internal void SelectItem(string text)
+		{
+			dtg.SelectItem(text);
+		}
+
+		private void Window_Closing(object sender, System.ComponentModel.CancelEventArgs e)
+		{
+			if (parent is CalandarView && IsVisible)
+			{
+				e.Cancel = true;
+				Hide();
+			}
+		}
 	}
 }

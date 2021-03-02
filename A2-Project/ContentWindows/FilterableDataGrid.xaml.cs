@@ -45,15 +45,8 @@ namespace A2_Project.ContentWindows
 
 			DtgMethods.CreateTable(currentData, tableName, ref dtg, columns, ref dataTable, true);
 
-			//// Allow the user to search through all columns or a specific column for the table
-			//List<string> colSearch = new List<string> { "All Columns" };
-			//colSearch.AddRange(columns.Select(c => c.Name));
-			//cmbColumn.SelectedIndex = 0;
-			//cmbColumn.ItemsSource = colSearch;
-
 			//try { dtgData.SelectedIndex = 0; }
 			//catch { }
-
 
 			filterManager = new UserControls.FilterManager(columns, this)
 			{
@@ -112,6 +105,8 @@ namespace A2_Project.ContentWindows
 
 			string sql = ConstructSQL(filterText, tablesReferenced);
 
+			//MessageBox.Show(sql);
+
 			currentData = DBMethods.DBAccess.GetListStringsWithQuery(sql);
 
 			DtgMethods.CreateTable(currentData, tableName, ref dtg, columns, ref dataTable, true);
@@ -150,9 +145,8 @@ namespace A2_Project.ContentWindows
 
 			for (int i = 0; i < tables.Count - 1; i++)
 			{
-				Column col = DoesTableRefTable(tables[i], tables[i + 1]);
-				if (col is null) col = DoesTableRefTable(tables[i + 1], tables[i]);
-				sql += $"INNER JOIN [{tables[i + 1]}] ON [{tables[i]}].[{col.Name}] = [{tables[i + 1]}].[{col.Name}] ";
+				Column col = FindRefColumn(tables.GetRange(0, i + 2), i);
+				sql += $"INNER JOIN [{tables[i + 1]}] ON [{col.Constraints.ForeignKey.ReferencedTable}].[{col.Name}] = [{col.TableName}].[{col.Name}] ";
 			}
 
 			if (filterText != "")
@@ -163,6 +157,29 @@ namespace A2_Project.ContentWindows
 			sql += $" GROUP BY {selectedColumns};";
 
 			return sql;
+		}
+
+		private static Column FindRefColumn(List<Table> tables, int index)
+		{
+			// Does A ref B?
+			Column col = DoesTableRefTable(tables[index], tables[index + 1]);
+			// Does B ref A?
+			if (col is null) col = DoesTableRefTable(tables[index + 1], tables[index]);
+			// A isn't directly related to B?
+			if (col is null)
+			{
+				for (int i = 0; (i < index && col is null); i++)
+				{
+					col = DoesTableRefTable(tables[i], tables[index + 1]);
+					if (col is null) col = DoesTableRefTable(tables[index + 1], tables[i]);
+				}
+			}
+
+			// If col is still null, something has probably gone badly wrong, as tables should be connected in the correct order
+			if (col is null)
+				throw new NotImplementedException();
+
+			return col;
 		}
 
 		internal void ClearSearch()
@@ -391,6 +408,14 @@ namespace A2_Project.ContentWindows
 		{
 			dtg.MaxHeight = newMax - dtg.Margin.Top;
 			grd.Height = newMax;
+		}
+
+		internal void SelectItem(string text)
+		{
+			DataRow row = dataTable.Rows.OfType<DataRow>().Where(r => r.ItemArray[0].ToString() == text).FirstOrDefault();
+			int index = dataTable.Rows.IndexOf(row);
+			dtg.SelectedIndex = index;
+			dtg.ScrollIntoView(dtg.SelectedItem);
 		}
 	}
 }

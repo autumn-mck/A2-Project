@@ -54,6 +54,7 @@ namespace A2_Project.UserControls
 		{
 			ContentWindows.ItemSelectionWindow selWindow = new ContentWindows.ItemSelectionWindow(this);
 			selWindow.Show();
+			selWindow.SelectItem(tbx.Text);
 		}
 
 		public override void SetWidth(double newWidth)
