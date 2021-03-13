@@ -1,7 +1,9 @@
 ﻿using A2_Project.DBObjects;
+using A2_Project.UserControls;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Windows;
 
 namespace A2_Project.DBMethods
 {
@@ -65,23 +67,60 @@ namespace A2_Project.DBMethods
 			return DBAccess.GetStringsWithQuery($"SELECT TOP 1 t1.[{col}]+1 FROM [{table}] t1 WHERE NOT EXISTS(SELECT * FROM [{table}] t2 WHERE t2.[{col}] = t1.[{col}] + 1) ORDER BY t1.[{col}]")[0];
 		}
 
+		internal static string GetMinKeyNotUsed(string table, string col, List<BookingCreator> booking)
+		{
+			int id = Convert.ToInt32(DBAccess.GetStringsWithQuery($"SELECT Max([{col}]) FROM [{table}];")[0]);
+			id += booking.Select(b => b.GetData().Count).Sum() + 1;
+			return id.ToString();
+		}
+
 		public static bool IsAppointmentInitial(string[] data)
 		{
-			string dogID = data[1];
-			string clientFirstAppID = DBAccess.GetStringsWithQuery($"SELECT TOP 1 [Appointment].[Appointment ID] FROM [Appointment] INNER JOIN [Dog] ON [Dog].[Dog ID] = [Appointment].[Dog ID] WHERE [Dog].[Dog ID] = {dogID} ORDER BY [Appointment].[Appointment Date], [Appointment].[Appointment Time];")[0];
-			return data[0] == clientFirstAppID;
+			try 
+			{
+				// TODO: Take currently being booked into account!
+				string dogID = data[1];
+				if (dogID == "") return false;
+				List<string> firstData = DBAccess.GetListStringsWithQuery($"SELECT TOP 1 [Appointment].[Appointment Date], [Appointment].[Appointment Time] FROM [Appointment] INNER JOIN [Dog] ON [Dog].[Dog ID] = [Appointment].[Dog ID] WHERE [Dog].[Dog ID] = {dogID} ORDER BY [Appointment].[Appointment Date], [Appointment].[Appointment Time];")[0];
+				DateTime initDateTime = DateTime.Parse(firstData[0]).Add(TimeSpan.Parse(firstData[1]));
+				DateTime compDateTime = DateTime.Parse(data[9]).Add(TimeSpan.Parse(data[10]));
+				return compDateTime <= initDateTime;
+			}
+			catch { return false; }
 		}
 
-		public static bool IsAppointmentInitial(string appID)
+		internal static bool DoesAppointmentClash(string[] data, List<BookingCreator> bookings)
 		{
-			string dogID = DBAccess.GetStringsWithQuery($"SELECT [Dog].[Dog ID] FROM [Dog] INNER JOIN [Appointment] ON [Appointment].[Dog ID] = [Dog].[Dog ID] WHERE [Appointment].[Appointment ID] = {appID};")[0];
-			string clientFirstAppID = DBAccess.GetStringsWithQuery($"SELECT TOP 1 [Appointment].[Appointment ID] FROM [Appointment] INNER JOIN [Dog] ON [Dog].[Dog ID] = [Appointment].[Dog ID] WHERE [Dog].[Dog ID] = {dogID} ORDER BY [Appointment].[Appointment Date], [Appointment].[Appointment Time];")[0];
-			return appID == clientFirstAppID;
+			return DoesAppointmentClash(data, Convert.ToInt32(data[5]), DateTime.Parse(data[9]), TimeSpan.Parse(data[10]), bookings);
 		}
 
-		public static bool DoesAppointmentClash(string[] oldData, int roomID, DateTime date, TimeSpan time)
+		public static bool DoesAppointmentClash(string[] oldData, int roomID, DateTime date, TimeSpan time, List<BookingCreator> bookings)
 		{
-			TimeSpan appEnd = time.Add(new TimeSpan(0, GetAppLength(Convert.ToInt32(oldData[2]), oldData[6] == "True", oldData[0]), 0));
+			int thisAppLength = GetAppLength(oldData);
+			TimeSpan appEnd = time.Add(new TimeSpan(0, thisAppLength, 0));
+
+			foreach(BookingCreator booking in bookings)
+			{
+				if (!booking.IsAdded) continue;
+				List<string[]> bkData = booking.GetData();
+				foreach (string[] bk in bkData)
+				{
+					if (bk == oldData || bk is null) continue;
+					if (bk[9] == "" || bk[10] == "") continue;
+
+					if (
+					(bk[5] == roomID.ToString() // Same room
+					|| bk[1] == oldData[1]		// Same dog
+					|| bk[3] == oldData[3])		// Same staff
+					&& DateTime.Parse(bk[9]).Date == date)
+					{
+						TimeSpan bkStart = TimeSpan.Parse(bk[10]);
+						int bkLength = GetAppLength(bk);
+						TimeSpan bkEnd = bkStart.Add(new TimeSpan(0, bkLength, 0));
+						if ((bkEnd > time && bkStart < time) || (bkStart < appEnd && bkStart >= time)) return true;
+					}
+				}
+			}
 
 			string query = $"SELECT * FROM [Appointment] WHERE [Appointment].[Appointment Date] = '{date:yyyy-MM-dd}' " +
 			$"AND [Appointment].[Appointment Time] < '{appEnd}' AND [Appointment].[Is Cancelled] = 'False';";
@@ -104,6 +143,7 @@ namespace A2_Project.DBMethods
 				if (ls[3] == oldData[3]) return true; // A staff member cannot be at 2 appointments at once
 			}
 
+
 			List<List<string>> inRoom = potentialCollisions.Where(a => a[5] == roomID.ToString()).ToList();
 			if (inRoom.Count > 0) return true;
 			return false;
@@ -117,18 +157,6 @@ namespace A2_Project.DBMethods
 			int appLength = (int)(Convert.ToDouble(AppTypes[Convert.ToInt32(data[2])][1]) * 60);
 			if (data[6] == "True") appLength += 15;
 			if (IsAppointmentInitial(data)) appLength += 15;
-
-			return appLength;
-		}
-
-		public static int GetAppLength(int typeID, bool includesNailAndTeeth, string appID)
-		{
-			if (AppTypes is null) AppTypes = MetaRequests.GetAllFromTable("Appointment Type");
-
-			// appLength is in minutes
-			int appLength = (int)(Convert.ToDouble(AppTypes[typeID][1]) * 60);
-			if (includesNailAndTeeth) appLength += 15;
-			if (IsAppointmentInitial(appID)) appLength += 15;
 
 			return appLength;
 		}
@@ -155,7 +183,7 @@ namespace A2_Project.DBMethods
 				ls.Remove(ls[^1]);
 				double price = basePrices[appTypeID];
 				if (ls[5] == "True") price += 10;
-				if (IsAppointmentInitial(ls[1])) price += 5;
+				if (IsAppointmentInitial(ls.ToArray())) price += 5;
 				price = price * (100.0 - GraphingRequests.GetBookingDiscount(ls[0])) / 100.0;
 				ls.Add('£' + Math.Round(price, 2).ToString());
 			}

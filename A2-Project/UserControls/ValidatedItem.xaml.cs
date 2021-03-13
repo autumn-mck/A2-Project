@@ -61,5 +61,16 @@ namespace A2_Project.UserControls
 		}
 
 		public abstract void AddTextChangedEvent(TextChangedEventHandler ev);
+
+		public void UpdateValidImage()
+		{
+			img.Visibility = System.Windows.Visibility.Hidden;
+			img.Source = validImage;
+			img.Source = invalidImage;
+			if (IsValid) img.Source = validImage;
+			else img.Source = invalidImage;
+			img.Visibility = System.Windows.Visibility.Visible;
+
+		}
 	}
 }

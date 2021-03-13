@@ -25,7 +25,7 @@ namespace A2_Project
 		// The name of the currently logged in user
 		public string CurrentUser { get; set; }
 
-		private readonly Database db;
+		private Database db;
 
 		// The content windows used for displaying things inside the main window
 		private RegStaff regWindow;
@@ -47,13 +47,9 @@ namespace A2_Project
 		{
 			InitializeComponent();
 
-			db = new Database();
-
-			// Lets the user know if there is an error connecting to the database
-			if (db.Connect()) DBMethods.DBAccess.Db = db;
-			else MessageBox.Show("Database Connection Unsuccessful.", "Error");
-
-			DBObjects.DB.Initialise();
+			//Thread initDBThread = new Thread(InitialiseDBConnection);
+			//initDBThread.Start();
+			InitialiseDBConnection();
 
 			grdButtons = grdMenuButtons.Children.OfType<Grid>().ToArray();
 			// DEBUG: Allows easy access to the content windows. Currently in place to make testing easier
@@ -80,6 +76,20 @@ namespace A2_Project
 			// Tries to get the user to log in
 			loginWindow = new Login();
 			lblContents.Content = loginWindow.Content;
+		}
+
+		private void InitialiseDBConnection()
+		{
+			db = new Database();
+
+			if (db.Connect())
+			{
+				DBMethods.DBAccess.Db = db;
+			}
+			// Lets the user know if there is an error connecting to the database
+			else MessageBox.Show("Database Connection Unsuccessful.", "Error");
+
+			DBObjects.DB.Initialise();
 		}
 
 		private void GrdHighlight_MouseDown(object sender, MouseButtonEventArgs e)

@@ -185,7 +185,7 @@ namespace A2_Project.DBMethods
 
 			price += Convert.ToDouble(appTypeData[Convert.ToInt32(data[0])][2]);
 			if (data[1] == "True") price += 10;
-			if (MiscRequests.IsAppointmentInitial(data[3])) price += 5;
+			if (MiscRequests.IsAppointmentInitial(data)) price += 5;
 			price *= (100.0 - GetBookingDiscount(data[2])) / 100.0;
 
 			return price;
