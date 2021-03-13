@@ -160,7 +160,7 @@ namespace A2_Project.DBMethods
 					"ELSE 0 " +
 				"END, " +
 				"CASE " +
-					"WHEN [Includes Nail And Teeth] = 'True' THEN 10 " +
+					"WHEN [Nails And Teeth] = 'True' THEN 10 " +
 					"ELSE 0 " +
 				"END " +
 				$"FROM [Appointment] WHERE [Is Paid] = 1 AND [Appointment Date] BETWEEN '{startDate.AddMonths(i):yyyy-MM-dd}' AND '{startDate.AddMonths(i + 1):yyyy-MM-dd}';";
@@ -232,7 +232,7 @@ namespace A2_Project.DBMethods
 				"ELSE 0 " +
 			"END, " +
 			"CASE " +
-				"WHEN [Includes Nail And Teeth] = 'True' THEN 10 " +
+				"WHEN [Nails And Teeth] = 'True' THEN 10 " +
 				"ELSE 0 " +
 			"END " +
 			$"FROM [Appointment] WHERE [Is Paid] = 1 AND [Appointment Date] BETWEEN '{minDate:yyyy-MM-dd}' AND '{maxDate:yyyy-MM-dd}';";
