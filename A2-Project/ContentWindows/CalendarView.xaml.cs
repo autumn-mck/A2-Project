@@ -18,7 +18,8 @@ namespace A2_Project.ContentWindows
 	{
 		// The hour of the day work starts at (e.g. 9 being 9:00)
 		private const double dayStartTime = 8;
-		private const double dayEndTime = 19; 
+		private const double dayEndTime = 19;
+
 		// How much extra space there should be between days (e.g. 1.3 being 30% the width of 1 day)
 		private const double spaceBetweenDays = 1.3;
 		// The number of rooms available (Assuming room IDs start at 0 and count up by 1)
@@ -38,6 +39,7 @@ namespace A2_Project.ContentWindows
 
 		// Is the mouse currently held down?
 		private bool mouseDown = false;
+
 		// The currently selected element to be moved with the mouse
 		private FrameworkElement currentlySelected;
 
@@ -69,8 +71,11 @@ namespace A2_Project.ContentWindows
 
 		private string[] dataToBeSelected = null;
 
+		public List<BookingCreator> BookingParts { get; set; }
+
 		public CalandarView()
 		{
+			BookingParts = new List<BookingCreator>();
 			// Get the number of rooms
 			appRoomCount = Convert.ToInt32(DBMethods.MiscRequests.GetMinKeyNotUsed("Grooming Room", "Grooming Room ID"));
 			// For now, filtering by staff is default
@@ -90,6 +95,9 @@ namespace A2_Project.ContentWindows
 			};
 
 			InitializeComponent();
+
+			stpBookDogID.Children.Add(UIMethods.GenAppropriateElement(columns[1], out _, false, true));
+			stpBookStaffID.Children.Add(UIMethods.GenAppropriateElement(columns[1], out _, false, true));
 
 			// Start the thread for moving the selected element to the mouse when needed
 			Thread loopThread = new Thread(Loop);
@@ -137,14 +145,27 @@ namespace A2_Project.ContentWindows
 			grdFindAppt.MouseLeave += GrdFindAppt_MouseLeave;
 			grdFindAppt.MouseDown += GrdFindAppt_MouseDown;
 
+			string bookingID = DBMethods.MiscRequests.GetMinKeyNotUsed("Booking", "Booking ID");
+			lblNewBookingID.Content = $"Booking ID: {bookingID}";
+			BookingParts.Add(new BookingCreator(this, bookingID, GetBookingDogID(), GetBookingStaffID()));
+			stpBookingManager.Children.Add(BookingParts[0]);
+
 			// Start the process of adding the key for the appointment view
 			AddKey();
 		}
 
 		private void GrdFindAppt_MouseDown(object sender, MouseButtonEventArgs e)
 		{
-			selSpecificAppWindow = new ItemSelectionWindow(this, "Appointment");
-			selSpecificAppWindow.Show();
+			if (selSpecificAppWindow is null) selSpecificAppWindow = new ItemSelectionWindow(this, "Appointment");
+			try
+			{
+				selSpecificAppWindow.Show();
+			}
+			catch
+			{
+				selSpecificAppWindow = new ItemSelectionWindow(this, "Appointment");
+				selSpecificAppWindow.Show();
+			}
 		}
 
 		private void GrdFindAppt_MouseLeave(object sender, MouseEventArgs e)
@@ -301,9 +322,9 @@ namespace A2_Project.ContentWindows
 			IEnumerable<Rectangle> rects = grdResults.Children.OfType<Rectangle>();
 			foreach (Rectangle r in rects)
 			{
-				string[] tag = (string[])r.Tag;
-				if (tag is null) continue;
-				r.Fill = GetColourForRect(tag);
+				string[] data = GetDataTag(r);
+				if (data is null) continue;
+				r.Fill = GetColourForRect(data);
 			}
 		}
 
@@ -342,23 +363,49 @@ namespace A2_Project.ContentWindows
 					{
 						Point mousePos = Mouse.GetPosition(parent);
 
-						GetNewMargin(elem, mousePos, out Thickness newMargin, out int roomID, out int dDiff);
-						
-						// If the element should be moved
-						if (newMargin != elem.Margin)
+						bool shouldSnapToGrid = false;
+						object tag = elem.Tag;
+						if (tag is BookingCreator booking)
 						{
-							string[] data = (string[])elem.Tag;
-							DateTime day = GetStartOfWeek().AddDays(dDiff);
-							TimeSpan appStart = TimeSpan.FromHours(dayStartTime - 1 + newMargin.Top / hourHeight);
-							bool doesClash = DBMethods.MiscRequests.DoesAppointmentClash(data, roomID, day, appStart);
+							shouldSnapToGrid = parent == grdResults;
+						}
+						else shouldSnapToGrid = true;
 
-							int appLength = DBMethods.MiscRequests.GetAppLength((string[])elem.Tag);
+
+						if (shouldSnapToGrid)
+						{
+							SnapMarginToGrid(elem, mousePos, out Thickness newMargin, out int roomID, out int dDiff);
+
+							// Allow the selected week to be changed if the currently selected element is moved to either side of the grid
+							if (mousePos.X > dayWidth * spaceBetweenDays * 6 + dayWidth && !hasMoved)
+							{
+								datePicker.SelectedDate = datePicker.SelectedDate.Value.AddDays(7);
+								hasMoved = true;
+							}
+							else if (mousePos.X < 0 && !hasMoved)
+							{
+								datePicker.SelectedDate = datePicker.SelectedDate.Value.AddDays(-7);
+								hasMoved = true;
+							}
+							else if (mousePos.X > 0 && mousePos.X < dayWidth * spaceBetweenDays * 6 + dayWidth) hasMoved = false;
+
+							// If the element should be moved
+							if (newMargin != elem.Margin)
+							{
+								DateTime day = GetStartOfWeek().AddDays(dDiff);
+								TimeSpan appStart = TimeSpan.FromHours(dayStartTime - 1 + newMargin.Top / hourHeight);
+
+								string[] data = GetDataTag(elem);
+
+								bool doesClash = DBMethods.MiscRequests.DoesAppointmentClash(data, roomID, day, appStart, BookingParts);
+
+								int appLength = DBMethods.MiscRequests.GetAppLength(data);
 
 								if (doesClash)
 								{
 									TimeSpan oldStart = TimeSpan.FromHours(dayStartTime - 1 + elem.Margin.Top / hourHeight);
 
-									if (!DBMethods.MiscRequests.DoesAppointmentClash(data, roomID, day, oldStart))
+									if (!DBMethods.MiscRequests.DoesAppointmentClash(data, roomID, day, oldStart, BookingParts))
 									{
 										elem.Margin = new Thickness(dDiff * dayWidth * spaceBetweenDays + roomID * dayWidth / appRoomCount, elem.Margin.Top, 0, 0);
 									}
@@ -371,7 +418,7 @@ namespace A2_Project.ContentWindows
 										count += direction;
 										TimeSpan toCheck = oldStart.Add(TimeSpan.FromMinutes(count * 15));
 										if (toCheck.TotalHours > 18 || toCheck.TotalHours < 9) break;
-										bool doesNewClash = DBMethods.MiscRequests.DoesAppointmentClash(data, roomID, day, toCheck);
+										bool doesNewClash = DBMethods.MiscRequests.DoesAppointmentClash(data, roomID, day, toCheck, BookingParts);
 										if (!doesNewClash)
 										{
 											TimeSpan halfway = oldStart.Add(TimeSpan.FromMinutes((count * 15 + appLength) / 2));
@@ -392,14 +439,46 @@ namespace A2_Project.ContentWindows
 
 								}
 								else elem.Margin = newMargin;
+							}
 						}
+						else
+						{
+							elem.Margin = new Thickness(mousePos.X - elem.Width / 2, mousePos.Y - elem.Height / 2, 0, 0);
+						}
+
 					}
 				});
 				Thread.Sleep(10);
 			}
 		}
 
-		private void GetNewMargin(FrameworkElement elem, Point mousePos, out Thickness newMargin, out int roomID, out int dDiff)
+		internal void CancelBooking(string[] vs)
+		{
+			if (currentlySelected.Tag is BookingCreator)
+			{
+				BookingCreator[] bookings = BookingParts.ToArray();
+				foreach (BookingCreator b in bookings)
+				{
+					DeleteBookingPart(b);
+				}
+			}
+			else
+			{
+				string bookingID = vs[4];
+				string[][] appts = DBMethods.MiscRequests.GetByColumnData("Appointment", "Booking ID", bookingID).Select(x => x.ToArray()).ToArray();
+				foreach (string[] app in appts)
+				{
+					Rectangle rect = grdResults.Children.OfType<Rectangle>().Where(r => r.Tag is string[] appData && appData[0] == app[0]).FirstOrDefault();
+					if (rect is not null)
+					{
+						grdResults.Children.Remove(rect);
+					}
+					DBMethods.MiscRequests.UpdateColumn("Appointment", "True", "Is Cancelled", "Appointment ID", app[0]);
+				}
+			}
+		}
+
+		private void SnapMarginToGrid(FrameworkElement elem, Point mousePos, out Thickness newMargin, out int roomID, out int dDiff)
 		{
 			Point diff = (Point)(mousePos - diffMouseAndElem);
 
@@ -431,24 +510,24 @@ namespace A2_Project.ContentWindows
 				roomID = (int)roomIDOffset;
 			}
 
-			// Allow the selected week to be changed if the currently selected element is moved to either side of the grid
-			if (mousePos.X > dayWidth * spaceBetweenDays * 6 + dayWidth && !hasMoved)
-			{
-				datePicker.SelectedDate = datePicker.SelectedDate.Value.AddDays(7);
-				hasMoved = true;
-			}
-			else if (mousePos.X < 0 && !hasMoved)
-			{
-				datePicker.SelectedDate = datePicker.SelectedDate.Value.AddDays(-7);
-				hasMoved = true;
-			}
-			else if (mousePos.X > 0 && mousePos.X < dayWidth * spaceBetweenDays * 6 + dayWidth) hasMoved = false;
-
 			// 'Snap' the appointment to a grid to represent where it should be
 			newMargin = new Thickness(dDiff * dayWidth * spaceBetweenDays + roomID * dayWidth / appRoomCount, midTop - midTop % ySnap, 0, 0);
 
 			newMargin.Top = Math.Max(hourHeight, newMargin.Top);
 			newMargin.Top = Math.Min((dayEndTime + 1 - dayStartTime) * hourHeight - elem.Height, newMargin.Top);
+		}
+
+		private string[] GetDataTag(FrameworkElement r)
+		{
+			if (r.Tag is string[] strArr) return strArr;
+			else if (r.Tag is BookingCreator booking)
+			{
+				if (r.Name.Length < 2)
+					throw new NotImplementedException();
+				return booking.GetData()[Convert.ToInt32(r.Name.Substring(1))];
+			}
+			else if (r.Tag is null) return null;
+			else throw new NotImplementedException();
 		}
 
 		/// <summary>
@@ -488,12 +567,13 @@ namespace A2_Project.ContentWindows
 						StrokeThickness = rect.StrokeThickness * 2,
 						Tag = rect.Tag,
 						VerticalAlignment = rect.VerticalAlignment,
-						HorizontalAlignment = rect.HorizontalAlignment
+						HorizontalAlignment = rect.HorizontalAlignment,
+						Name = rect.Name
 					};
 
 					// The new rectangle should be displayed over the hour line markings for now
 					Panel.SetZIndex(newRect, 1);
-					editingSidebar.ChangeSelectedData((string[])rect.Tag);
+					editingSidebar.ChangeSelectedData(GetDataTag(rect));
 
 					newRect.MouseDown += Rectangle_MouseDown;
 					newRect.MouseUp += RctRect_MouseUp;
@@ -514,6 +594,7 @@ namespace A2_Project.ContentWindows
 		/// </summary>
 		private void RctRect_MouseUp(object sender, MouseButtonEventArgs e)
 		{
+			// TODO: Probably not still needed?
 			if (sender != currentlySelected) return;
 
 			if (sender is FrameworkElement f)
@@ -524,8 +605,15 @@ namespace A2_Project.ContentWindows
 
 		private void UpdateAfterMouseUp(FrameworkElement f)
 		{
+			SwitchToEditing();
 			mouseDown = false;
 			Panel.SetZIndex(f, 0);
+
+			if (f.Margin.Top % (hourHeight / 4) != 0)
+			{
+				SnapMarginToGrid(f, Mouse.GetPosition((UIElement)f.Parent), out Thickness newMargin, out _, out _);
+				f.Margin = newMargin;
+			}
 
 			// Get the middle of the selected element
 			double midLeft = f.Margin.Left + f.Width / 2;
@@ -539,17 +627,30 @@ namespace A2_Project.ContentWindows
 			DateTime startOfWeek = GetStartOfWeek();
 			DateTime appDate = startOfWeek.AddDays(dDiff);
 			// Save the user's changes to the database
-			string appID = ((string[])f.Tag)[0];
-			DBMethods.MiscRequests.UpdateColumn(tableName, appDate.ToString("yyyy-MM-dd"), "Appointment Date", idColumnName, appID);
+			string appID = GetDataTag(f)[0];
 
 			TimeSpan t = TimeSpan.FromHours(dayStartTime - 1 + f.Margin.Top / hourHeight);
-			DBMethods.MiscRequests.UpdateColumn(tableName, t.ToString("hh\\:mm"), "Appointment Time", idColumnName, appID);
 
-			DBMethods.MiscRequests.UpdateColumn(tableName, roomID.ToString(), "Grooming Room ID", idColumnName, appID);
+			if (f.Tag is string[])
+			{
+				DBMethods.MiscRequests.UpdateColumn(tableName, appDate.ToString("yyyy-MM-dd"), "Appointment Date", idColumnName, appID);
+				DBMethods.MiscRequests.UpdateColumn(tableName, t.ToString("hh\\:mm"), "Appointment Time", idColumnName, appID);
+				DBMethods.MiscRequests.UpdateColumn(tableName, roomID.ToString(), "Grooming Room ID", idColumnName, appID);
 
-			string[] newData = DBMethods.MiscRequests.GetByColumnData(tableName, idColumnName, appID, columns.Select(x => x.Name).ToArray())[0].ToArray();
-			f.Tag = newData;
-			editingSidebar.ChangeSelectedData(newData);
+				string[] newData = DBMethods.MiscRequests.GetByColumnData(tableName, idColumnName, appID, columns.Select(x => x.Name).ToArray())[0].ToArray();
+				f.Tag = newData;
+				editingSidebar.ChangeSelectedData(newData);
+			}
+			else if (f.Tag is BookingCreator booking)
+			{
+				string[] data = GetDataTag(f);
+				data[5] = roomID.ToString();
+				data[9] = appDate.ToString("yyyy-MM-dd");
+				data[10] = t.ToString("hh\\:mm");
+				booking.SetData(data, f.Name.Substring(1));
+				editingSidebar.ChangeSelectedData(data);
+			}
+			else throw new NotImplementedException();
 		}
 
 		/// <summary>
@@ -572,7 +673,7 @@ namespace A2_Project.ContentWindows
 			labelElements.Clear();
 
 			// If something is currently selected and the mouse is down, the selected element should be carried over to the next week
-			if (!(currentlySelected is null) && mouseDown)
+			if (currentlySelected is not null && mouseDown)
 			{
 				// TODO: For now, this just adds it in the same position it was in before. Is there anything I can do about this?
 				grdResults.Children.Add(currentlySelected);
@@ -649,6 +750,21 @@ namespace A2_Project.ContentWindows
 					GenRectFromData(ls.ToArray());
 				}
 			}
+
+			foreach (BookingCreator booking in BookingParts)
+			{
+				List<string[]> bkData = booking.GetData();
+				for (int i = 0; i < bkData.Count; i++)
+				{
+					string[] bk = bkData[i];
+					DateTime bkDate = DateTime.Parse(bk[9]).Date;
+					if (bkDate >= GetStartOfWeek() && bkDate <= GetStartOfWeek().AddDays(7))
+					{
+						Rectangle r = GenRectFromData(bk, "r" + i.ToString());
+						if (r is not null) r.Tag = booking;
+					}
+				}
+			}
 		}
 
 		/// <summary>
@@ -665,19 +781,37 @@ namespace A2_Project.ContentWindows
 		/// </summary>
 		public void UpdateFromSidebar(string[] data, bool isNew)
 		{
-			if (!isNew)
+			if (DBMethods.MiscRequests.DoesAppointmentClash(data, BookingParts)) throw new NotImplementedException();
+			if (currentlySelected.Tag is string[])
 			{
-				Rectangle r = grdResults.Children.OfType<Rectangle>().Where(r => !(r.Tag is null) && ((string[])r.Tag)[0] == data[0]).First();
-				grdResults.Children.Remove(r);
+				if (!isNew)
+				{
+					Rectangle r = grdResults.Children.OfType<Rectangle>().Where(r => !(r.Tag is null) && GetDataTag(r)[0] == data[0]).First();
+					grdResults.Children.Remove(r);
+				}
+				GenRectFromData(data);
+				DBMethods.DBAccess.UpdateTable(tableName, columns.Select(x => x.Name).ToArray(), data, isNew);
 			}
-			GenRectFromData(data);
-			DBMethods.DBAccess.UpdateTable(tableName, columns.Select(x => x.Name).ToArray(), data, isNew);
+			else if (currentlySelected.Tag is BookingCreator booking)
+			{
+				booking.SetData(data, currentlySelected.Name.Substring(1));
+				Rectangle r = grdResults.Children.OfType<Rectangle>().Where(r => !(r.Tag is null) && GetDataTag(r)[0] == data[0]).First();
+				grdResults.Children.Remove(r);
+				r = GenRectFromData(data, "r" + currentlySelected.Name.Substring(1));
+				r.Tag = booking;
+			}
+			else throw new NotImplementedException();
 		}
 
 		internal void CancelApp()
 		{
-			// TODO: Should the appointment be deleted, or just cancelled?
-			string[] data = (string[])currentlySelected.Tag;
+			if (currentlySelected.Tag is BookingCreator booking)
+			{
+				DeleteBookingPart(booking);
+				return;
+			}
+
+			string[] data = GetDataTag(currentlySelected);
 			DBMethods.MiscRequests.DeleteItem(tableName, columns[0].Name, data[0].ToString());
 			grdResults.Children.Remove(currentlySelected);
 		}
@@ -685,10 +819,13 @@ namespace A2_Project.ContentWindows
 		/// <summary>
 		/// Generate a rectangle from the passed in data
 		/// </summary>
-		private void GenRectFromData(string[] data)
+		private Rectangle GenRectFromData(string[] data, string name = null)
 		{
+			if (data is null) return null;
 			// Do not generate rectangles for cancelled appointments
-			if (data[7] == "True") return;
+			if (data[7] == "True") return null;
+			if (data[9] == "" || data[10] == "") return null;
+
 
 			int roomID = Convert.ToInt32(data[5]);
 			int typeID = Convert.ToInt32(data[2]);
@@ -709,7 +846,8 @@ namespace A2_Project.ContentWindows
 				StrokeThickness = 1,
 				Tag = data,
 				VerticalAlignment = VerticalAlignment.Top,
-				HorizontalAlignment = HorizontalAlignment.Left
+				HorizontalAlignment = HorizontalAlignment.Left,
+				Name = name
 			};
 
 			if (currentlySelected is not null && currentlySelected.Tag == data)
@@ -721,7 +859,7 @@ namespace A2_Project.ContentWindows
 
 			if (dataToBeSelected is not null)
 			{
-				if (currentlySelected is null || ((string[])currentlySelected.Tag)[0] != dataToBeSelected[0])
+				if (currentlySelected is null || (GetDataTag(currentlySelected)[0] != dataToBeSelected[0]))
 				{
 					if (dataToBeSelected[0] == data[0])
 					{
@@ -733,7 +871,7 @@ namespace A2_Project.ContentWindows
 				}
 			}
 
-			if (currentlySelected is not null && data[0] == ((string[])currentlySelected.Tag)[0])
+			if (currentlySelected is not null && data[0] == GetDataTag(currentlySelected)[0])
 			{
 				currentlySelected = newRect;
 				newRect.Stroke = Brushes.AliceBlue;
@@ -743,6 +881,7 @@ namespace A2_Project.ContentWindows
 			newRect.MouseDown += Rectangle_MouseDown;
 			newRect.MouseUp += RctRect_MouseUp;
 			grdResults.Children.Add(newRect);
+			return newRect;
 		}
 
 		/// <summary>
@@ -765,10 +904,16 @@ namespace A2_Project.ContentWindows
 
 		private void LblEdit_MouseDown(object sender, MouseButtonEventArgs e)
 		{
+			SwitchToEditing();
+		}
+
+		private void SwitchToEditing()
+		{
 			SelectLbl(lblEditBtn);
 			DeselectLbl(lblBookBtn);
 
 			grdEditingSidebar.Visibility = Visibility.Visible;
+			grdBookingSidebar.Visibility = Visibility.Collapsed;
 		}
 
 		private void LblBook_MouseDown(object sender, MouseButtonEventArgs e)
@@ -777,20 +922,130 @@ namespace A2_Project.ContentWindows
 			DeselectLbl(lblEditBtn);
 
 			grdEditingSidebar.Visibility = Visibility.Collapsed;
+			grdBookingSidebar.Visibility = Visibility.Visible;
 		}
 
 		private static void SelectLbl(Label l)
 		{
-			l.Width = 400;
+			l.Width = 420;
 			l.Background = new SolidColorBrush(Color.FromRgb(64, 64, 64));
 			l.Foreground = new SolidColorBrush(Color.FromRgb(241, 241, 241));
 		}
 
 		private static void DeselectLbl(Label l)
 		{
-			l.Width = 200;
+			l.Width = 220;
 			l.Background = new SolidColorBrush(Color.FromRgb(37, 37, 37));
 			l.Foreground = new SolidColorBrush(Color.FromRgb(213, 213, 213));
+		}
+
+		private void LblAddBookingPart_MouseDown(object sender, MouseButtonEventArgs e)
+		{
+			BookingCreator b = new BookingCreator(this, GetNewBookingID(), GetBookingDogID(), GetBookingStaffID());
+			stpBookingManager.Children.Add(b);
+			BookingParts.Add(b);
+		}
+
+		internal void DeleteBookingPart(BookingCreator bookingCreator)
+		{
+			BookingParts.Remove(bookingCreator);
+			stpBookingManager.Children.Remove(bookingCreator);
+			List<Rectangle> rcts = grdResults.Children.OfType<Rectangle>().Where(r => r.Tag == bookingCreator).ToList();
+			foreach (Rectangle r in rcts)
+			{
+				grdResults.Children.Remove(r);
+			}
+			bookingCreator = null;
+		}
+
+		internal void StartBookAppt(Rectangle sender)
+		{
+			hasMoved = true;
+			grd.Children.Add(sender);
+			SelectNewRect(sender);
+			diffMouseAndElem = new Point(currentlySelected.Width / 2, currentlySelected.Height / 2);
+
+			//currentlySelected = sender;
+			mouseDown = true;
+			grdResults.MouseEnter += GrdResults_MouseEnter;
+			currentlySelected.IsHitTestVisible = false;
+		}
+
+		private void GrdResults_MouseEnter(object sender, MouseEventArgs e)
+		{
+			Rectangle r = (Rectangle)currentlySelected;
+			//r.Stroke = Brushes.AliceBlue;
+			//r.StrokeThickness *= 2;
+
+			grdResults.MouseEnter -= GrdResults_MouseEnter;
+			r.IsHitTestVisible = true;
+			r.MouseDown += Rectangle_MouseDown;
+			grd.Children.Remove(r);
+			grdResults.Children.Add(r);
+			((BookingCreator)r.Tag).IsAdded = true;
+			SwitchToEditing();
+		}
+
+		private void BtnConfirmBooking_Click(object sender, RoutedEventArgs e)
+		{
+			string[] bookingColumns = DBObjects.DB.Tables.Where(t => t.Name == "Booking").First().Columns.Select(x => x.Name).ToArray();
+			string[] bookingData = new string[] { GetNewBookingID(), DateTime.Now.Date.ToString("yyyy-MM-dd") };
+			DBMethods.DBAccess.UpdateTable("Booking", bookingColumns, bookingData, true);
+
+			foreach (BookingCreator booking in BookingParts)
+			{
+				if (booking.IsAdded)
+				{
+					List<string[]> bkData = booking.GetData();
+					foreach (string[] bk in bkData)
+					{
+						DBMethods.DBAccess.UpdateTable("Appointment", columns.Select(c => c.Name).ToArray(), bk, true);
+						Rectangle rect = grdResults.Children.OfType<Rectangle>().Where(r => r.Name is not null && r.Name != "" && bkData[Convert.ToInt32(r.Name.Substring(1))] == bk).FirstOrDefault();
+						if (rect is not null) rect.Tag = bk;
+					}
+				}
+			}
+
+			lblNewBookingID.Content = $"Booking ID: {DBMethods.MiscRequests.GetMinKeyNotUsed("Booking", "Booking ID")}";
+			stpBookingManager.Children.Clear();
+			BookingParts = new List<BookingCreator>();
+		}
+
+		public string GetNewBookingID()
+		{
+			return lblNewBookingID.Content.ToString().Substring(11);
+		}
+
+		public string GetBookingDogID()
+		{
+			return stpBookDogID.Children.OfType<ValidatedItem>().First().Text;
+		}
+
+		public string GetBookingStaffID()
+		{
+			return stpBookStaffID.Children.OfType<ValidatedItem>().First().Text;
+		}
+
+		public DateTime GetSelDate()
+		{
+			return datePicker.SelectedDate.Value;
+		}
+
+		public void RemoveRectsWithTag(object o)
+		{
+			Rectangle[] rects = grdResults.Children.OfType<Rectangle>().Where(r => r.Tag == o).ToArray();
+			foreach (Rectangle r in rects) grdResults.Children.Remove(r);
+		}
+
+		public void RepBookingChanged(BookingCreator sender)
+		{
+			RemoveRectsWithTag(sender);
+			List<string[]> appData = sender.GetData();
+			for (int i = 0; i < appData.Count; i++)
+			{
+				Rectangle r = GenRectFromData(appData[i], "r" + i.ToString());
+				r.Tag = sender;
+			}
 		}
 	}
 }

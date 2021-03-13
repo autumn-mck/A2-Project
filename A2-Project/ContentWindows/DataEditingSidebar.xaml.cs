@@ -13,13 +13,14 @@ namespace A2_Project.ContentWindows
 	/// </summary>
 	public partial class DataEditingSidebar : Window
 	{
-		private readonly Window containingWindow;
+		private readonly object container;
 		private FrameworkElement[] displayElements;
 		// TODO: What is this for?
 		private FrameworkElement[] labelElements;
 		private readonly DBObjects.Column[] columns;
 		private string[] selectedData;
 		private readonly string tableName;
+		private Label lblIsAppInitial;
 
 		private TextBlock tbcErr1;
 		private TextBlock tbcErr2;
@@ -27,11 +28,11 @@ namespace A2_Project.ContentWindows
 		Grid grdEditMode;
 		Grid grdAddMode;
 
-		public DataEditingSidebar(DBObjects.Column[] _columns, string _tableName, Window _containingWindow, bool canAddOrDelete = true)
+		public DataEditingSidebar(DBObjects.Column[] _columns, string _tableName, object _container, bool canAddOrDelete = true)
 		{
 			columns = _columns;
 			tableName = _tableName;
-			containingWindow = _containingWindow;
+			container = _container;
 
 			tbcErr1 = new TextBlock()
 			{
@@ -47,34 +48,36 @@ namespace A2_Project.ContentWindows
 
 		private void UpdateToOwner(string[] data, bool isNew)
 		{
-			if (containingWindow is ContactManagement contact)
+			if (container is ContactManagement contact)
 			{
 				contact.UpdateFromSidebar(data, isNew);
 			}
-			else if (containingWindow is CalandarView calandar)
+			else if (container is CalandarView calandar)
 			{
 				calandar.UpdateFromSidebar(data, isNew);
 			}
-			else if (containingWindow is ClientManagement cliMan)
+			else if (container is ClientManagement cliMan)
 			{
 				cliMan.UpdateFromSidebar(data, isNew);
 			}
+			else throw new NotImplementedException();
 		}
 
 		private void DeleteItemOwner()
 		{
-			if (containingWindow is ContactManagement contactManagement)
+			if (container is ContactManagement contactManagement)
 			{
 				contactManagement.DeleteItem();
 			}
-			else if (containingWindow is CalandarView calanderView)
+			else if (container is CalandarView calanderView)
 			{
 				calanderView.CancelApp();
 			}
-			else if (containingWindow is ClientManagement cliMan)
+			else if (container is ClientManagement cliMan)
 			{
 				cliMan.DeleteItem();
 			}
+			else throw new NotImplementedException();
 		}
 
 		/// <summary>
@@ -88,8 +91,25 @@ namespace A2_Project.ContentWindows
 			{
 				if (displayElements[i] is ValidatedItem item)
 				{
-					isAllValid = isAllValid && item.IsValid;
-					continue;
+					bool isItemValid = item.IsValid;
+
+					try
+					{
+						if (!isItemValid && container is CalandarView cal && item.Column.Name == "Booking ID")
+						{
+							if (DBMethods.MiscRequests.IsPKeyFree("Appointment", "Appointment ID", ((Label)displayElements[0]).Content.ToString()))
+							{
+								if (Convert.ToInt32(item.Text) == Convert.ToInt32(cal.GetNewBookingID()))
+								{
+									item.IsValid = true;
+									isItemValid = true;
+									continue;
+								}
+							}
+						}
+					}
+					catch { }
+					isAllValid = isAllValid && isItemValid;
 				}
 			}
 			UpdateErrorMessages();
@@ -113,6 +133,22 @@ namespace A2_Project.ContentWindows
 				{
 					if (item.IsValid) continue;
 					instErr = item.ErrorMessage;
+
+					try
+					{
+						if (container is CalandarView cal && item.Column.Name == "Booking ID")
+						{
+							if (DBMethods.MiscRequests.IsPKeyFree("Appointment", "Appointment ID", ((Label)displayElements[0]).Content.ToString()))
+							{
+								if (Convert.ToInt32(item.Text) == Convert.ToInt32(cal.GetNewBookingID()))
+								{
+									item.IsValid = true;
+									continue;
+								}
+							}
+						}
+					}
+					catch { }
 				}
 				// Allows the error messages to be readable when there are more than 6 of them by dividing them into 2 columns
 				if (errCol1.Count(x => x == '\n') < 6) errCol1 += instErr;
@@ -120,6 +156,22 @@ namespace A2_Project.ContentWindows
 			}
 			tbcErr1.Text = errCol1;
 			tbcErr2.Text = errCol2;
+		}
+
+		internal string[] GetData()
+		{
+			List<string> data = new List<string>();
+
+			foreach (FrameworkElement elem in displayElements)
+			{
+				if (elem is Label lbl) data.Add(lbl.Content.ToString());
+				else if (elem is ValidatedItem valItem) data.Add(valItem.Text);
+				else if (elem is ComboBox cbxCombo) data.Add(cbxCombo.Text);
+				else if (elem is CheckBox cbxCheck) data.Add(cbxCheck.IsChecked.Value ? "True" : "False");
+				else throw new NotImplementedException();
+			}
+
+			return data.ToArray();
 		}
 
 		/// <summary>
@@ -158,8 +210,6 @@ namespace A2_Project.ContentWindows
 			}
 		}
 
-		
-
 		/// <summary>
 		/// Move from add mode to edit mode
 		/// </summary>
@@ -196,6 +246,7 @@ namespace A2_Project.ContentWindows
 		{
 			if (data != null)
 				selectedData = data;
+
 			for (int i = 0; i < selectedData.Length; i++)
 			{
 				if (displayElements[i] is Label l) l.Content = selectedData[i];
@@ -204,6 +255,8 @@ namespace A2_Project.ContentWindows
 				else if (displayElements[i] is CheckBox c) c.IsChecked = selectedData[i] == "True";
 				else if (displayElements[i] is ValidatedDatePicker cDP) cDP.SelectedDate = DateTime.Parse(selectedData[i]);
 			}
+
+			CheckIsInitialApp();
 		}
 
 		#region Programmatic UI Generation
@@ -260,6 +313,11 @@ namespace A2_Project.ContentWindows
 				if (elem is ValidatedItem v)
 				{
 					v.AddTextChangedEvent(UpdateErrorEvent);
+				}
+
+				if (elem is ValidatedTextbox tbx && tableName == "Appointment" && columns[i].Name == "Dog ID")
+				{
+					tbx.AddTextChangedEvent(TbxDogId_TextChanged);
 				}
 				
 				displayElements[i] = elem;
@@ -336,6 +394,31 @@ namespace A2_Project.ContentWindows
 			grdEditMode.Children.Add(btnSave);
 			grdEditMode.Children.Add(btnRevert);
 
+			lblIsAppInitial = new Label()
+			{
+				Content = "Note: This is this dog's first appointment,\nso it will take an extra 15 minutes.",
+				Visibility = Visibility.Collapsed
+			};
+			stp.Children.Add(lblIsAppInitial);
+
+			if (tableName == "Appointment")
+			{
+				Button btnCancelApp = new Button()
+				{
+					Content = "Cancel Appt.",
+					Margin = new Thickness(0, 45, 0, 0)
+				};
+				Button btnCancelBooking = new Button()
+				{
+					Content = "Cancel Booking",
+					Margin = new Thickness(180, 45, 0, 0)
+				};
+				btnCancelApp.Click += BtnCancelApp_Click;
+				btnCancelBooking.Click += BtnCancelBooking_Click;
+				grdEditMode.Children.Add(btnCancelApp);
+				grdEditMode.Children.Add(btnCancelBooking);
+			}
+
 			if (canAddOrDelete)
 			{
 				grdEditMode.Children.Add(btnAddNew);
@@ -360,6 +443,34 @@ namespace A2_Project.ContentWindows
 			grdAddMode.Children.Add(btnCancelAddition);
 		}
 
+		private void BtnCancelBooking_Click(object sender, RoutedEventArgs e)
+		{
+			if (container is CalandarView cal) cal.CancelBooking(GetData());
+			else throw new NotImplementedException();
+			EmptySidebar();
+		}
+
+		private void BtnCancelApp_Click(object sender, RoutedEventArgs e)
+		{
+			CheckBox cbx = (CheckBox)displayElements[7];
+			cbx.IsChecked = true;
+			SaveChanges(null);
+			EmptySidebar();
+		}
+
+		public void EmptySidebar()
+		{
+			foreach (FrameworkElement elem in displayElements)
+			{
+				if (elem is ValidatedItem validItem) validItem.Text = "";
+				else if (elem is ComboBox combo) combo.SelectedIndex = -1;
+				else if (elem is CheckBox check) check.IsChecked = false;
+				else if (elem is Label lbl) lbl.Content = "";
+				else throw new NotImplementedException();
+			}
+			GetData();
+		}
+
 		private void BtnDeleteItem_Click(object sender, RoutedEventArgs e)
 		{
 			DeleteItemOwner();
@@ -370,12 +481,16 @@ namespace A2_Project.ContentWindows
 		/// <summary>
 		/// Saves the users changes or adds the item to the database if it does not yet exist
 		/// </summary>
-		private async void BtnSave_Click(object sender, RoutedEventArgs e)
+		private void BtnSave_Click(object sender, RoutedEventArgs e)
+		{
+			SaveChanges((Button)sender);
+		}
+
+		private async void SaveChanges(Button b)
 		{
 			// Checks if the entered data is valid before allowing the user to make changes
 			if (IsValid())
 			{
-				Button b = (Button)sender;
 
 				// Moves the data entered into the text boxes to an array
 				for (int i = 0; i < selectedData.Length; i++)
@@ -384,7 +499,7 @@ namespace A2_Project.ContentWindows
 					else if (displayElements[i] is ValidatedTextbox tbx) selectedData[i] = tbx.Text;
 					else if (displayElements[i] is ComboBox cmb) selectedData[i] = cmb.SelectedIndex.ToString();
 					else if (displayElements[i] is CheckBox c) selectedData[i] = c.IsChecked.ToString();
-					else if (displayElements[i] is ValidatedDatePicker d) selectedData[i] = ((DateTime)d.SelectedDate).ToString("dd/MM/yyyy");
+					else if (displayElements[i] is ValidatedDatePicker d) selectedData[i] = d.SelectedDate.ToString("dd/MM/yyyy");
 				}
 
 				// Allows the user to be alerted if an error occurred while trying to save their changes
@@ -401,18 +516,25 @@ namespace A2_Project.ContentWindows
 					succeeded = false;
 				}
 
-				if (succeeded)
+				// TODO: What should be done when b is null? (When called to cancel appt.)
+				if (b is not null)
 				{
-					//if (isNew) AddToEdit();
-					// Tell the user their changes have been saved without displaying an intrusive message
-					b.Content = "Changes saved!";
-					await Task.Delay(2000);
-					b.Content = "Save Changes";
-				}
-				// Note: This should never occur, but if something does go wrong then notify the user
-				else
-				{
-					b.Content = "Error occurred!";
+					if (succeeded)
+					{
+						//if (isNew) AddToEdit();
+						// Tell the user their changes have been saved without displaying an intrusive message
+						b.Content = "Changes saved!";
+						await Task.Delay(2000);
+						b.Content = "Save Changes";
+					}
+					// Note: This should never occur, but if something does go wrong then notify the user
+					else
+					{
+						tbcErr1.Text = "\nError: Appointment would clash!";
+						b.Content = "Error occurred!";
+						await Task.Delay(2000);
+						b.Content = "Save Changes";
+					}
 				}
 			}
 		}
@@ -436,6 +558,20 @@ namespace A2_Project.ContentWindows
 			// TODO: Why is this method here?
 			grdAddMode.Visibility = Visibility.Collapsed;
 			grdEditMode.Visibility = Visibility.Collapsed;
+		}
+
+		private void CheckIsInitialApp()
+		{
+			if (tableName == "Appointment" && DBMethods.MiscRequests.IsAppointmentInitial(GetData()))
+			{
+				lblIsAppInitial.Visibility = Visibility.Visible;
+			}
+			else lblIsAppInitial.Visibility = Visibility.Collapsed;
+		}
+
+		private void TbxDogId_TextChanged(object sender, TextChangedEventArgs e)
+		{
+			CheckIsInitialApp();
 		}
 
 		#region AddMode

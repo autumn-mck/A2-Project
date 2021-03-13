@@ -101,16 +101,23 @@ namespace A2_Project.ContentWindows
 
 			List<string> tablesReferenced = filterManager.GetTablesReferenced();
 
-			string filterText = filterManager.GetFilterText();
+			try
+			{
+				string filterText = filterManager.GetFilterText();
+			
+				string sql = ConstructSQL(filterText, tablesReferenced);
 
-			string sql = ConstructSQL(filterText, tablesReferenced);
+				//MessageBox.Show(sql);
 
-			//MessageBox.Show(sql);
+				currentData = DBMethods.DBAccess.GetListStringsWithQuery(sql);
 
-			currentData = DBMethods.DBAccess.GetListStringsWithQuery(sql);
-
-			DtgMethods.CreateTable(currentData, tableName, ref dtg, columns, ref dataTable, true);
-
+				DtgMethods.CreateTable(currentData, tableName, ref dtg, columns, ref dataTable, true);
+			}
+			catch
+			{
+				// TODO: Better feedback here
+				MessageBox.Show("Error: Invalid filter(s)!");
+			}
 		}
 
 		private static string ConstructSQL(string filterText, List<string> tablesReferenced)

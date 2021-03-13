@@ -1,6 +1,7 @@
 ﻿using A2_Project.DBObjects;
 using A2_Project.UserControls;
 using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Windows;
 using System.Windows.Controls;
@@ -93,11 +94,13 @@ namespace A2_Project
 			return elem;
 		}
 
-		public static object GetSuggestedValue(Column column)
+		public static object GetSuggestedValue(Column column, List<BookingCreator> booking = null)
 		{
 			if (column.Constraints.Type == "date") return DateTime.Now.Date;
 			else if (column.Constraints.Type == "bit") return false;
+			else if (column.Name == "Appointment ID" && column.Constraints.IsPrimaryKey) return DBMethods.MiscRequests.GetMinKeyNotUsed(column.TableName, column.Name, booking);
 			else if (column.Constraints.IsPrimaryKey && column.Constraints.ForeignKey == null) return DBMethods.MiscRequests.GetMinKeyNotUsed(column.TableName, column.Name);
+			else if (column.Constraints.ForeignKey is not null) return "0";
 			else return "";
 		}
 	}

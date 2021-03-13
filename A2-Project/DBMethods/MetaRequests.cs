@@ -45,6 +45,7 @@ namespace A2_Project.DBMethods
 
 		public static Column[] GetColumnDataFromTable(string tableName)
 		{
+			// TODO: Badly needs optimised
 			List<List<string>> types = GetDataTypesFromTable(tableName);
 			ForeignKey[] foreignKeys = GetFKeyOfTable(tableName);
 			Column[] columns = new Column[types.Count];
@@ -80,9 +81,8 @@ namespace A2_Project.DBMethods
 
 		public static ForeignKey[] GetFKeyOfTable(string tableName)
 		{
-			// TODO: Remove unnecessary data from queries
-			string query = $"SELECT obj.name AS FK_NAME, sch.name AS [schema_name], tab1.name AS [table], col1.name AS [column], tab2.name AS [referenced_table], " +
-			"col2.name AS [referenced_column] FROM sys.foreign_key_columns fkc INNER JOIN sys.objects obj ON obj.object_id = fkc.constraint_object_id " +
+			string query = $"SELECT tab2.name, col2.name " +
+			"FROM sys.foreign_key_columns fkc INNER JOIN sys.objects obj ON obj.object_id = fkc.constraint_object_id " +
 			"INNER JOIN sys.tables tab1 ON tab1.object_id = fkc.parent_object_id INNER JOIN sys.schemas sch ON tab1.schema_id = sch.schema_id " +
 			"INNER JOIN sys.columns col1 ON col1.column_id = parent_column_id AND col1.object_id = tab1.object_id " +
 			"INNER JOIN sys.tables tab2 ON tab2.object_id = fkc.referenced_object_id INNER JOIN sys.columns col2 ON " +
@@ -90,7 +90,7 @@ namespace A2_Project.DBMethods
 			List<List<string>> results = DBAccess.GetListStringsWithQuery(query);
 			ForeignKey[] toReturn = new ForeignKey[results.Count];
 			for (int i = 0; i < results.Count; i++)
-				toReturn[i] = new ForeignKey(results[i][4], results[i][5]);
+				toReturn[i] = new ForeignKey(results[i][0], results[i][1]);
 			return toReturn;
 		}
 

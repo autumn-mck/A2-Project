@@ -341,11 +341,13 @@ namespace A2_Project.ContentWindows
 						
 						if (arr[i] < 0)
 						{
-							b = new SolidColorBrush(Color.FromRgb((byte)(255 * arr[i] / minHeight), 0, 0));
+							double fr = (Math.Min((double)arr[i] / (double)minHeight, 1) + 0.6) / 1.6;
+							b = new SolidColorBrush(Color.FromRgb((byte)(210.0 * fr), 0, 0));
 						}
 						else
 						{
-							b = new SolidColorBrush(Color.FromRgb(0, (byte)(128 * arr[i] / maxHeight), 0));
+							double fr = (Math.Min((double)arr[i] / (double)maxHeight, 1) + 0.6) / 1.6;
+							b = new SolidColorBrush(Color.FromRgb(0, (byte)(130.0 * fr), 0));
 						}
 					}
 					else if (brushes is null) b = Brushes.White;

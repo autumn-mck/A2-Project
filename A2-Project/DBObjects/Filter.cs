@@ -421,7 +421,7 @@ namespace A2_Project.DBObjects
 				FilterManager filterManager = filterPanel.Children.OfType<FilterManager>().FirstOrDefault();
 				toReturn = filterManager.GetFilterText();
 			}
-
+			if (toReturn == "()") return "";
 			return toReturn;
 		}
 

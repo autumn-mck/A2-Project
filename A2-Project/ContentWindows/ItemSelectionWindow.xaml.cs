@@ -37,7 +37,8 @@ namespace A2_Project.ContentWindows
 			{
 				Content = "Confirm Selection",
 				FontSize = 20,
-				HorizontalAlignment = HorizontalAlignment.Center
+				HorizontalAlignment = HorizontalAlignment.Center,
+				Margin = new Thickness(0, 5, 0, 10)
 			};
 			btnConfirm.Click += BtnConfirm_Click;
 			stp.Children.Add(btnConfirm);

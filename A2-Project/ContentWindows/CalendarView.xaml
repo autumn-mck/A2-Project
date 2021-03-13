@@ -21,14 +21,34 @@
 			<Rectangle Fill="#D5D5D5" Stroke="#151515" StrokeThickness="2"/>
 			<Image Source="/Resources/FindAppt.png"/>
 		</Grid>
-		<StackPanel x:Name="stpSidebar" Margin="1240, 58 0, 0" HorizontalAlignment="Left" VerticalAlignment="Top" Orientation="Vertical">
-			<StackPanel Orientation="Horizontal" Panel.ZIndex="1">
-				<Label x:Name="lblEditBtn" Content="Editing" Background="#404040" Foreground="#F1F1F1" Margin="5" Width="400" HorizontalContentAlignment="Center" MouseDown="LblEdit_MouseDown"/>
-				<Label x:Name="lblBookBtn" Content="Booking" Background="#252525" Foreground="#D5D5D5" Margin="5" Width="200" HorizontalContentAlignment="Center" MouseDown="LblBook_MouseDown"/>
+		<StackPanel x:Name="stpSidebar" Margin="1200, 58 0, 0" HorizontalAlignment="Left" VerticalAlignment="Top" Orientation="Vertical">
+			<StackPanel Orientation="Horizontal" Panel.ZIndex="1" HorizontalAlignment="Left" VerticalAlignment="Top">
+				<Label x:Name="lblEditBtn" Content="Editing" Background="#404040" Foreground="#F1F1F1" Margin="5" Width="420" HorizontalContentAlignment="Center" MouseDown="LblEdit_MouseDown"/>
+				<Label x:Name="lblBookBtn" Content="Booking" Background="#252525" Foreground="#D5D5D5" Margin="5" Width="220" HorizontalContentAlignment="Center" MouseDown="LblBook_MouseDown"/>
 			</StackPanel>
-			<Grid x:Name="grdEditingSidebar" VerticalAlignment="Top" HorizontalAlignment="Left" Margin="-16, 0, 0, 0">
-				<Rectangle Fill="#0B0B0B" Height="660" Width="610"/>
+			<Grid x:Name="grdEditingSidebar" Visibility="Visible" VerticalAlignment="Top" HorizontalAlignment="Left" Margin="-16, 0, 0, 0">
+				<Rectangle Fill="#0B0B0B" Width="660" />
 				<Label x:Name="lblEditingSidebar" Margin="20, 0, 0, 0"/>
+			</Grid>
+			<Grid x:Name="grdBookingSidebar" Visibility="Collapsed" VerticalAlignment="Top" HorizontalAlignment="Left" Margin="0, 0, 0, 0">
+				<Rectangle Fill="#0B0B0B" Height="880" Width="660"/>
+				<StackPanel Orientation="Vertical" VerticalAlignment="Top">
+					<StackPanel Orientation="Vertical" Margin="5">
+						<Label x:Name="lblNewBookingID" Content="Booking ID: "/>
+						<StackPanel x:Name="stpBookDogID" Orientation="Horizontal">
+							<Label Content="Dog ID: &#x9;"/>
+						</StackPanel>
+						<StackPanel x:Name="stpBookStaffID" Orientation="Horizontal">
+							<Label Content="Staff ID: &#x9;"/>
+						</StackPanel>
+						<StackPanel x:Name="stpBookingManager" Orientation="Vertical">
+						</StackPanel>
+					</StackPanel>
+					<Label Margin="5" Content="+ Add new part to booking" MouseDown="LblAddBookingPart_MouseDown"/>
+				</StackPanel>
+				<Grid VerticalAlignment="Bottom" Margin="0, 0, 0, 20">
+					<Button x:Name="btnConfirmBooking" Content="Confirm Booking" VerticalAlignment="Top" HorizontalAlignment="Center" FontSize="24" Click="BtnConfirmBooking_Click"/>
+				</Grid>
 			</Grid>
 		</StackPanel>
 	</Grid>

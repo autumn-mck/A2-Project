@@ -15,6 +15,7 @@ namespace A2_Project.UserControls
 			}
 			set
 			{
+				if (value == Text) return;
 				tbx.Text = value;
 				IsValid = Validation.Validate(Text, Column, out string errorMessage);
 				ErrorMessage = errorMessage;
@@ -43,7 +44,10 @@ namespace A2_Project.UserControls
 				Button b = new Button()
 				{
 					Content = "?",
-					Width = 20
+					Width = 20,
+					FontSize = 24,
+					VerticalAlignment = System.Windows.VerticalAlignment.Top,
+					Margin = new System.Windows.Thickness(10, 0, 0, 0)
 				};
 				b.Click += BtnSelectFKey_Click;
 				stpContent.Children.Add(b);
@@ -59,8 +63,8 @@ namespace A2_Project.UserControls
 
 		public override void SetWidth(double newWidth)
 		{
-			base.SetWidth(newWidth);
-			tbx.Width = newWidth - img.Width - img.Margin.Left;
+			tbx.MinWidth = newWidth - img.Width - img.Margin.Left;
+			tbx.MaxWidth = tbx.MinWidth + 50;
 		}
 
 		public override void SetHeight(double newHeight)
