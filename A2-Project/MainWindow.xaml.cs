@@ -35,6 +35,7 @@ namespace A2_Project
 		private ClientManagement cliWindow;
 		private InvoiceManagement invoiceWindow;
 		private AddingWindowTest testWindow;
+		private ShiftManager shiftWindow;
 		private readonly Login loginWindow;
 
 		private SolidColorBrush notHighlighted = new SolidColorBrush(Color.FromRgb(161, 161, 161));
@@ -60,6 +61,7 @@ namespace A2_Project
 			grdViewStats.MouseDown += GrdViewStats_MouseDown;
 			grdInvoiceManagement.MouseDown += GrdInvoiceManagement_MouseDown;
 			grdTest.MouseDown += GrdTest_MouseDown;
+			grdShift.MouseDown += GrdShift_MouseDown;
 
 			foreach (Grid g in grdButtons)
 			{
@@ -228,6 +230,13 @@ namespace A2_Project
 			if (testWindow is null)
 				testWindow = new AddingWindowTest() { Owner = this };
 			lblContents.Content = testWindow.Content;
+		}
+
+		private void GrdShift_MouseDown(object sender, MouseButtonEventArgs e)
+		{
+			if (shiftWindow is null)
+				shiftWindow = new ShiftManager() { Owner = this };
+			lblContents.Content = shiftWindow.Content;
 		}
 		#endregion MouseDown Events
 		#endregion Events
