@@ -165,7 +165,7 @@ namespace A2_Project.DBMethods
 		{
 			double[] basePrices = DBAccess.GetStringsWithQuery("SELECT [Base Price] FROM [Appointment Type];").Select(double.Parse).ToArray();
 			string query = "SELECT [Appointment].[Booking ID], [Appointment].[Appointment ID], [Dog].[Dog Name], " +
-			"[Appointment Type].[Description], [Staff].[Staff Name], [Appointment].[Includes Nail And Teeth], " +
+			"[Appointment Type].[Description], [Staff].[Staff Name], [Appointment].[Nails And Teeth], " +
 			"[Appointment].[Appointment Date], [Appointment].[Appointment Time], " +
 			"[Appointment].[Appointment Type ID] " +
 			"FROM [Appointment] INNER JOIN [Staff] ON [Staff].[Staff ID] = [Appointment].[Staff ID] " +
