@@ -1,0 +1,19 @@
+﻿<Window x:Class="A2_Project.ContentWindows.ShiftManager"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:local="clr-namespace:A2_Project.ContentWindows"
+        mc:Ignorable="d"
+        Title="ShiftManager" Width="1876" Height="1080" Background="#151515">
+	<Grid Width="1876" Height="1080">
+		<Grid.Resources>
+			<Style TargetType="Label">
+				<Setter Property="Foreground" Value="#F1F1F1"/>
+				<Setter Property="VerticalAlignment" Value="Top"/>
+				<Setter Property="HorizontalAlignment" Value="Left"/>
+			</Style>
+		</Grid.Resources>
+		<WrapPanel x:Name="stpStaff" Width="1500" HorizontalAlignment="Left" Orientation="Horizontal"/>
+	</Grid>
+</Window>

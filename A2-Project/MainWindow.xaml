@@ -68,6 +68,10 @@
 						<Image Source="/Resources/gbp.png"/>
 						<Label Content="Test"/>
 					</Grid>
+					<Grid x:Name="grdShift" Height="50" Width="300" Margin="6, 486, 0, 0" VerticalAlignment="Top">
+						<Image Source="/Resources/calendar.png"/>
+						<Label Content="Shift Manager"/>
+					</Grid>
 				</Grid>
 			</Grid>
 		</Grid>
