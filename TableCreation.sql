@@ -1,11 +1,12 @@
-﻿DROP TABLE Appointment;
+﻿DROP TABLE [Shift];
+DROP TABLE Appointment;
 DROP TABLE Booking;
 DROP TABLE [Grooming Room];
 DROP TABLE [Appointment Type];
-DROP TABLE Staff;
-DROP TABLE Dog;
-DROP TABLE Contact;
-DROP TABLE Client;
+DROP TABLE [Staff];
+DROP TABLE [Dog];
+DROP TABLE [Contact];
+DROP TABLE [Client];
 
 CREATE TABLE [Client] (
 	[Client ID] INT NOT NULL PRIMARY KEY,
@@ -164,4 +165,12 @@ CREATE TABLE [Appointment] (
 	[Is Paid] BIT NOT NULL,
 	[Appointment Date] DATE NOT NULL,
 	[Appointment Time] TIME NOT NULL
+);
+
+CREATE TABLE [Shift] (
+	[Shift ID] INT NOT NULL PRIMARY KEY,
+	[Staff ID] INT NOT NULL FOREIGN KEY REFERENCES [Staff] ON DELETE CASCADE,
+	[Shift Day] INT NOT NULL,
+	[Shift Start Time] TIME NOT NULL,
+	[Shift End Time] TIME NOT NULL
 );

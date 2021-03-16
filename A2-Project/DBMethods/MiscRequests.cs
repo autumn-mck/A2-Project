@@ -64,7 +64,9 @@ namespace A2_Project.DBMethods
 
 		public static string GetMinKeyNotUsed(string table, string col)
 		{
-			return DBAccess.GetStringsWithQuery($"SELECT TOP 1 t1.[{col}]+1 FROM [{table}] t1 WHERE NOT EXISTS(SELECT * FROM [{table}] t2 WHERE t2.[{col}] = t1.[{col}] + 1) ORDER BY t1.[{col}]")[0];
+			List<string> res =  DBAccess.GetStringsWithQuery($"SELECT TOP 1 t1.[{col}]+1 FROM [{table}] t1 WHERE NOT EXISTS(SELECT * FROM [{table}] t2 WHERE t2.[{col}] = t1.[{col}] + 1) ORDER BY t1.[{col}]");
+			if (res.Count == 0) return "0";
+			else return res[0];
 		}
 
 		internal static string GetMinKeyNotUsed(string table, string col, List<BookingCreator> booking)

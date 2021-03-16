@@ -35,6 +35,8 @@ namespace A2_Project.ContentWindows
 		private Point diffMouseAndElem;
 		private Point mousePos;
 
+		private DBObjects.Column[] shiftColumns;
+
 		public ShiftManager()
 		{
 			InitializeComponent();
@@ -53,15 +55,24 @@ namespace A2_Project.ContentWindows
 			rctBase.Height = hourHeight * 7;
 
 			List<List<string>> staffData = DBMethods.MetaRequests.GetAllFromTable("Staff");
-
+			List<Panel> staffPanels = new List<Panel>();
 			foreach (List<string> staff in staffData)
 			{
-				GenForStaff(staff.ToArray());
+				staffPanels.Add(GenForStaff(staff.ToArray()));
+			}
+
+			List<List<string>> shiftData = DBMethods.MetaRequests.GetAllFromTable("Shift");
+			foreach (List<string> shift in shiftData)
+			{
+				Panel shiftPanel = GenShiftWithData(shift.ToArray());
+				staffPanels[Convert.ToInt32(shift[1])].Children.Add(shiftPanel);
 			}
 
 			Thread loopThread = new Thread(Loop)
 			{ IsBackground = true };
 			loopThread.Start();
+
+			shiftColumns = DBObjects.DB.Tables.Where(t => t.Name == "Shift").First().Columns;
 		}
 
 		private void Loop()
@@ -135,8 +146,100 @@ namespace A2_Project.ContentWindows
 
 		private bool DoesClash(Panel toCheck, Panel parent, double rctHeight, double marginX, double marginY)
 		{
-			List<Panel> rcts = parent.Children.OfType<Panel>().Where(p => p != toCheck && p.Margin.Left == marginX && p.Margin.Top + p.Height - resizeHeight >= marginY + resizeHeight / 2 && marginY + rctHeight - resizeHeight / 2 > p.Margin.Top + resizeHeight / 2).ToList();
+			List<Panel> rcts = parent.Children.OfType<Panel>().Where(p =>
+				p != toCheck && 
+				p.Margin.Left == marginX && 
+				p.Margin.Top + p.Height - resizeHeight >= marginY + resizeHeight / 2 
+				&& marginY + rctHeight - resizeHeight / 2 > p.Margin.Top + resizeHeight / 2
+				).ToList();
 			return rcts.Count > 0;
+		}
+
+		private Panel GenShiftWithData(string[] shift)
+		{
+			TimeSpan start = TimeSpan.Parse(shift[3]);
+			TimeSpan end = TimeSpan.Parse(shift[4]);
+			Grid grdShift = new Grid()
+			{
+				VerticalAlignment = VerticalAlignment.Top,
+				HorizontalAlignment = HorizontalAlignment.Left,
+				Width = dayWidth,
+				Height = hourHeight * (end - start).TotalHours + resizeHeight,
+				Margin = new Thickness(dayWidth * Convert.ToInt32(shift[2]), (start.TotalHours - dayStart) * hourHeight - resizeHeight / 2, 0, 0),
+				Tag = shift[0]
+			};
+
+			double arrowMargin = 5;
+			Brush arrowBrush = new SolidColorBrush(Color.FromRgb(200, 200, 200));
+			Rectangle rctArrowUp = new Rectangle()
+			{
+				Height = 20,
+				Width = 20,
+				RenderTransform = new RotateTransform(45),
+				RenderTransformOrigin = new Point(0.5, 0.5),
+				VerticalAlignment = VerticalAlignment.Top,
+				Margin = new Thickness(0, arrowMargin, 0, 0),
+				Fill = arrowBrush,
+				IsHitTestVisible = false
+			};
+			grdShift.Children.Add(rctArrowUp);
+			Rectangle rctArrowDown = new Rectangle()
+			{
+				Height = 20,
+				Width = 20,
+				RenderTransform = new RotateTransform(45),
+				RenderTransformOrigin = new Point(0.5, 0.5),
+				VerticalAlignment = VerticalAlignment.Bottom,
+				Margin = new Thickness(0, 0, 0, arrowMargin),
+				Fill = arrowBrush,
+				IsHitTestVisible = false
+			};
+			grdShift.Children.Add(rctArrowDown);
+
+			Rectangle rct = new Rectangle()
+			{
+				Width = dayWidth,
+				Stroke = Brushes.Black,
+				StrokeThickness = 1,
+				VerticalAlignment = VerticalAlignment.Stretch,
+				HorizontalAlignment = HorizontalAlignment.Left,
+				Fill = new SolidColorBrush(colours[Convert.ToInt32(shift[1])]),
+				Name = "rctBase",
+				Margin = new Thickness(0, resizeHeight / 2, 0, resizeHeight / 2)
+			};
+			rct.MouseDown += RctShift_MouseDown;
+			grdShift.Children.Add(rct);
+
+			Rectangle resizeTop = new Rectangle()
+			{
+				Height = resizeHeight,
+				VerticalAlignment = VerticalAlignment.Top,
+				Cursor = Cursors.SizeNS,
+				Fill = Brushes.Transparent
+			};
+			Rectangle resizeBottom = new Rectangle()
+			{
+				Height = resizeHeight,
+				VerticalAlignment = VerticalAlignment.Bottom,
+				Cursor = Cursors.SizeNS,
+				Fill = Brushes.Transparent
+			};
+
+			resizeTop.MouseDown += Resize_MouseDown;
+			resizeBottom.MouseDown += Resize_MouseDown;
+			grdShift.Children.Add(resizeTop);
+			grdShift.Children.Add(resizeBottom);
+
+			// TODO: Remove label after testing
+			Label lblParent = new Label()
+			{
+				Content = "grd",
+				IsHitTestVisible = false,
+				Visibility = Visibility.Collapsed
+			};
+			grdShift.Children.Add(lblParent);
+
+			return grdShift;
 		}
 
 		private void OnMouseUp()
@@ -149,15 +252,45 @@ namespace A2_Project.ContentWindows
 			if (parent == grd)
 			{
 				parent.Children.Remove(currentlySelected);
+				if (currentlySelected.Tag is string id)
+				{
+					DBMethods.MiscRequests.DeleteItem("Shift", "Shift ID", id);
+				}
 				currentlySelected = null;
 				return;
 			}
+
+			bool isNew = false;
+			// If this is a new shift
+			if (currentlySelected.Tag is string sTag && sTag == "")
+			{
+				string id = DBMethods.MiscRequests.GetMinKeyNotUsed("Shift", "Shift ID");
+				currentlySelected.Tag = id;
+				isNew = true;
+			}
+
+			string[] data = GetDataFromShift(currentlySelected);
+			DBMethods.DBAccess.UpdateTable("Shift", shiftColumns.Select(c => c.Name).ToArray(), data, isNew);
 
 			currentlySelected.IsHitTestVisible = true;
 			currentlySelected.Children.OfType<Rectangle>().Where(r => r.Name == "rctBase").First().IsHitTestVisible = true;
 		}
 
-		private void GenForStaff(string[] staffData)
+		private string[] GetDataFromShift(Panel from)
+		{
+			string[] data = new string[5];
+			data[0] = from.Tag.ToString();
+			data[1] = ((Panel)from.Parent).Name.Substring(6);
+			data[2] = ((int)Math.Round(from.Margin.Left / dayWidth)).ToString();
+			TimeSpan start = TimeSpan.FromHours((from.Margin.Top + resizeHeight / 2) / hourHeight + dayStart);
+			TimeSpan end = start.Add(TimeSpan.FromHours((from.Height - resizeHeight) / hourHeight));
+			data[3] = start.ToString("hh\\:mm");
+			data[4] = end.ToString("hh\\:mm");
+
+			return data;
+		}
+
+		private Panel GenForStaff(string[] staffData)
 		{
 			Grid grdBg = new Grid()
 			{
@@ -240,6 +373,8 @@ namespace A2_Project.ContentWindows
 			}
 
 			wrpStaff.Children.Add(grdBg);
+
+			return grdResults;
 		}
 
 		private string IntToDOWStr(int index)
@@ -250,88 +385,13 @@ namespace A2_Project.ContentWindows
 
 		private void RctBase_MouseDown(object sender, MouseButtonEventArgs e)
 		{
-			Grid grdShift = new Grid()
-			{
-				VerticalAlignment = VerticalAlignment.Top,
-				HorizontalAlignment = HorizontalAlignment.Left,
-				Width = dayWidth,
-				Height = hourHeight * 7 + resizeHeight,
-				IsHitTestVisible = false,
-			};
-
-			double arrowMargin = 5;
-			Brush arrowBrush = new SolidColorBrush(Color.FromRgb(200, 200, 200));
-			Rectangle rctArrowUp = new Rectangle()
-			{
-				Height = 20,
-				Width = 20,
-				RenderTransform = new RotateTransform(45),
-				RenderTransformOrigin = new Point(0.5, 0.5),
-				VerticalAlignment = VerticalAlignment.Top,
-				Margin = new Thickness(0, arrowMargin, 0, 0),
-				Fill = arrowBrush,
-				IsHitTestVisible = false
-			};
-			grdShift.Children.Add(rctArrowUp);
-			Rectangle rctArrowDown = new Rectangle()
-			{
-				Height = 20,
-				Width = 20,
-				RenderTransform = new RotateTransform(45),
-				RenderTransformOrigin = new Point(0.5, 0.5),
-				VerticalAlignment = VerticalAlignment.Bottom,
-				Margin = new Thickness(0, 0, 0, arrowMargin),
-				Fill = arrowBrush,
-				IsHitTestVisible = false
-			};
-			grdShift.Children.Add(rctArrowDown);
-
-			Rectangle rct = new Rectangle()
-			{
-				Width = dayWidth,
-				Stroke = Brushes.Black,
-				StrokeThickness = 1,
-				VerticalAlignment = VerticalAlignment.Stretch,
-				HorizontalAlignment = HorizontalAlignment.Left,
-				IsHitTestVisible = false,
-				Fill = Brushes.Orange,
-				Name = "rctBase",
-				Margin = new Thickness(0, resizeHeight / 2, 0, resizeHeight / 2)
-			};
-			rct.MouseDown += RctShift_MouseDown;
-			grdShift.Children.Add(rct);
-			diffMouseAndElem = new Point(grdShift.Width / 2, hourHeight * 7.0 / 2);
+			TimeSpan start = TimeSpan.FromHours(dayStart);
+			Panel grdShift = GenShiftWithData(new string[] { "", "0", "0", start.ToString("hh\\:mm"), start.Add(TimeSpan.FromHours(7)).ToString("hh\\:mm") });
+			diffMouseAndElem = new Point(grdShift.Width / 2, (grdShift.Height - resizeHeight) / 2); // TODO: Check if -resizeHeight is needed here
+			grdShift.Children.OfType<Rectangle>().Where(r => r.Name == "rctBase").First().IsHitTestVisible = false;
 			currentlySelected = grdShift;
-			mouseDown = true;
-
-			Rectangle resizeTop = new Rectangle()
-			{
-				Height = resizeHeight,
-				VerticalAlignment = VerticalAlignment.Top,
-				Cursor = Cursors.SizeNS,
-				Fill = Brushes.Transparent
-			};
-			Rectangle resizeBottom = new Rectangle()
-			{
-				Height = resizeHeight,
-				VerticalAlignment = VerticalAlignment.Bottom,
-				Cursor = Cursors.SizeNS,
-				Fill = Brushes.Transparent
-			};
-
-			resizeTop.MouseDown += Resize_MouseDown;
-			resizeBottom.MouseDown += Resize_MouseDown;
-			grdShift.Children.Add(resizeTop);
-			grdShift.Children.Add(resizeBottom);
-
-			Label lblParent = new Label()
-			{
-				Content = "grd",
-				IsHitTestVisible = false
-			};
-			grdShift.Children.Add(lblParent);
-
 			grd.Children.Add(grdShift);
+			mouseDown = true;
 		}
 
 		private void Resize_MouseDown(object sender, MouseButtonEventArgs e)
