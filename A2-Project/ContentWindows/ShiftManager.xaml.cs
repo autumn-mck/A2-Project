@@ -386,7 +386,7 @@ namespace A2_Project.ContentWindows
 		private void RctBase_MouseDown(object sender, MouseButtonEventArgs e)
 		{
 			TimeSpan start = TimeSpan.FromHours(dayStart);
-			Panel grdShift = GenShiftWithData(new string[] { "", "0", "0", start.ToString("hh\\:mm"), start.Add(TimeSpan.FromHours(7)).ToString("hh\\:mm") });
+			Panel grdShift = GenShiftWithData(new string[] { "", "0", "0", start.ToString("hh\\:mm"), start.Add(TimeSpan.FromHours(8)).ToString("hh\\:mm") });
 			diffMouseAndElem = new Point(grdShift.Width / 2, (grdShift.Height - resizeHeight) / 2); // TODO: Check if -resizeHeight is needed here
 			grdShift.Children.OfType<Rectangle>().Where(r => r.Name == "rctBase").First().IsHitTestVisible = false;
 			currentlySelected = grdShift;
