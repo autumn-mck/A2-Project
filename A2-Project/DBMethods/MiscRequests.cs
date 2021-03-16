@@ -98,6 +98,7 @@ namespace A2_Project.DBMethods
 
 		public static bool DoesAppointmentClash(string[] oldData, int roomID, DateTime date, TimeSpan time, List<BookingCreator> bookings)
 		{
+			// TODO: Give error why appointment clashes, not just true/false
 			int thisAppLength = GetAppLength(oldData);
 			TimeSpan appEnd = time.Add(new TimeSpan(0, thisAppLength, 0));
 
@@ -107,8 +108,8 @@ namespace A2_Project.DBMethods
 				List<string[]> bkData = booking.GetData();
 				foreach (string[] bk in bkData)
 				{
-					if (bk == oldData || bk is null) continue;
-					if (bk[9] == "" || bk[10] == "") continue;
+					if (bk == oldData || bk is null) continue; // Cannot clash with itself
+					if (bk[9] == "" || bk[10] == "") continue; // Booking has not yet been made
 
 					if (
 					(bk[5] == roomID.ToString() // Same room
@@ -145,9 +146,29 @@ namespace A2_Project.DBMethods
 				if (ls[3] == oldData[3]) return true; // A staff member cannot be at 2 appointments at once
 			}
 
-
 			List<List<string>> inRoom = potentialCollisions.Where(a => a[5] == roomID.ToString()).ToList();
 			if (inRoom.Count > 0) return true;
+
+			// Check there the staff member is available
+			string staffID = oldData[3];
+			int dow = (int)(date.DayOfWeek + 6) % 7;
+
+			string shiftQuery = $"SELECT [Shift Start Time], [Shift End Time] FROM [Shift] WHERE [Shift].[Staff ID] = {staffID} AND [Shift].[Shift Day] = {dow};";
+			List<List<string>> shiftData = DBAccess.GetListStringsWithQuery(shiftQuery);
+
+			bool isInShift = false;
+			foreach (List<string> shift in shiftData)
+			{
+				TimeSpan shiftStart = TimeSpan.Parse(shift[0]);
+				TimeSpan shiftEnd = TimeSpan.Parse(shift[1]);
+
+				isInShift = (time >= shiftStart && appEnd <= shiftEnd) || isInShift;
+
+				// TODO: If a shift starts in shift A and ends in shift B, and shift A and B have no time gap between them,
+				// The result will still be marked as clashing. This is an unsupported use case.
+			}
+			if (!isInShift) return true;
+
 			return false;
 		}
 
