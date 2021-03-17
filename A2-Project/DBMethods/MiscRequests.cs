@@ -91,12 +91,12 @@ namespace A2_Project.DBMethods
 			catch { return false; }
 		}
 
-		internal static bool DoesAppointmentClash(string[] data, List<BookingCreator> bookings)
+		internal static bool DoesAppointmentClash(string[] data, List<BookingCreator> bookings, out string errMessage)
 		{
-			return DoesAppointmentClash(data, Convert.ToInt32(data[5]), DateTime.Parse(data[9]), TimeSpan.Parse(data[10]), bookings);
+			return DoesAppointmentClash(data, Convert.ToInt32(data[5]), DateTime.Parse(data[9]), TimeSpan.Parse(data[10]), bookings, out errMessage);
 		}
 
-		public static bool DoesAppointmentClash(string[] oldData, int roomID, DateTime date, TimeSpan time, List<BookingCreator> bookings)
+		public static bool DoesAppointmentClash(string[] oldData, int roomID, DateTime date, TimeSpan time, List<BookingCreator> bookings, out string errMessage)
 		{
 			// TODO: Give error why appointment clashes, not just true/false
 			int thisAppLength = GetAppLength(oldData);
@@ -120,7 +120,11 @@ namespace A2_Project.DBMethods
 						TimeSpan bkStart = TimeSpan.Parse(bk[10]);
 						int bkLength = GetAppLength(bk);
 						TimeSpan bkEnd = bkStart.Add(new TimeSpan(0, bkLength, 0));
-						if ((bkEnd > time && bkStart < time) || (bkStart < appEnd && bkStart >= time)) return true;
+						if ((bkEnd > time && bkStart < time) || (bkStart < appEnd && bkStart >= time))
+						{
+							errMessage = "Clashes with a new appointment!";
+							return true;
+						}
 					}
 				}
 			}
@@ -142,14 +146,27 @@ namespace A2_Project.DBMethods
 
 			foreach (List<string> ls in potentialCollisions)
 			{
-				if (ls[1] == oldData[1]) return true; // A dog cannot be in 2 appointments at once
-				if (ls[3] == oldData[3]) return true; // A staff member cannot be at 2 appointments at once
+				if (ls[1] == oldData[1])
+				{
+					errMessage = "That dog is at another appointment at the same time!";
+					return true; // A dog cannot be in 2 appointments at once
+				}
+
+				if (ls[3] == oldData[3])
+				{
+					errMessage = "A staff member cannot be at 2 simultanious appointments!";
+					return true; // A staff member cannot be at 2 appointments at once
+				}
 			}
 
 			List<List<string>> inRoom = potentialCollisions.Where(a => a[5] == roomID.ToString()).ToList();
-			if (inRoom.Count > 0) return true;
+			if (inRoom.Count > 0)
+			{
+				errMessage = "There is another appointment in that room at that time!";
+				return true;
+			}
 
-			// Check there the staff member is available
+			// Check if the staff member is available
 			string staffID = oldData[3];
 			int dow = (int)(date.DayOfWeek + 6) % 7;
 
@@ -167,8 +184,13 @@ namespace A2_Project.DBMethods
 				// TODO: If a shift starts in shift A and ends in shift B, and shift A and B have no time gap between them,
 				// The result will still be marked as clashing. This is an unsupported use case.
 			}
-			if (!isInShift) return true;
+			if (!isInShift)
+			{
+				errMessage = "That staff member's shift does not cover that time!";
+				return true;
+			}
 
+			errMessage = "";
 			return false;
 		}
 
