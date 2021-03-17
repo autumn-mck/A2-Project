@@ -7,6 +7,7 @@ using System.Windows.Controls;
 using System.Windows.Input;
 using System.Windows.Media;
 using System.Windows.Shapes;
+using A2_Project.DBMethods;
 
 namespace A2_Project.ContentWindows
 {
@@ -19,8 +20,8 @@ namespace A2_Project.ContentWindows
 
 		private double dayStart = 8;
 		private double dayEnd = 19;
-		private double dayWidth = 55;
-		private double hourHeight = 40;
+		private double dayWidth = 45;
+		private double hourHeight = 38;
 
 		private Color[] colours;
 
@@ -116,7 +117,7 @@ namespace A2_Project.ContentWindows
 							{
 								double change = Math.Abs(diff) / diff * hourHeight / 2;
 								double newTop = currentlySelected.Margin.Top + change;
-								if (currentlySelected.Height - change > hourHeight / 2 && newTop > -resizeHeight / 2 - 0.01)
+								if (currentlySelected.Height - change >= hourHeight / 2 + resizeHeight && newTop > -resizeHeight / 2 - 0.01)
 								{
 									if (!DoesClash(currentlySelected, parent, currentlySelected.Height - change, currentlySelected.Margin.Left, newTop))
 									{
@@ -130,7 +131,7 @@ namespace A2_Project.ContentWindows
 						{
 							double diff = mousePos.Y - currentlySelected.Margin.Top;
 							double newHeight = diff - (diff) % (hourHeight / 2) + resizeHeight;
-							if (newHeight > hourHeight / 2 && newHeight + currentlySelected.Margin.Top - resizeHeight < parent.Height + 0.01)
+							if (newHeight >= hourHeight / 2 + resizeHeight && newHeight + currentlySelected.Margin.Top - resizeHeight < parent.Height + 0.01)
 							{
 								if (!DoesClash(currentlySelected, parent, newHeight, currentlySelected.Margin.Left, currentlySelected.Margin.Top))
 								{
@@ -254,7 +255,7 @@ namespace A2_Project.ContentWindows
 				parent.Children.Remove(currentlySelected);
 				if (currentlySelected.Tag is string id)
 				{
-					DBMethods.MiscRequests.DeleteItem("Shift", "Shift ID", id);
+					MiscRequests.DeleteItem("Shift", "Shift ID", id);
 				}
 				currentlySelected = null;
 				return;
@@ -264,13 +265,13 @@ namespace A2_Project.ContentWindows
 			// If this is a new shift
 			if (currentlySelected.Tag is string sTag && sTag == "")
 			{
-				string id = DBMethods.MiscRequests.GetMinKeyNotUsed("Shift", "Shift ID");
+				string id = MiscRequests.GetMinKeyNotUsed("Shift", "Shift ID");
 				currentlySelected.Tag = id;
 				isNew = true;
 			}
 
 			string[] data = GetDataFromShift(currentlySelected);
-			DBMethods.DBAccess.UpdateTable("Shift", shiftColumns.Select(c => c.Name).ToArray(), data, isNew);
+			DBAccess.UpdateTable("Shift", shiftColumns.Select(c => c.Name).ToArray(), data, isNew);
 
 			currentlySelected.IsHitTestVisible = true;
 			currentlySelected.Children.OfType<Rectangle>().Where(r => r.Name == "rctBase").First().IsHitTestVisible = true;
@@ -336,7 +337,7 @@ namespace A2_Project.ContentWindows
 				grdBg.Children.Add(lblDayOfWeek);
 
 				//// Generate all the rectangles to represent the appointments on that day
-				//List<List<string>> results = DBMethods.MiscRequests.GetAllAppointmentsOnDay(currentDay, columns.Select(x => x.Name).ToArray());
+				//List<List<string>> results = MiscRequests.GetAllAppointmentsOnDay(currentDay, columns.Select(x => x.Name).ToArray());
 				//foreach (List<string> ls in results)
 				//{
 				//	GenRectFromData(ls.ToArray());
@@ -455,6 +456,41 @@ namespace A2_Project.ContentWindows
 
 				grd.Children.Add(currentlySelected);
 			}
+		}
+
+		private void BtnClashCount_Click(object sender, RoutedEventArgs e)
+		{
+			List<List<string>> staffData = MetaRequests.GetAllFromTable("Staff");
+
+			int count = 0;
+
+			foreach (List<string> staff in staffData)
+			{
+				List<List<string>> staffShiftData = MiscRequests.GetByColumnData("Shift", "Staff ID", staff[0]);
+
+				string queryAppts = $"Set DATEFIRST 1; SELECT *, DATEPART(dw, [Appointment Date]) - 1 FROM [Appointment] WHERE [Appointment].[Staff ID] = {staff[0]} AND GETDATE() < [Appointment].[Appointment Date]";
+				List<List<string>> results = DBAccess.GetListStringsWithQuery(queryAppts);
+
+				foreach (List<string> app in results)
+				{
+					bool isInShift = false;
+					TimeSpan appStart = TimeSpan.Parse(app[10]);
+					int thisAppLength = MiscRequests.GetAppLength(app.ToArray());
+					TimeSpan appEnd = appStart.Add(TimeSpan.FromMinutes(thisAppLength));
+					foreach (List<string> shift in staffShiftData)
+					{
+						if (shift[2] != app[11]) continue;
+
+						TimeSpan shiftStart = TimeSpan.Parse(shift[3]);
+						TimeSpan shiftEnd = TimeSpan.Parse(shift[4]);
+
+						isInShift = (appStart >= shiftStart && appEnd <= shiftEnd) || isInShift;
+					}
+
+					if (!isInShift) count++;
+				}
+			}
+			MessageBox.Show($"Warning: There are {count} appointments that clash with staff schedules");
 		}
 	}
 }

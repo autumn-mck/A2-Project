@@ -829,6 +829,8 @@ namespace A2_Project.ContentWindows
 		/// </summary>
 		private Rectangle GenRectFromData(string[] data, string name = null)
 		{
+			// TODO: Check if an appt clashes while rect is being generated?
+
 			if (data is null) return null;
 			// Do not generate rectangles for cancelled appointments
 			if (data[7] == "True") return null;
