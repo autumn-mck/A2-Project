@@ -397,15 +397,18 @@ namespace A2_Project.ContentWindows
 
 								string[] data = GetDataTag(elem);
 
-								bool doesClash = DBMethods.MiscRequests.DoesAppointmentClash(data, roomID, day, appStart, BookingParts);
+								bool doesClash = DBMethods.MiscRequests.DoesAppointmentClash(data, roomID, day, appStart, BookingParts, out string errMessage);
+								editingSidebar.DisplayError(errMessage);
 
 								int appLength = DBMethods.MiscRequests.GetAppLength(data);
 
 								if (doesClash)
 								{
+									// TODO: Advanced - offer suggestions to deal with error? Probably not worth effort
+
 									TimeSpan oldStart = TimeSpan.FromHours(dayStartTime - 1 + elem.Margin.Top / hourHeight);
 
-									if (!DBMethods.MiscRequests.DoesAppointmentClash(data, roomID, day, oldStart, BookingParts))
+									if (!DBMethods.MiscRequests.DoesAppointmentClash(data, roomID, day, oldStart, BookingParts, out _))
 									{
 										elem.Margin = new Thickness(dDiff * dayWidth * spaceBetweenDays + roomID * dayWidth / appRoomCount, elem.Margin.Top, 0, 0);
 									}
@@ -418,7 +421,7 @@ namespace A2_Project.ContentWindows
 										count += direction;
 										TimeSpan toCheck = oldStart.Add(TimeSpan.FromMinutes(count * 15));
 										if (toCheck.TotalHours > 18 || toCheck.TotalHours < 9) break;
-										bool doesNewClash = DBMethods.MiscRequests.DoesAppointmentClash(data, roomID, day, toCheck, BookingParts);
+										bool doesNewClash = DBMethods.MiscRequests.DoesAppointmentClash(data, roomID, day, toCheck, BookingParts, out _);
 										if (!doesNewClash)
 										{
 											TimeSpan halfway = oldStart.Add(TimeSpan.FromMinutes((count * 15 + appLength) / 2));
@@ -606,6 +609,7 @@ namespace A2_Project.ContentWindows
 		private void UpdateAfterMouseUp(FrameworkElement f)
 		{
 			SwitchToEditing();
+			editingSidebar.DisplayError("");
 			mouseDown = false;
 			Panel.SetZIndex(f, 0);
 
@@ -781,7 +785,11 @@ namespace A2_Project.ContentWindows
 		/// </summary>
 		public void UpdateFromSidebar(string[] data, bool isNew)
 		{
-			if (DBMethods.MiscRequests.DoesAppointmentClash(data, BookingParts)) throw new NotImplementedException();
+			// TODO: Show error message
+			bool doesClash = DBMethods.MiscRequests.DoesAppointmentClash(data, BookingParts, out string errMessage);
+			editingSidebar.DisplayError(errMessage);
+			if (doesClash) throw new NotImplementedException();
+
 			if (currentlySelected.Tag is string[])
 			{
 				if (!isNew)

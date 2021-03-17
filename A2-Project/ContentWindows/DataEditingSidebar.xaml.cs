@@ -5,6 +5,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls;
+using System.Windows.Media;
 
 namespace A2_Project.ContentWindows
 {
@@ -21,6 +22,7 @@ namespace A2_Project.ContentWindows
 		private string[] selectedData;
 		private readonly string tableName;
 		private Label lblIsAppInitial;
+		private Label lblErrMessage;
 
 		private TextBlock tbcErr1;
 		private TextBlock tbcErr2;
@@ -401,6 +403,14 @@ namespace A2_Project.ContentWindows
 			};
 			stp.Children.Add(lblIsAppInitial);
 
+			lblErrMessage = new Label()
+			{
+				Content = "",
+				Visibility = Visibility.Collapsed,
+				Foreground = new SolidColorBrush(Color.FromRgb(182, 24, 39))
+			};
+			stp.Children.Add(lblErrMessage);
+
 			if (tableName == "Appointment")
 			{
 				Button btnCancelApp = new Button()
@@ -536,6 +546,19 @@ namespace A2_Project.ContentWindows
 						b.Content = "Save Changes";
 					}
 				}
+			}
+		}
+
+		internal void DisplayError(string errMessage)
+		{
+			if (errMessage == "")
+			{
+				lblErrMessage.Visibility = Visibility.Collapsed;
+			}
+			else
+			{
+				lblErrMessage.Content = errMessage;
+				lblErrMessage.Visibility = Visibility.Visible;
 			}
 		}
 
