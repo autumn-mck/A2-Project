@@ -14,7 +14,9 @@
 				<Setter Property="HorizontalAlignment" Value="Left"/>
 			</Style>
 		</Grid.Resources>
-		<WrapPanel x:Name="wrpStaff" Width="1500" HorizontalAlignment="Left" Orientation="Horizontal"/>
-		<Rectangle x:Name="rctBase" MouseDown="RctBase_MouseDown" Fill="#B71C1C" Margin="1500, 0, 0, 0" StrokeThickness="1" Stroke="Black" VerticalAlignment="Center" HorizontalAlignment="Left" Height="90" Width="55"/>
+		<WrapPanel x:Name="wrpStaff" Width="1250" HorizontalAlignment="Left" Orientation="Horizontal"/>
+		<Button x:Name="btnClashCount" Content="Get how many&#xD;&#xA;appointments clash" VerticalAlignment="Top" HorizontalAlignment="Left" HorizontalContentAlignment="Center" FontSize="20" Click="BtnClashCount_Click" Margin="1500,20,0,0"/>
+		<Rectangle x:Name="rctBase" MouseDown="RctBase_MouseDown" Fill="#B71C1C" Margin="1250, 0, 0, 0" StrokeThickness="1" Stroke="Black" VerticalAlignment="Center" HorizontalAlignment="Left" Height="90" Width="55"/>
+		<Grid x:Name="grdHolidays" VerticalAlignment="Top" HorizontalAlignment="Left" Width="500" Height="800" Background="#0B0B0B" Margin="1350, 100, 0, 0"/>
 	</Grid>
 </Window>
