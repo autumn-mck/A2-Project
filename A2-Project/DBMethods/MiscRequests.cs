@@ -170,21 +170,8 @@ namespace A2_Project.DBMethods
 			string staffID = oldData[3];
 			int dow = (int)(date.DayOfWeek + 6) % 7;
 
-			string shiftQuery = $"SELECT [Shift Start Time], [Shift End Time] FROM [Shift] WHERE [Shift].[Staff ID] = {staffID} AND [Shift].[Shift Day] = {dow};";
-			List<List<string>> shiftData = DBAccess.GetListStringsWithQuery(shiftQuery);
-
-			bool isInShift = false;
-			foreach (List<string> shift in shiftData)
-			{
-				TimeSpan shiftStart = TimeSpan.Parse(shift[0]);
-				TimeSpan shiftEnd = TimeSpan.Parse(shift[1]);
-
-				isInShift = (time >= shiftStart && appEnd <= shiftEnd) || isInShift;
-
-				// TODO: If a shift starts in shift A and ends in shift B, and shift A and B have no time gap between them,
-				// The result will still be marked as clashing. This is an unsupported use case.
-			}
-			if (!isInShift)
+			
+			if (!IsAppInShift(dow, staffID, time, appEnd))
 			{
 				errMessage = "That staff member's shift does not cover that time!";
 				return true;
@@ -192,6 +179,27 @@ namespace A2_Project.DBMethods
 
 			errMessage = "";
 			return false;
+		}
+
+		public static bool IsAppInShift(int dow, string staffID, TimeSpan appStart, TimeSpan appEnd)
+		{
+			bool isInShift = false;
+
+			string shiftQuery = $"SELECT [Shift Start Time], [Shift End Time] FROM [Shift] WHERE [Shift].[Staff ID] = {staffID} AND [Shift].[Shift Day] = {dow};";
+			List<List<string>> shiftData = DBAccess.GetListStringsWithQuery(shiftQuery);
+
+			foreach (List<string> shift in shiftData)
+			{
+				TimeSpan shiftStart = TimeSpan.Parse(shift[0]);
+				TimeSpan shiftEnd = TimeSpan.Parse(shift[1]);
+
+				isInShift = (appStart >= shiftStart && appEnd <= shiftEnd) || isInShift;
+
+				// TODO: If a shift starts in shift A and ends in shift B, and shift A and B have no time gap between them,
+				// The result will still be marked as clashing. This is an unsupported use case.
+			}
+
+			return isInShift;
 		}
 
 		public static int GetAppLength(string[] data)

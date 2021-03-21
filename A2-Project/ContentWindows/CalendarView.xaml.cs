@@ -548,7 +548,13 @@ namespace A2_Project.ContentWindows
 			if (currentlySelected is Rectangle rct)
 			{
 				rct.Stroke = Brushes.Black;
-				rct.StrokeThickness /= 2;
+				rct.StrokeThickness = 1;
+
+				if (DBMethods.MiscRequests.DoesAppointmentClash(GetDataTag(rct), BookingParts, out _))
+				{
+					rct.StrokeThickness = 4;
+					rct.Stroke = Brushes.Red;
+				}
 			}
 
 			// Update which element is currently selected
@@ -567,7 +573,7 @@ namespace A2_Project.ContentWindows
 						Margin = rect.Margin,
 						Fill = rect.Fill,
 						Stroke = Brushes.AliceBlue, // A different stroke help marks out which appointment is currently selected
-						StrokeThickness = rect.StrokeThickness * 2,
+						StrokeThickness = 2,
 						Tag = rect.Tag,
 						VerticalAlignment = rect.VerticalAlignment,
 						HorizontalAlignment = rect.HorizontalAlignment,
@@ -755,6 +761,17 @@ namespace A2_Project.ContentWindows
 				}
 			}
 
+			Thread thr = new Thread(AddRects)
+			{ IsBackground = true };
+			thr.Start();
+		}
+
+		private void AddRects()
+		{
+			DateTime startOfWeek = DateTime.Now.Date;
+			Dispatcher.Invoke(() => startOfWeek = GetStartOfWeek());
+			DateTime endOfWeek = startOfWeek.AddDays(7);
+
 			foreach (BookingCreator booking in BookingParts)
 			{
 				List<string[]> bkData = booking.GetData();
@@ -762,7 +779,7 @@ namespace A2_Project.ContentWindows
 				{
 					string[] bk = bkData[i];
 					DateTime bkDate = DateTime.Parse(bk[9]).Date;
-					if (bkDate >= GetStartOfWeek() && bkDate <= GetStartOfWeek().AddDays(7))
+					if (bkDate >= startOfWeek && bkDate <= endOfWeek)
 					{
 						Rectangle r = GenRectFromData(bk, "r" + i.ToString());
 						if (r is not null) r.Tag = booking;
@@ -860,10 +877,16 @@ namespace A2_Project.ContentWindows
 				Name = name
 			};
 
+			if (!DBMethods.MiscRequests.IsAppInShift(dDiff, data[3], d.TimeOfDay, d.TimeOfDay.Add(TimeSpan.FromMinutes(appLength))))
+			{
+				newRect.Stroke = Brushes.Red;
+				newRect.StrokeThickness = 4;
+			}
+
 			if (currentlySelected is not null && currentlySelected.Tag == data)
 			{
 				newRect.Stroke = Brushes.AliceBlue;
-				newRect.StrokeThickness *= 2;
+				newRect.StrokeThickness = 2;
 				currentlySelected = newRect;
 			}
 
@@ -876,7 +899,7 @@ namespace A2_Project.ContentWindows
 						editingSidebar.ChangeSelectedData((string[])newRect.Tag);
 						currentlySelected = newRect;
 						newRect.Stroke = Brushes.AliceBlue;
-						newRect.StrokeThickness *= 2;
+						newRect.StrokeThickness = 2;
 					}
 				}
 			}
@@ -885,7 +908,7 @@ namespace A2_Project.ContentWindows
 			{
 				currentlySelected = newRect;
 				newRect.Stroke = Brushes.AliceBlue;
-				newRect.StrokeThickness *= 2;
+				newRect.StrokeThickness = 2;
 			}
 
 			newRect.MouseDown += Rectangle_MouseDown;
@@ -985,7 +1008,7 @@ namespace A2_Project.ContentWindows
 		{
 			Rectangle r = (Rectangle)currentlySelected;
 			//r.Stroke = Brushes.AliceBlue;
-			//r.StrokeThickness *= 2;
+			//r.StrokeThickness = 2;
 
 			grdResults.MouseEnter -= GrdResults_MouseEnter;
 			r.IsHitTestVisible = true;
