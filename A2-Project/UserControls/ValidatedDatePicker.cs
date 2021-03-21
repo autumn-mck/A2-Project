@@ -28,7 +28,6 @@ namespace A2_Project.UserControls
 			{
 				LayoutTransform = new ScaleTransform(scale, scale),
 				Width = 200 / scale,
-				Height = 60 / scale
 			};
 			stpContent.Children.Add(datePicker);
 			datePicker.AddNewTextChanged(IsValidDate_TextChanged);

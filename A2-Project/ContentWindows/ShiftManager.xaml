@@ -16,7 +16,16 @@
 		</Grid.Resources>
 		<WrapPanel x:Name="wrpStaff" Width="1250" HorizontalAlignment="Left" Orientation="Horizontal"/>
 		<Button x:Name="btnClashCount" Content="Get how many&#xD;&#xA;appointments clash" VerticalAlignment="Top" HorizontalAlignment="Left" HorizontalContentAlignment="Center" FontSize="20" Click="BtnClashCount_Click" Margin="1500,20,0,0"/>
-		<Rectangle x:Name="rctBase" MouseDown="RctBase_MouseDown" Fill="#B71C1C" Margin="1250, 0, 0, 0" StrokeThickness="1" Stroke="Black" VerticalAlignment="Center" HorizontalAlignment="Left" Height="90" Width="55"/>
-		<Grid x:Name="grdHolidays" VerticalAlignment="Top" HorizontalAlignment="Left" Width="500" Height="800" Background="#0B0B0B" Margin="1350, 100, 0, 0"/>
+		<Rectangle x:Name="rctBase" MouseDown="RctBase_MouseDown" Fill="#B71C1C" Margin="1000, 500, 0, 0" StrokeThickness="1" Stroke="Black" VerticalAlignment="Center" HorizontalAlignment="Left" Height="90" Width="55"/>
+		<Grid x:Name="grdHolidays" VerticalAlignment="Top" HorizontalAlignment="Left" Width="660" Height="800" Background="#0B0B0B" Margin="1200, 100, 0, 0">
+			<ScrollViewer Margin="0, 0, 0, 100">
+				<StackPanel x:Name="stpShiftExc"/>
+			</ScrollViewer>
+			<Grid x:Name="grdNewExc" Background="#151515" VerticalAlignment="Bottom" Margin="10">
+				<StackPanel x:Name="stpNewExc"  Orientation="Horizontal">
+					<Label Content="For " FontSize="20"/>
+				</StackPanel>
+			</Grid>
+		</Grid>
 	</Grid>
 </Window>
