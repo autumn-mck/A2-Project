@@ -8,6 +8,7 @@ using System.Windows.Input;
 using System.Windows.Media;
 using System.Windows.Shapes;
 using A2_Project.DBMethods;
+using A2_Project.UserControls;
 
 namespace A2_Project.ContentWindows
 {
@@ -37,10 +38,14 @@ namespace A2_Project.ContentWindows
 		private Point mousePos;
 
 		private DBObjects.Column[] shiftColumns;
+		private DBObjects.Column[] shiftExcColumns;
 
 		public ShiftManager()
 		{
 			InitializeComponent();
+
+			shiftColumns = DBObjects.DB.Tables.Where(t => t.Name == "Shift").First().Columns;
+			shiftExcColumns = DBObjects.DB.Tables.Where(t => t.Name == "Shift Exception").First().Columns;
 
 			// Get the colours for filters
 			colours = new Color[]
@@ -55,25 +60,93 @@ namespace A2_Project.ContentWindows
 			rctBase.Width = dayWidth;
 			rctBase.Height = hourHeight * 7;
 
-			List<List<string>> staffData = DBMethods.MetaRequests.GetAllFromTable("Staff");
+			List<List<string>> staffData = MetaRequests.GetAllFromTable("Staff");
 			List<Panel> staffPanels = new List<Panel>();
 			foreach (List<string> staff in staffData)
 			{
 				staffPanels.Add(GenForStaff(staff.ToArray()));
 			}
 
-			List<List<string>> shiftData = DBMethods.MetaRequests.GetAllFromTable("Shift");
+			List<List<string>> shiftData = MetaRequests.GetAllFromTable("Shift");
 			foreach (List<string> shift in shiftData)
 			{
 				Panel shiftPanel = GenShiftWithData(shift.ToArray());
 				staffPanels[Convert.ToInt32(shift[1])].Children.Add(shiftPanel);
 			}
 
+			UpdateShiftExcs();
+
+			ValidatedTextbox tbxNewExStaff = new ValidatedTextbox(shiftExcColumns[1]);
+			tbxNewExStaff.SetWidth(100);
+			tbxNewExStaff.ToggleImage();
+			tbxNewExStaff.Width = 90;
+			tbxNewExStaff.Text = "0";
+			stpNewExc.Children.Add(tbxNewExStaff);
+
+			ValidatedDatePicker dtpNewExStart = new ValidatedDatePicker(shiftExcColumns[2]);
+			dtpNewExStart.ToggleImage();
+			dtpNewExStart.SetWidth(160);
+			dtpNewExStart.SelectedDate = DateTime.Now.Date;
+			stpNewExc.Children.Add(dtpNewExStart);
+
+			Label lbl = new Label()
+			{
+				Content = " to ",
+				FontSize = 20
+			};
+			stpNewExc.Children.Add(lbl);
+
+			ValidatedDatePicker dtpNewExEnd = new ValidatedDatePicker(shiftExcColumns[3]);
+			dtpNewExEnd.ToggleImage();
+			dtpNewExEnd.SetWidth(160);
+			dtpNewExEnd.SelectedDate = DateTime.Now.Date.AddDays(7);
+			stpNewExc.Children.Add(dtpNewExEnd);
+
+			Button btnConfirmNewEx = new Button()
+			{
+				Content = " Confirm ",
+				FontSize = 20,
+				HorizontalAlignment  = HorizontalAlignment.Right
+			};
+			btnConfirmNewEx.Click += BtnConfirmNewEx_Click;
+			grdNewExc.Children.Add(btnConfirmNewEx);
+
 			Thread loopThread = new Thread(Loop)
 			{ IsBackground = true };
 			loopThread.Start();
+		}
 
-			shiftColumns = DBObjects.DB.Tables.Where(t => t.Name == "Shift").First().Columns;
+		internal void RemoveShiftExc(ShiftException shiftException)
+		{
+			string excID = shiftException.Tag.ToString();
+			MiscRequests.DeleteItem("Shift Exception", "Shift Exception ID", excID, true);
+			IEnumerable<Panel> panels = stpShiftExc.Children.OfType<Panel>();
+			foreach (Panel p in panels)
+			{
+				p.Children.Remove(shiftException);
+			}
+			shiftException = null;
+		}
+
+		private void BtnConfirmNewEx_Click(object sender, RoutedEventArgs e)
+		{
+			ValidatedTextbox tbxNewExStaff = stpNewExc.Children.OfType<ValidatedTextbox>().First();
+			ValidatedDatePicker[] dates = stpNewExc.Children.OfType<ValidatedDatePicker>().ToArray();
+
+			if (tbxNewExStaff.IsValid && dates[0].IsValid && dates[1].IsValid)
+			{
+				string[] newData = new string[4];
+				newData[0] = MiscRequests.GetMinKeyNotUsed("Shift Exception", "Shift Exception ID");
+				newData[1] = tbxNewExStaff.Text;
+				newData[2] = dates[0].SelectedDate.ToString("dd-MM-yyyy");
+				newData[3] = dates[1].SelectedDate.ToString("dd-MM-yyyy");
+
+				// TODO: Enforce startDate < endDate
+
+				DBAccess.UpdateTable("Shift Exception", shiftExcColumns.Select(c => c.Name).ToArray(), newData, true);
+
+				UpdateShiftExcs();
+			}
 		}
 
 		private void Loop()
@@ -458,6 +531,76 @@ namespace A2_Project.ContentWindows
 			}
 		}
 
+		private void UpdateShiftExcs()
+		{
+			stpShiftExc.Children.Clear();
+			List<List<string>> pastShiftExcData = DBAccess.GetListStringsWithQuery("SELECT * FROM [Shift Exception] WHERE [End Date] < GETDATE()");
+			List<List<string>> currentShiftExcData = DBAccess.GetListStringsWithQuery("SELECT * FROM [Shift Exception] WHERE [End Date] >= GETDATE() AND [Start Date] <= GETDATE()");
+			List<List<string>> futureShiftExcData = DBAccess.GetListStringsWithQuery("SELECT * FROM [Shift Exception] WHERE [Start Date] >= GETDATE()");
+
+			StackPanel stpPast = new StackPanel()
+			{
+				Orientation = Orientation.Vertical
+			};
+
+			StackPanel stpCurrent = new StackPanel()
+			{
+				Orientation = Orientation.Vertical
+			};
+
+			StackPanel stpFuture = new StackPanel()
+			{
+				Orientation = Orientation.Vertical
+			};
+
+			foreach (List<string> excData in pastShiftExcData)
+			{
+				ShiftException shiftException = new ShiftException(excData, this);
+				stpPast.Children.Add(shiftException);
+			}
+
+			foreach (List<string> excData in currentShiftExcData)
+			{
+				ShiftException shiftException = new ShiftException(excData, this);
+				stpCurrent.Children.Add(shiftException);
+			}
+
+			foreach (List<string> excData in futureShiftExcData)
+			{
+				ShiftException shiftException = new ShiftException(excData, this);
+				stpFuture.Children.Add(shiftException);
+			}
+
+			Label lblPast = new Label()
+			{
+				Content = "Past:",
+				FontSize = 24
+			};
+
+			Label lblCurrent = new Label()
+			{
+				Content = "Current:",
+				FontSize = 24
+			};
+
+			Label lblFuture = new Label()
+			{
+				Content = "Future:",
+				FontSize = 24
+			};
+
+			stpShiftExc.Children.Add(lblPast);
+			stpShiftExc.Children.Add(stpPast);
+
+			stpShiftExc.Children.Add(lblCurrent);
+			stpShiftExc.Children.Add(stpCurrent);
+
+			stpShiftExc.Children.Add(lblFuture);
+			stpShiftExc.Children.Add(stpFuture);
+
+			// TODO: Scroll to current items
+		}
+
 		private void BtnClashCount_Click(object sender, RoutedEventArgs e)
 		{
 			List<List<string>> staffData = MetaRequests.GetAllFromTable("Staff");
@@ -469,14 +612,18 @@ namespace A2_Project.ContentWindows
 				List<List<string>> staffShiftData = MiscRequests.GetByColumnData("Shift", "Staff ID", staff[0]);
 
 				string queryAppts = $"Set DATEFIRST 1; SELECT *, DATEPART(dw, [Appointment Date]) - 1 FROM [Appointment] WHERE [Appointment].[Staff ID] = {staff[0]} AND GETDATE() < [Appointment].[Appointment Date]";
-				List<List<string>> results = DBAccess.GetListStringsWithQuery(queryAppts);
+				List<List<string>> appResults = DBAccess.GetListStringsWithQuery(queryAppts);
 
-				foreach (List<string> app in results)
+				string queryShiftExcs = $"SELECT [Start Date], [End Date] FROM [Shift Exception] WHERE [Staff ID] = {staff[0]};";
+				List<List<string>> excResults = DBAccess.GetListStringsWithQuery(queryShiftExcs);
+
+				foreach (List<string> app in appResults)
 				{
 					bool isInShift = false;
 					TimeSpan appStart = TimeSpan.Parse(app[10]);
 					int thisAppLength = MiscRequests.GetAppLength(app.ToArray());
 					TimeSpan appEnd = appStart.Add(TimeSpan.FromMinutes(thisAppLength));
+					DateTime appDate = DateTime.Parse(app[9]);
 					foreach (List<string> shift in staffShiftData)
 					{
 						if (shift[2] != app[11]) continue;
@@ -487,7 +634,16 @@ namespace A2_Project.ContentWindows
 						isInShift = (appStart >= shiftStart && appEnd <= shiftEnd) || isInShift;
 					}
 
-					if (!isInShift) count++;
+					bool isInShiftExc = false;
+					foreach (List<string> shiftExc in excResults)
+					{
+						DateTime excStart = DateTime.Parse(shiftExc[0]);
+						DateTime excEnd = DateTime.Parse(shiftExc[1]);
+
+						isInShiftExc = isInShiftExc || (appDate <= excEnd && appDate >= excStart);
+					}
+
+					if (!isInShift || isInShiftExc) count++;
 				}
 			}
 			MessageBox.Show($"Warning: There are {count} appointments that clash with staff schedules");

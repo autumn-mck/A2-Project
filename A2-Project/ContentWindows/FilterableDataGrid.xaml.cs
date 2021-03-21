@@ -422,6 +422,7 @@ namespace A2_Project.ContentWindows
 			DataRow row = dataTable.Rows.OfType<DataRow>().Where(r => r.ItemArray[0].ToString() == text).FirstOrDefault();
 			int index = dataTable.Rows.IndexOf(row);
 			dtg.SelectedIndex = index;
+			if (index == -1) return;
 			dtg.ScrollIntoView(dtg.SelectedItem);
 		}
 	}

@@ -877,7 +877,7 @@ namespace A2_Project.ContentWindows
 				Name = name
 			};
 
-			if (!DBMethods.MiscRequests.IsAppInShift(dDiff, data[3], d.TimeOfDay, d.TimeOfDay.Add(TimeSpan.FromMinutes(appLength))))
+			if (!DBMethods.MiscRequests.IsAppInShift(dDiff, data[3], d.TimeOfDay, d.TimeOfDay.Add(TimeSpan.FromMinutes(appLength)), d.Date))
 			{
 				newRect.Stroke = Brushes.Red;
 				newRect.StrokeThickness = 4;

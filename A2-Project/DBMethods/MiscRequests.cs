@@ -171,7 +171,7 @@ namespace A2_Project.DBMethods
 			int dow = (int)(date.DayOfWeek + 6) % 7;
 
 			
-			if (!IsAppInShift(dow, staffID, time, appEnd))
+			if (!IsAppInShift(dow, staffID, time, appEnd, date.Date))
 			{
 				errMessage = "That staff member's shift does not cover that time!";
 				return true;
@@ -181,7 +181,7 @@ namespace A2_Project.DBMethods
 			return false;
 		}
 
-		public static bool IsAppInShift(int dow, string staffID, TimeSpan appStart, TimeSpan appEnd)
+		public static bool IsAppInShift(int dow, string staffID, TimeSpan appStart, TimeSpan appEnd, DateTime appDate)
 		{
 			bool isInShift = false;
 
@@ -199,7 +199,10 @@ namespace A2_Project.DBMethods
 				// The result will still be marked as clashing. This is an unsupported use case.
 			}
 
-			return isInShift;
+			string shiftExcQuery = $"SELECT [Shift Exception ID] FROM [Shift Exception] WHERE [Staff ID] = {staffID} AND [Start Date] <= '{appDate:yyyy-MM-dd}' AND [End Date] >= '{appDate:yyyy-MM-dd}';";
+			List<string> shiftExcData = DBAccess.GetStringsWithQuery(shiftExcQuery);
+
+			return isInShift && shiftExcData.Count == 0;
 		}
 
 		public static int GetAppLength(string[] data)

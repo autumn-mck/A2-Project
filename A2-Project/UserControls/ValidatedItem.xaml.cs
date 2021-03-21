@@ -1,5 +1,6 @@
 ﻿using System;
 using System.IO;
+using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Media.Imaging;
 
@@ -71,6 +72,13 @@ namespace A2_Project.UserControls
 			else img.Source = invalidImage;
 			img.Visibility = System.Windows.Visibility.Visible;
 
+		}
+
+		public void ToggleImage()
+		{
+			if (img.Visibility == Visibility.Visible)
+				img.Visibility = Visibility.Collapsed;
+			else img.Visibility = Visibility.Visible;
 		}
 	}
 }
