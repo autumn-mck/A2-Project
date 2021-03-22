@@ -1,4 +1,4 @@
-﻿DROP TABLE [Shift Exception];
+﻿--DROP TABLE [Shift Exception];
 --DROP TABLE [Shift];
 DROP TABLE Appointment;
 DROP TABLE Booking;
@@ -176,9 +176,9 @@ CREATE TABLE [Appointment] (
 --	[Shift End Time] TIME NOT NULL
 --);
 
-CREATE TABLE [Shift Exception] (
-	[Shift Exception ID] INT NOT NULL PRIMARY KEY,
-	[Staff ID] INT NOT NULL FOREIGN KEY REFERENCES [Staff] ON DELETE CASCADE,
-	[Start Date] DATE NOT NULL,
-	[End Date] DATE NOT NULL
-);
+--CREATE TABLE [Shift Exception] (
+--	[Shift Exception ID] INT NOT NULL PRIMARY KEY,
+--	[Staff ID] INT NOT NULL FOREIGN KEY REFERENCES [Staff] ON DELETE CASCADE,
+--	[Start Date] DATE NOT NULL,
+--	[End Date] DATE NOT NULL
+--);
