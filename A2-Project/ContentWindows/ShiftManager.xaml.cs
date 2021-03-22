@@ -531,12 +531,19 @@ namespace A2_Project.ContentWindows
 			}
 		}
 
+		internal void UpdateShiftExc(ShiftException shiftException)
+		{
+			DBAccess.UpdateTable("Shift Exception", shiftExcColumns.Select(s => s.Name).ToArray(), shiftException.GetData(), false);
+			UpdateShiftExcs();
+			// TODO: Scroll to updated item or something?
+		}
+
 		private void UpdateShiftExcs()
 		{
 			stpShiftExc.Children.Clear();
-			List<List<string>> pastShiftExcData = DBAccess.GetListStringsWithQuery("SELECT * FROM [Shift Exception] WHERE [End Date] < GETDATE()");
-			List<List<string>> currentShiftExcData = DBAccess.GetListStringsWithQuery("SELECT * FROM [Shift Exception] WHERE [End Date] >= GETDATE() AND [Start Date] <= GETDATE()");
-			List<List<string>> futureShiftExcData = DBAccess.GetListStringsWithQuery("SELECT * FROM [Shift Exception] WHERE [Start Date] >= GETDATE()");
+			List<List<string>> pastShiftExcData = DBAccess.GetListStringsWithQuery("SELECT * FROM [Shift Exception] WHERE [End Date] < GETDATE() ORDER BY [Start Date];");
+			List<List<string>> currentShiftExcData = DBAccess.GetListStringsWithQuery("SELECT * FROM [Shift Exception] WHERE [End Date] >= GETDATE() AND [Start Date] <= GETDATE() ORDER BY [Start Date];");
+			List<List<string>> futureShiftExcData = DBAccess.GetListStringsWithQuery("SELECT * FROM [Shift Exception] WHERE [Start Date] >= GETDATE() ORDER BY [Start Date];");
 
 			StackPanel stpPast = new StackPanel()
 			{
@@ -595,10 +602,11 @@ namespace A2_Project.ContentWindows
 			stpShiftExc.Children.Add(lblCurrent);
 			stpShiftExc.Children.Add(stpCurrent);
 
+
 			stpShiftExc.Children.Add(lblFuture);
 			stpShiftExc.Children.Add(stpFuture);
 
-			// TODO: Scroll to current items
+			scvShiftExc.ScrollToVerticalOffset(pastShiftExcData.Count * 50 + 40);
 		}
 
 		private void BtnClashCount_Click(object sender, RoutedEventArgs e)

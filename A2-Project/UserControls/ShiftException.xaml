@@ -9,6 +9,9 @@
 	<Grid Background="#151515">
 		<StackPanel x:Name="stp" Orientation="Horizontal">
 		</StackPanel>
-		<Label Name="lblDelete" Content="x" HorizontalAlignment="Right" Foreground="#F1F1F1" FontSize="20" MouseDown="LblDelete_MouseDown"/>
+		<StackPanel Orientation="Horizontal"  HorizontalAlignment="Right">
+			<Button x:Name="btnSave" Content="Save Changes" FontSize="20" Margin="0, 0, 10, 0" Click="BtnSave_Click" Visibility="Collapsed"/>
+			<Label Name="lblDelete" Content="x" Foreground="#F1F1F1" FontSize="20" MouseDown="LblDelete_MouseDown"/>
+		</StackPanel>
 	</Grid>
 </UserControl>

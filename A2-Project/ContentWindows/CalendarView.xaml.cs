@@ -73,6 +73,7 @@ namespace A2_Project.ContentWindows
 
 		public List<BookingCreator> BookingParts { get; set; }
 
+		// TODO: Should not be able to reschedule appointments in the past?
 		public CalandarView()
 		{
 			BookingParts = new List<BookingCreator>();
@@ -877,7 +878,7 @@ namespace A2_Project.ContentWindows
 				Name = name
 			};
 
-			if (!DBMethods.MiscRequests.IsAppInShift(dDiff, data[3], d.TimeOfDay, d.TimeOfDay.Add(TimeSpan.FromMinutes(appLength)), d.Date))
+			if (DBMethods.MiscRequests.DoesAppointmentClash(data, BookingParts, out _) || !DBMethods.MiscRequests.IsAppInShift(dDiff, data[3], d.TimeOfDay, d.TimeOfDay.Add(TimeSpan.FromMinutes(appLength)), d.Date))
 			{
 				newRect.Stroke = Brushes.Red;
 				newRect.StrokeThickness = 4;
