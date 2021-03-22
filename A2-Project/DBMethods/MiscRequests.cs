@@ -78,17 +78,18 @@ namespace A2_Project.DBMethods
 
 		public static bool IsAppointmentInitial(string[] data)
 		{
-			try 
-			{
-				// TODO: Take currently being booked into account!
-				string dogID = data[1];
-				if (dogID == "") return false;
-				List<string> firstData = DBAccess.GetListStringsWithQuery($"SELECT TOP 1 [Appointment].[Appointment Date], [Appointment].[Appointment Time] FROM [Appointment] INNER JOIN [Dog] ON [Dog].[Dog ID] = [Appointment].[Dog ID] WHERE [Dog].[Dog ID] = {dogID} ORDER BY [Appointment].[Appointment Date], [Appointment].[Appointment Time];")[0];
-				DateTime initDateTime = DateTime.Parse(firstData[0]).Add(TimeSpan.Parse(firstData[1]));
-				DateTime compDateTime = DateTime.Parse(data[9]).Add(TimeSpan.Parse(data[10]));
-				return compDateTime <= initDateTime;
-			}
-			catch { return false; }
+			// TODO: Take currently being booked into account!
+			string dogID = data[1];
+			if (dogID == "") return false;
+			List<List<string>> results = DBAccess.GetListStringsWithQuery($"SELECT TOP 1 [Appointment].[Appointment ID], [Appointment].[Appointment Date], [Appointment].[Appointment Time] FROM [Appointment] INNER JOIN [Dog] ON [Dog].[Dog ID] = [Appointment].[Dog ID] WHERE [Dog].[Dog ID] = {dogID} ORDER BY [Appointment].[Appointment Date], [Appointment].[Appointment Time];");
+			if (results.Count == 0) return true;
+
+			if (data[0] == results[0][0]) return true;
+
+			DateTime initDateTime = DateTime.Parse(results[0][1]).Add(TimeSpan.Parse(results[0][2]));
+			if (data[9] == "" || data[10] == "") return false;
+			DateTime compDateTime = DateTime.Parse(data[9]).Add(TimeSpan.Parse(data[10]));
+			return compDateTime <= initDateTime;
 		}
 
 		internal static bool DoesAppointmentClash(string[] data, List<BookingCreator> bookings, out string errMessage)
@@ -98,7 +99,6 @@ namespace A2_Project.DBMethods
 
 		public static bool DoesAppointmentClash(string[] oldData, int roomID, DateTime date, TimeSpan time, List<BookingCreator> bookings, out string errMessage)
 		{
-			// TODO: Give error why appointment clashes, not just true/false
 			int thisAppLength = GetAppLength(oldData);
 			TimeSpan appEnd = time.Add(new TimeSpan(0, thisAppLength, 0));
 
