@@ -11,6 +11,9 @@ namespace A2_Project.UserControls
 	{
 		private DBObjects.Column[] columns;
 		private ContentWindows.ShiftManager container;
+
+		private string[] prevData;
+
 		public ShiftException(List<string> data, ContentWindows.ShiftManager _container)
 		{
 			InitializeComponent();
@@ -25,12 +28,14 @@ namespace A2_Project.UserControls
 			tbxNewExStaff.ToggleImage();
 			tbxNewExStaff.Width = 90;
 			tbxNewExStaff.Text = data[1];
+			tbxNewExStaff.AddTextChangedEvent(TextChangedEvent);
 			stp.Children.Add(tbxNewExStaff);
 
 			ValidatedDatePicker dtpNewExStart = new ValidatedDatePicker(columns[2]);
 			dtpNewExStart.ToggleImage();
 			dtpNewExStart.SetWidth(160);
 			dtpNewExStart.Text = data[2];
+			dtpNewExStart.AddTextChangedEvent(TextChangedEvent);
 			stp.Children.Add(dtpNewExStart);
 
 			Label lbl = new Label()
@@ -45,7 +50,10 @@ namespace A2_Project.UserControls
 			dtpNewExEnd.SetWidth(160);
 			dtpNewExStart.Height = 40;
 			dtpNewExEnd.Text = data[3];
+			dtpNewExEnd.AddTextChangedEvent(TextChangedEvent);
 			stp.Children.Add(dtpNewExEnd);
+
+			prevData = GetNewData(out _);
 		}
 
 		private void LblDelete_MouseDown(object sender, System.Windows.Input.MouseButtonEventArgs e)
@@ -53,13 +61,35 @@ namespace A2_Project.UserControls
 			container.RemoveShiftExc(this);
 		}
 
-		private string[] GetData()
+		public string[] GetData()
+		{
+			return prevData;
+		}
+
+		private string[] GetNewData(out bool isValid)
 		{
 			string id = Tag.ToString();
 			ValidatedTextbox tbxStaff = stp.Children.OfType<ValidatedTextbox>().First();
 			ValidatedDatePicker[] dates = stp.Children.OfType<ValidatedDatePicker>().ToArray();
-			// Note: Does not check if data is valid before returning
+			isValid = tbxStaff.IsValid && dates[0].IsValid && dates[1].IsValid;
 			return new string[] { id, tbxStaff.Text, dates[0].SelectedDate.ToString("yyyy-MM-dd"), dates[1].SelectedDate.ToString("yyyy-MM-dd") };
+		}
+
+		private void TextChangedEvent(object sender, TextChangedEventArgs e)
+		{
+			string[] newData = GetNewData(out bool isValid);
+			if (isValid && !newData.SequenceEqual(prevData))
+			{
+				btnSave.Visibility = System.Windows.Visibility.Visible;
+			}
+			else btnSave.Visibility = System.Windows.Visibility.Collapsed;
+		}
+
+		private void BtnSave_Click(object sender, System.Windows.RoutedEventArgs e)
+		{
+			string[] newData = GetNewData(out _);
+			prevData = newData;
+			container.UpdateShiftExc(this);
 		}
 	}
 }
