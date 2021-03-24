@@ -76,19 +76,36 @@ namespace A2_Project.DBMethods
 			return id.ToString();
 		}
 
-		public static bool IsAppointmentInitial(string[] data)
+		public static bool IsAppointmentInitial(string[] data, List<BookingCreator> booking)
 		{
-			// TODO: Take currently being booked into account!
 			string dogID = data[1];
 			if (dogID == "") return false;
+
 			List<List<string>> results = DBAccess.GetListStringsWithQuery($"SELECT TOP 1 [Appointment].[Appointment ID], [Appointment].[Appointment Date], [Appointment].[Appointment Time] FROM [Appointment] INNER JOIN [Dog] ON [Dog].[Dog ID] = [Appointment].[Dog ID] WHERE [Dog].[Dog ID] = {dogID} ORDER BY [Appointment].[Appointment Date], [Appointment].[Appointment Time];");
 			if (results.Count == 0) return true;
+
+
+			if (data[9] == "" || data[10] == "") return false;
+			DateTime compDateTime = DateTime.Parse(data[9]).Add(TimeSpan.Parse(data[10]));
+
+			foreach (BookingCreator b in booking)
+			{
+				List<string[]> bkData = b.GetData();
+				foreach (string[] bk in bkData)
+				{
+					if (bk[9] == "" || bk[10] == "") continue;
+					if (bk[1] == data[1])
+					{
+						DateTime bkDateTime = DateTime.Parse(bk[9]).Add(TimeSpan.Parse(bk[10]));
+						if (compDateTime > bkDateTime) return false;
+					}
+				}
+			}
 
 			if (data[0] == results[0][0]) return true;
 
 			DateTime initDateTime = DateTime.Parse(results[0][1]).Add(TimeSpan.Parse(results[0][2]));
-			if (data[9] == "" || data[10] == "") return false;
-			DateTime compDateTime = DateTime.Parse(data[9]).Add(TimeSpan.Parse(data[10]));
+
 			return compDateTime <= initDateTime;
 		}
 
@@ -99,7 +116,7 @@ namespace A2_Project.DBMethods
 
 		public static bool DoesAppointmentClash(string[] oldData, int roomID, DateTime date, TimeSpan time, List<BookingCreator> bookings, out string errMessage)
 		{
-			int thisAppLength = GetAppLength(oldData);
+			int thisAppLength = GetAppLength(oldData, bookings);
 			TimeSpan appEnd = time.Add(new TimeSpan(0, thisAppLength, 0));
 
 			foreach(BookingCreator booking in bookings)
@@ -118,7 +135,7 @@ namespace A2_Project.DBMethods
 					&& DateTime.Parse(bk[9]).Date == date)
 					{
 						TimeSpan bkStart = TimeSpan.Parse(bk[10]);
-						int bkLength = GetAppLength(bk);
+						int bkLength = GetAppLength(bk, bookings);
 						TimeSpan bkEnd = bkStart.Add(new TimeSpan(0, bkLength, 0));
 						if ((bkEnd > time && bkStart < time) || (bkStart < appEnd && bkStart >= time))
 						{
@@ -139,7 +156,7 @@ namespace A2_Project.DBMethods
 
 			foreach (List<string> ls in allOnDay)
 			{
-				int appLength = GetAppLength(ls.ToArray());
+				int appLength = GetAppLength(ls.ToArray(), bookings);
 				TimeSpan localAppEnd = TimeSpan.Parse(ls[10]).Add(new TimeSpan(0, appLength, 0));
 				if (localAppEnd > time) potentialCollisions.Add(ls);
 			}
@@ -195,7 +212,7 @@ namespace A2_Project.DBMethods
 
 				isInShift = (appStart >= shiftStart && appEnd <= shiftEnd) || isInShift;
 
-				// TODO: If a shift starts in shift A and ends in shift B, and shift A and B have no time gap between them,
+				// Note: If a shift starts in shift A and ends in shift B, and shift A and B have no time gap between them,
 				// The result will still be marked as clashing. This is an unsupported use case.
 			}
 
@@ -205,14 +222,14 @@ namespace A2_Project.DBMethods
 			return isInShift && shiftExcData.Count == 0;
 		}
 
-		public static int GetAppLength(string[] data)
+		public static int GetAppLength(string[] data, List<BookingCreator> booking)
 		{
 			if (AppTypes is null) AppTypes = MetaRequests.GetAllFromTable("Appointment Type");
 
 			// appLength is in minutes
 			int appLength = (int)(Convert.ToDouble(AppTypes[Convert.ToInt32(data[2])][1]) * 60);
 			if (data[6] == "True") appLength += 15;
-			if (IsAppointmentInitial(data)) appLength += 15;
+			if (IsAppointmentInitial(data, booking)) appLength += 15;
 
 			return appLength;
 		}
@@ -239,7 +256,7 @@ namespace A2_Project.DBMethods
 				ls.Remove(ls[^1]);
 				double price = basePrices[appTypeID];
 				if (ls[5] == "True") price += 10;
-				if (IsAppointmentInitial(ls.ToArray())) price += 5;
+				if (IsAppointmentInitial(ls.ToArray(), null)) price += 5;
 				price = price * (100.0 - GraphingRequests.GetBookingDiscount(ls[0])) / 100.0;
 				ls.Add('£' + Math.Round(price, 2).ToString());
 			}

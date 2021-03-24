@@ -16,8 +16,6 @@ namespace A2_Project.ContentWindows
 	{
 		private readonly object container;
 		private FrameworkElement[] displayElements;
-		// TODO: What is this for?
-		private FrameworkElement[] labelElements;
 		private readonly DBObjects.Column[] columns;
 		private string[] selectedData;
 		private readonly string tableName;
@@ -266,7 +264,6 @@ namespace A2_Project.ContentWindows
 		{
 			int count = columns.Length;
 			displayElements = new FrameworkElement[count];
-			labelElements = new FrameworkElement[count];
 			selectedData = new string[count];
 
 			GenDataEntry(count);
@@ -308,7 +305,6 @@ namespace A2_Project.ContentWindows
 				{
 					Margin = new Thickness(0, 20, 0, 0)
 				};
-				labelElements[i] = lbl;
 
 				FrameworkElement elem = UIMethods.GenAppropriateElement(columns[i], out string title);
 				lbl.Content = title;
@@ -360,7 +356,7 @@ namespace A2_Project.ContentWindows
 				Visibility = Visibility.Collapsed
 			};
 
-			// TODO: Does this bit work properly?
+			// TODO: If I have time, get adding working?
 			//stp.Children.Add(grdAddMode);
 			stp.Children.Add(grdEditMode);
 			stp.Children.Add(tbcErr1);
@@ -462,9 +458,7 @@ namespace A2_Project.ContentWindows
 
 		private void BtnCancelApp_Click(object sender, RoutedEventArgs e)
 		{
-			CheckBox cbx = (CheckBox)displayElements[7];
-			cbx.IsChecked = true;
-			SaveChanges(null);
+			if (container is CalandarView cal) cal.CancelApp();
 			EmptySidebar();
 		}
 
@@ -526,7 +520,6 @@ namespace A2_Project.ContentWindows
 					succeeded = false;
 				}
 
-				// TODO: What should be done when b is null? (When called to cancel appt.)
 				if (b is not null)
 				{
 					if (succeeded)
@@ -537,7 +530,6 @@ namespace A2_Project.ContentWindows
 						await Task.Delay(2000);
 						b.Content = "Save Changes";
 					}
-					// Note: This should never occur, but if something does go wrong then notify the user
 					else
 					{
 						tbcErr1.Text = "\nError: Appointment would clash!";
@@ -576,16 +568,9 @@ namespace A2_Project.ContentWindows
 		}
 		#endregion Edit Mode
 
-		public void HideButtons()
-		{
-			// TODO: Why is this method here?
-			grdAddMode.Visibility = Visibility.Collapsed;
-			grdEditMode.Visibility = Visibility.Collapsed;
-		}
-
 		private void CheckIsInitialApp()
 		{
-			if (tableName == "Appointment" && DBMethods.MiscRequests.IsAppointmentInitial(GetData()))
+			if (tableName == "Appointment" && DBMethods.MiscRequests.IsAppointmentInitial(GetData(), ((CalandarView)container).BookingParts))
 			{
 				lblIsAppInitial.Visibility = Visibility.Visible;
 			}

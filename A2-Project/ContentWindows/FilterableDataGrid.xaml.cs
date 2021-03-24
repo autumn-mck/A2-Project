@@ -115,7 +115,6 @@ namespace A2_Project.ContentWindows
 			}
 			catch
 			{
-				// TODO: Better feedback here
 				MessageBox.Show("Error: Invalid filter(s)!");
 			}
 		}

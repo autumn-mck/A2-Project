@@ -98,7 +98,7 @@ namespace A2_Project.DBMethods
 			headers = InterpolateDates(startDate, diff);
 		}
 
-		// TODO: Currently classifies clients that have > 1 dogs and booked them all in one go as repeat customers, even if they never book after that.
+		// TODO: What does this even do? Get it to actually work.
 		public static void GetCustReturns(ref int[][] data, ref string[] headers, DateTime minDate)
 		{
 			//DateTime startDate = MaxDate(Convert.ToDateTime(DBAccess.GetStringsWithQuery("SELECT MIN([Client Join Date]) FROM [Client]")[0]), minDate);
@@ -185,7 +185,7 @@ namespace A2_Project.DBMethods
 
 			price += Convert.ToDouble(appTypeData[Convert.ToInt32(data[0])][2]);
 			if (data[1] == "True") price += 10;
-			if (MiscRequests.IsAppointmentInitial(data)) price += 5;
+			if (MiscRequests.IsAppointmentInitial(data, null)) price += 5;
 			price *= (100.0 - GetBookingDiscount(data[2])) / 100.0;
 
 			return price;
