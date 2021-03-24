@@ -10,7 +10,7 @@ namespace A2_Project.ContentWindows
 	/// <summary>
 	/// Interaction logic for ContactManagement.xaml
 	/// </summary>
-	public partial class ContactManagement : Window
+	public partial class AllTableManger : Window
 	{
 		private string tableName;
 
@@ -20,7 +20,7 @@ namespace A2_Project.ContentWindows
 
 		FilterableDataGrid filterableDataGrid;
 
-		public ContactManagement()
+		public AllTableManger()
 		{
 			InitializeComponent();
 

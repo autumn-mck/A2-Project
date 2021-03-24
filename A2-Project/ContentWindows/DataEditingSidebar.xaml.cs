@@ -48,7 +48,7 @@ namespace A2_Project.ContentWindows
 
 		private void UpdateToOwner(string[] data, bool isNew)
 		{
-			if (container is ContactManagement contact)
+			if (container is AllTableManger contact)
 			{
 				contact.UpdateFromSidebar(data, isNew);
 			}
@@ -65,7 +65,7 @@ namespace A2_Project.ContentWindows
 
 		private void DeleteItemOwner()
 		{
-			if (container is ContactManagement contactManagement)
+			if (container is AllTableManger contactManagement)
 			{
 				contactManagement.DeleteItem();
 			}

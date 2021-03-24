@@ -366,7 +366,7 @@ namespace A2_Project.ContentWindows
 			if (e.AddedCells.Count == 0) return;
 			string[] newData = ((DataRowView)dtg.SelectedItems[0]).Row.ItemArray.OfType<string>().ToArray();
 
-			if (containingWindow is ContactManagement contactManagement) contactManagement.TableSelectionChanged(newData);
+			if (containingWindow is AllTableManger contactManagement) contactManagement.TableSelectionChanged(newData);
 			else if (containingWindow is ClientManagement clientManagement) clientManagement.TableSelectionChanged(this, newData);
 		}
 
