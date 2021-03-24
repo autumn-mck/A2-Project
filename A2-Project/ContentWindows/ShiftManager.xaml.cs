@@ -133,15 +133,13 @@ namespace A2_Project.ContentWindows
 			ValidatedTextbox tbxNewExStaff = stpNewExc.Children.OfType<ValidatedTextbox>().First();
 			ValidatedDatePicker[] dates = stpNewExc.Children.OfType<ValidatedDatePicker>().ToArray();
 
-			if (tbxNewExStaff.IsValid && dates[0].IsValid && dates[1].IsValid)
+			if (tbxNewExStaff.IsValid && dates[0].IsValid && dates[1].IsValid && dates[0].SelectedDate <= dates[1].SelectedDate)
 			{
 				string[] newData = new string[4];
 				newData[0] = MiscRequests.GetMinKeyNotUsed("Shift Exception", "Shift Exception ID");
 				newData[1] = tbxNewExStaff.Text;
 				newData[2] = dates[0].SelectedDate.ToString("dd-MM-yyyy");
 				newData[3] = dates[1].SelectedDate.ToString("dd-MM-yyyy");
-
-				// TODO: Enforce startDate < endDate
 
 				DBAccess.UpdateTable("Shift Exception", shiftExcColumns.Select(c => c.Name).ToArray(), newData, true);
 
@@ -304,15 +302,6 @@ namespace A2_Project.ContentWindows
 			grdShift.Children.Add(resizeTop);
 			grdShift.Children.Add(resizeBottom);
 
-			// TODO: Remove label after testing
-			Label lblParent = new Label()
-			{
-				Content = "grd",
-				IsHitTestVisible = false,
-				Visibility = Visibility.Collapsed
-			};
-			grdShift.Children.Add(lblParent);
-
 			return grdShift;
 		}
 
@@ -408,13 +397,6 @@ namespace A2_Project.ContentWindows
 					IsHitTestVisible = false
 				};
 				grdBg.Children.Add(lblDayOfWeek);
-
-				//// Generate all the rectangles to represent the appointments on that day
-				//List<List<string>> results = MiscRequests.GetAllAppointmentsOnDay(currentDay, columns.Select(x => x.Name).ToArray());
-				//foreach (List<string> ls in results)
-				//{
-				//	GenRectFromData(ls.ToArray());
-				//}
 			}
 
 			for (double i = dayStart; i <= dayEnd; i += 1)
@@ -461,7 +443,7 @@ namespace A2_Project.ContentWindows
 		{
 			TimeSpan start = TimeSpan.FromHours(dayStart);
 			Panel grdShift = GenShiftWithData(new string[] { "", "0", "0", start.ToString("hh\\:mm"), start.Add(TimeSpan.FromHours(8)).ToString("hh\\:mm") });
-			diffMouseAndElem = new Point(grdShift.Width / 2, (grdShift.Height - resizeHeight) / 2); // TODO: Check if -resizeHeight is needed here
+			diffMouseAndElem = new Point(grdShift.Width / 2, grdShift.Height / 2);
 			grdShift.Children.OfType<Rectangle>().Where(r => r.Name == "rctBase").First().IsHitTestVisible = false;
 			currentlySelected = grdShift;
 			grd.Children.Add(grdShift);
@@ -503,7 +485,6 @@ namespace A2_Project.ContentWindows
 
 				if (currentlySelected is Grid grdSel)
 				{
-					grdSel.Children.OfType<Label>().First().Content = grdSender.Name;
 					Rectangle r = grdSel.Children.OfType<Rectangle>().Where(r => r.Name == "rctBase").First();
 					r.Fill = new SolidColorBrush(colours[Convert.ToInt32(grdSender.Name.Substring(6))]);
 				}
@@ -521,7 +502,6 @@ namespace A2_Project.ContentWindows
 
 				if (currentlySelected is Grid grdSel)
 				{
-					grdSel.Children.OfType<Label>().First().Content = "grd";
 					rctBase.Fill = Brushes.Orange;
 					Rectangle r = grdSel.Children.OfType<Rectangle>().Where(r => r.Name == "rctBase").First();
 					r.Fill = Brushes.Orange;
@@ -629,7 +609,7 @@ namespace A2_Project.ContentWindows
 				{
 					bool isInShift = false;
 					TimeSpan appStart = TimeSpan.Parse(app[10]);
-					int thisAppLength = MiscRequests.GetAppLength(app.ToArray());
+					int thisAppLength = MiscRequests.GetAppLength(app.ToArray(), null);
 					TimeSpan appEnd = appStart.Add(TimeSpan.FromMinutes(thisAppLength));
 					DateTime appDate = DateTime.Parse(app[9]);
 					foreach (List<string> shift in staffShiftData)

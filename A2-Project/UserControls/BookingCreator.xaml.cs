@@ -14,9 +14,8 @@ namespace A2_Project.UserControls
 	/// </summary>
 	public partial class BookingCreator : UserControl
 	{
-		private object container;
+		private CalandarView container;
 
-		// TODO: Should be List<string[]>?
 		private List<string[]> data;
 
 		public bool IsAdded { get; set; }
@@ -25,7 +24,7 @@ namespace A2_Project.UserControls
 		public string DogID { get; set; }
 		public string StaffID { get; set; }
 
-		public BookingCreator(object _container, string _bookingID, string _dogID, string _staffID)
+		public BookingCreator(CalandarView _container, string _bookingID, string _dogID, string _staffID)
 		{
 			InitializeComponent();
 			BookingID = Convert.ToInt32(_bookingID).ToString();
@@ -39,13 +38,12 @@ namespace A2_Project.UserControls
 
 		private void LblDelete_MouseDown(object sender, System.Windows.Input.MouseButtonEventArgs e)
 		{
-			if (container is CalandarView cal) cal.DeleteBookingPart(this);
-			else throw new NotImplementedException();
+			container.DeleteBookingPart(this);
 		}
 
 		private void CbxNewBookType_SelectionChanged(object sender, SelectionChangedEventArgs e)
 		{
-			((CalandarView)container).RemoveRectsWithTag(this);
+			container.RemoveRectsWithTag(this);
 			IsAdded = false;
 			stpContent.Children.Clear();
 			if (cbxNewBookType.SelectedIndex == 0)
@@ -54,7 +52,7 @@ namespace A2_Project.UserControls
 				List<string> suggestedValues = new List<string>();
 				foreach (DBObjects.Column c in DBObjects.DB.Tables.Where(t => t.Name == "Appointment").First().Columns)
 				{
-					suggestedValues.Add(UIMethods.GetSuggestedValue(c, ((CalandarView)container).BookingParts).ToString());
+					suggestedValues.Add(UIMethods.GetSuggestedValue(c, container.BookingParts).ToString());
 				}
 				data.Add(suggestedValues.ToArray());
 				data[0][1] = DogID;
@@ -78,8 +76,6 @@ namespace A2_Project.UserControls
 			}
 			else if (cbxNewBookType.SelectedIndex == 1)
 			{
-				// TODO: Remove rectangle from cal view
-
 				StackPanel stpTime = new StackPanel()
 				{
 					Name = "stpTime",
@@ -224,7 +220,7 @@ namespace A2_Project.UserControls
 					List<string> suggested = new List<string>();
 					for (int j = 0; j < cols.Length; j++)
 					{
-						suggested.Add(UIMethods.GetSuggestedValue(cols[j], ((CalandarView)container).BookingParts).ToString());
+						suggested.Add(UIMethods.GetSuggestedValue(cols[j], container.BookingParts).ToString());
 					}
 					data.Add(suggested.ToArray());
 					data[i][1] = DogID;
@@ -234,12 +230,22 @@ namespace A2_Project.UserControls
 					data[i][9] = start.Add(betweenPeriod * i).ToString("yyyy-MM-dd");
 					data[i][10] = TimeSpan.Parse(tbxStartTime.Text).ToString("hh\\:mm");
 				}
-				
-				((CalandarView)container).RepBookingChanged(this);
+
+				container.RepBookingChanged(this);
 			}
 			catch
 			{
 			}
+		}
+
+		public void AddRectBack(Rectangle r)
+		{
+			r.Margin = new Thickness(0, 0, 0, 0);
+			stpContent.Children.Clear();
+			r.MouseDown += Rct_MouseDown;
+			r.Stroke = Brushes.Black;
+			r.StrokeThickness = 1;
+			stpContent.Children.Add(r);
 		}
 
 		private void Rct_MouseDown(object sender, System.Windows.Input.MouseButtonEventArgs e)
@@ -249,24 +255,20 @@ namespace A2_Project.UserControls
 			Label lblFind = new Label()
 			{
 				Content = "Go to appointment",
+				Name = "l0",
 				FontSize = 20
 			};
 			lblFind.MouseDown += LblFind_MouseDown;
 			stpContent.Children.Add(lblFind);
-			if (container is CalandarView cal)
-			{
-				stpContent.Children.Remove(r);
-				cal.StartBookAppt(r);
-			}
-			else throw new NotImplementedException();
+			stpContent.Children.Remove(r);
+			container.StartBookAppt(r);
 		}
 
 		private void LblFind_MouseDown(object sender, System.Windows.Input.MouseButtonEventArgs e)
 		{
-			if (container is CalandarView cal)
-			{
-				cal.SelectSpecificAppointment(GetData()[Convert.ToInt32(((FrameworkElement)sender).Name.Substring(1))]);
-			}
+			List<string[]> data = GetData();
+			string name = ((FrameworkElement)sender).Name;
+			container.SelectSpecificAppointment(data[Convert.ToInt32(name.Substring(1))]);
 		}
 
 		internal List<string[]> GetData()

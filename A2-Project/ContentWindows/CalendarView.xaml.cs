@@ -28,7 +28,7 @@ namespace A2_Project.ContentWindows
 		private const int dayWidth = 120;
 		// The height 1 hour should have
 		private const int hourHeight = 80;
-		// TODO: Does not properly work
+
 		private const int baseYOffset = 30;
 
 		// The colours used for colouring appointments based on the applied filter
@@ -73,14 +73,13 @@ namespace A2_Project.ContentWindows
 
 		public List<BookingCreator> BookingParts { get; set; }
 
-		// TODO: Should not be able to reschedule appointments in the past?
 		public CalandarView()
 		{
 			BookingParts = new List<BookingCreator>();
 			// Get the number of rooms
 			appRoomCount = Convert.ToInt32(DBMethods.MiscRequests.GetMinKeyNotUsed("Grooming Room", "Grooming Room ID"));
 			// For now, filtering by staff is default
-			// TODO: This requests more data than is needed, just to discard it
+
 			keyLabels = DBMethods.MetaRequests.GetAllFromTable("Staff").Select(x => x[1]).ToArray();
 			// Get the column data for the appointment table
 			columns = DBMethods.MetaRequests.GetColumnDataFromTable(tableName);
@@ -186,6 +185,7 @@ namespace A2_Project.ContentWindows
 		public void SelectSpecificAppointment(string[] appData)
 		{
 			if (appData is null) return;
+			SelectNewRect(grdResults.Children.OfType<Rectangle>().Where(r => r.Tag is not null && GetDataTag(r)[0] == appData[0]).FirstOrDefault());
 			dataToBeSelected = appData;
 			DateTime d = DateTime.Parse(appData[9]);
 			datePicker.SelectedDate = d;
@@ -401,12 +401,10 @@ namespace A2_Project.ContentWindows
 								bool doesClash = DBMethods.MiscRequests.DoesAppointmentClash(data, roomID, day, appStart, BookingParts, out string errMessage);
 								editingSidebar.DisplayError(errMessage);
 
-								int appLength = DBMethods.MiscRequests.GetAppLength(data);
+								int appLength = DBMethods.MiscRequests.GetAppLength(data, BookingParts);
 
 								if (doesClash)
 								{
-									// TODO: Advanced - offer suggestions to deal with error? Probably not worth effort
-
 									TimeSpan oldStart = TimeSpan.FromHours(dayStartTime - 1 + elem.Margin.Top / hourHeight);
 
 									if (!DBMethods.MiscRequests.DoesAppointmentClash(data, roomID, day, oldStart, BookingParts, out _))
@@ -496,7 +494,6 @@ namespace A2_Project.ContentWindows
 			dDiff = (int)(midLeft / (dayWidth * spaceBetweenDays));
 			// Gets the x offset that can be used to calculate which room/day the appointment should be placed into.
 
-			// TODO: Should be based on mousePos.X, not midLeft
 			double roomIDOffset = (midLeft % (dayWidth * spaceBetweenDays)) / (dayWidth / appRoomCount);
 
 			// Place the appointment in the correct room/day whenever the user tries to place it into the gap between the days
@@ -545,6 +542,8 @@ namespace A2_Project.ContentWindows
 
 		private void SelectNewRect(Rectangle newSel)
 		{
+			if (newSel is null) return;
+
 			// Reset the stroke around the previously selected element
 			if (currentlySelected is Rectangle rct)
 			{
@@ -600,11 +599,9 @@ namespace A2_Project.ContentWindows
 
 		/// <summary>
 		/// Tries to place the rectangle in an appropriate grid spot one the mouse is lifted.
-		/// Note: Is not currently called if the mouse is released while not over the moving rectangle.
 		/// </summary>
 		private void RctRect_MouseUp(object sender, MouseButtonEventArgs e)
 		{
-			// TODO: Probably not still needed?
 			if (sender != currentlySelected) return;
 
 			if (sender is FrameworkElement f)
@@ -615,9 +612,22 @@ namespace A2_Project.ContentWindows
 
 		private void UpdateAfterMouseUp(FrameworkElement f)
 		{
+			mouseDown = false;
+			if (f.Parent is Panel p && p != grdResults && f.Tag is BookingCreator bk)
+			{
+				p.Children.Remove(f);
+				f.MouseDown -= Rectangle_MouseDown;
+				f.MouseUp -= RctRect_MouseUp;
+				f.IsHitTestVisible = true;
+				bk.AddRectBack((Rectangle)f);
+				hasMoved = false;
+				grdResults.MouseEnter -= GrdResults_MouseEnter;
+				currentlySelected = null;
+				return;
+			}
+
 			SwitchToEditing();
 			editingSidebar.DisplayError("");
-			mouseDown = false;
 			Panel.SetZIndex(f, 0);
 
 			if (f.Margin.Top % (hourHeight / 4) != 0)
@@ -687,6 +697,7 @@ namespace A2_Project.ContentWindows
 			if (currentlySelected is not null && mouseDown)
 			{
 				// TODO: For now, this just adds it in the same position it was in before. Is there anything I can do about this?
+				// It should probably check for a valid position before placing it
 				grdResults.Children.Add(currentlySelected);
 			}
 
@@ -762,9 +773,7 @@ namespace A2_Project.ContentWindows
 				}
 			}
 
-			Thread thr = new Thread(AddRects)
-			{ IsBackground = true };
-			thr.Start();
+			AddRects();
 		}
 
 		private void AddRects()
@@ -803,7 +812,6 @@ namespace A2_Project.ContentWindows
 		/// </summary>
 		public void UpdateFromSidebar(string[] data, bool isNew)
 		{
-			// TODO: Show error message
 			bool doesClash = DBMethods.MiscRequests.DoesAppointmentClash(data, BookingParts, out string errMessage);
 			editingSidebar.DisplayError(errMessage);
 			if (doesClash) throw new NotImplementedException();
@@ -834,12 +842,14 @@ namespace A2_Project.ContentWindows
 			if (currentlySelected.Tag is BookingCreator booking)
 			{
 				DeleteBookingPart(booking);
-				return;
 			}
-
-			string[] data = GetDataTag(currentlySelected);
-			DBMethods.MiscRequests.DeleteItem(tableName, columns[0].Name, data[0].ToString());
-			grdResults.Children.Remove(currentlySelected);
+			else
+			{
+				string[] data = GetDataTag(currentlySelected);
+				DBMethods.MiscRequests.UpdateColumn("Appointment", "True", "Is Cancelled", "Appointment ID", data[0]);
+				grdResults.Children.Remove(currentlySelected);
+			}
+			currentlySelected = null;
 		}
 
 		/// <summary>
@@ -847,8 +857,6 @@ namespace A2_Project.ContentWindows
 		/// </summary>
 		private Rectangle GenRectFromData(string[] data, string name = null)
 		{
-			// TODO: Check if an appt clashes while rect is being generated?
-
 			if (data is null) return null;
 			// Do not generate rectangles for cancelled appointments
 			if (data[7] == "True") return null;
@@ -862,7 +870,7 @@ namespace A2_Project.ContentWindows
 			dDiff += DayOfWeekToInt(((DateTime)datePicker.SelectedDate).DayOfWeek);
 
 			// appLength is in minutes
-			double appLength = DBMethods.MiscRequests.GetAppLength(data);
+			double appLength = DBMethods.MiscRequests.GetAppLength(data, BookingParts);
 
 			Rectangle newRect = new Rectangle
 			{
@@ -878,7 +886,13 @@ namespace A2_Project.ContentWindows
 				Name = name
 			};
 
-			if (DBMethods.MiscRequests.DoesAppointmentClash(data, BookingParts, out _) || !DBMethods.MiscRequests.IsAppInShift(dDiff, data[3], d.TimeOfDay, d.TimeOfDay.Add(TimeSpan.FromMinutes(appLength)), d.Date))
+			bool doesClash;
+
+			//doesClash = !DBMethods.MiscRequests.IsAppInShift(dDiff, data[3], d.TimeOfDay, d.TimeOfDay.Add(TimeSpan.FromMinutes(appLength)), d.Date);
+			// Note: Although checking fully if it clashes would be better, it currently adds too noticable a delay. Still useful for testing though.
+			doesClash = DBMethods.MiscRequests.DoesAppointmentClash(data, BookingParts, out _);
+
+			if (doesClash)
 			{
 				newRect.Stroke = Brushes.Red;
 				newRect.StrokeThickness = 4;
@@ -889,6 +903,7 @@ namespace A2_Project.ContentWindows
 				newRect.Stroke = Brushes.AliceBlue;
 				newRect.StrokeThickness = 2;
 				currentlySelected = newRect;
+
 			}
 
 			if (dataToBeSelected is not null)
@@ -907,6 +922,8 @@ namespace A2_Project.ContentWindows
 
 			if (currentlySelected is not null && data[0] == GetDataTag(currentlySelected)[0])
 			{
+				if (mouseDown) return (Rectangle)currentlySelected;
+
 				currentlySelected = newRect;
 				newRect.Stroke = Brushes.AliceBlue;
 				newRect.StrokeThickness = 2;
@@ -1026,6 +1043,30 @@ namespace A2_Project.ContentWindows
 			string[] bookingData = new string[] { GetNewBookingID(), DateTime.Now.Date.ToString("yyyy-MM-dd") };
 			DBMethods.DBAccess.UpdateTable("Booking", bookingColumns, bookingData, true);
 
+			bool doesAnyClash = false;
+			string totalErrMessage = "";
+
+			foreach (BookingCreator booking in BookingParts)
+			{
+				if (booking.IsAdded)
+				{
+					List<string[]> bkData = booking.GetData();
+					foreach (string[] bk in bkData)
+					{
+						doesAnyClash = DBMethods.MiscRequests.DoesAppointmentClash(bk, BookingParts, out string errMessage) || doesAnyClash;
+						if (errMessage != "") totalErrMessage += errMessage + "\n";
+					}
+				}
+			}
+
+			if (doesAnyClash)
+			{
+				lblBookingErr.Visibility = Visibility.Visible;
+				lblBookingErr.Content = totalErrMessage;
+				return;
+			}
+			else lblBookingErr.Visibility = Visibility.Collapsed;
+
 			foreach (BookingCreator booking in BookingParts)
 			{
 				if (booking.IsAdded)
@@ -1074,6 +1115,8 @@ namespace A2_Project.ContentWindows
 		public void RepBookingChanged(BookingCreator sender)
 		{
 			RemoveRectsWithTag(sender);
+
+			
 			List<string[]> appData = sender.GetData();
 			for (int i = 0; i < appData.Count; i++)
 			{

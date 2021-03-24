@@ -279,7 +279,6 @@ namespace A2_Project.DBObjects
 				VerticalAlignment = VerticalAlignment.Top,
 				Margin = new Thickness(5)
 			};
-			// TODO: Validated text boxes or similar?
 			return tbx;
 		}
 

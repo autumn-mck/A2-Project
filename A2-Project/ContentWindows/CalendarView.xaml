@@ -45,6 +45,7 @@
 						</StackPanel>
 					</StackPanel>
 					<Label Margin="5" Content="+ Add new part to booking" MouseDown="LblAddBookingPart_MouseDown"/>
+					<Label x:Name="lblBookingErr" Visibility="Collapsed" Margin="5" Foreground="#B61827"/>
 				</StackPanel>
 				<Grid VerticalAlignment="Bottom" Margin="0, 0, 0, 20">
 					<Button x:Name="btnConfirmBooking" Content="Confirm Booking" VerticalAlignment="Top" HorizontalAlignment="Center" FontSize="24" Click="BtnConfirmBooking_Click"/>
