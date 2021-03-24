@@ -14,7 +14,7 @@ namespace A2_Project.ContentWindows
 	/// <summary>
 	/// Interaction logic for AddingWindowTest.xaml
 	/// </summary>
-	public partial class AddingWindowTest : Window
+	public partial class AddNewClientWindow : Window
 	{
 		private Grid[] grids;
 		private int selIndex = 0;
@@ -33,7 +33,7 @@ namespace A2_Project.ContentWindows
 
 		private const double circleHeight = 58;
 
-		public AddingWindowTest()
+		public AddNewClientWindow()
 		{
 			InitializeComponent();
 			grids = new Grid[] { grdClient, grdContacts, grdDogs };

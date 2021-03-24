@@ -15,12 +15,18 @@
 			</Grid>
 
 			<Grid x:Name="grdMenu" HorizontalAlignment="Left" Background="#2D2D2D">
-				<Grid x:Name="grdMenuButtons" HorizontalAlignment="Left" VerticalAlignment="Top" Width="60">
-					<Grid.Resources>
+				<StackPanel x:Name="grdMenuButtons" Orientation="Vertical" HorizontalAlignment="Left" VerticalAlignment="Top" Width="60">
+					<StackPanel.Resources>
+						<Style TargetType="Grid">
+							<Setter Property="Margin" Value="6, 6, 0, 4"/>
+							<Setter Property="Height" Value="50"/>
+							<Setter Property="Width" Value="300"/>
+							<Setter Property="HorizontalAlignment" Value="Left"/>
+						</Style>
 						<Style TargetType="Label">
 							<Setter Property="Foreground" Value="#D5D5D5"/>
 							<Setter Property="FontSize" Value="24"/>
-							<Setter Property="Margin" Value="50, 0, 0, 0"/>
+							<Setter Property="Margin" Value="50, 3, 0, 0"/>
 						</Style>
 						<Style TargetType="Image">
 							<Setter Property="Width" Value="48"/>
@@ -35,44 +41,44 @@
 							<Setter Property="StrokeThickness" Value="2"/>
 							<Setter Property="Stroke" Value="#2D2D2D"/>
 						</Style>
-					</Grid.Resources>
-					<Grid x:Name="grdToggleMenu" Height="50" Width="300" Margin="6, 6, 0, 0" VerticalAlignment="Top" MouseDown="GrdToggleMenu_MouseDown">
+					</StackPanel.Resources>
+					<Grid x:Name="grdToggleMenu" MouseDown="GrdToggleMenu_MouseDown">
 						<Image Source="/Resources/menu.png"/>
 						<Label Content="Close Menu"/>
 					</Grid>
-					<Grid x:Name="grdCalander" Height="50" Width="300" Margin="6, 66, 0, 0" VerticalAlignment="Top">
+					<Grid x:Name="grdCalander">
 						<Image Source="/Resources/calendar.png"/>
 						<Label Content="Calander"/>
 					</Grid>
-					<Grid x:Name="grdAccounts" Height="50" Width="300" Margin="6, 126, 0, 0" VerticalAlignment="Top">
+					<Grid x:Name="grdAllTables">
 						<Image Source="/Resources/accounts.png"/>
-						<Label Content="Manage Clients"/>
+						<Label Content="Manage All Tables"/>
 					</Grid>
-					<Grid x:Name="grdClientManagement" Height="50" Width="300" Margin="6, 186, 0, 0" VerticalAlignment="Top">
+					<Grid x:Name="grdClientManagement">
 						<Image Source="/Resources/notebook.png"/>
-						<Label Content="Manage Invoices"/>
+						<Label Content="Manage Clients/Dogs"/>
 					</Grid>
-					<Grid x:Name="grdAddStaff" Height="50" Width="300" Margin="6, 246, 0, 0" VerticalAlignment="Top">
+					<Grid x:Name="grdAddStaff">
 						<Image Source="/Resources/addStaff.png"/>
 						<Label Content="Register New Staff"/>
 					</Grid>
-					<Grid x:Name="grdViewStats" Height="50" Width="300" Margin="6, 306, 0, 0" VerticalAlignment="Top">
+					<Grid x:Name="grdViewStats">
 						<Image Source="/Resources/charts.png"/>
 						<Label Content="View Statistics"/>
 					</Grid>
-					<Grid x:Name="grdInvoiceManagement" Height="50" Width="300" Margin="6, 366, 0, 0" VerticalAlignment="Top">
+					<Grid x:Name="grdInvoiceManagement">
 						<Image Source="/Resources/gbp.png"/>
 						<Label Content="Send Invoices"/>
 					</Grid>
-					<Grid x:Name="grdTest" Height="50" Width="300" Margin="6, 426, 0, 0" VerticalAlignment="Top">
+					<Grid x:Name="grdAddNewClients">
 						<Image Source="/Resources/gbp.png"/>
-						<Label Content="Test"/>
+						<Label Content="Add New Clients"/>
 					</Grid>
-					<Grid x:Name="grdShift" Height="50" Width="300" Margin="6, 486, 0, 0" VerticalAlignment="Top">
+					<Grid x:Name="grdShift">
 						<Image Source="/Resources/calendar.png"/>
 						<Label Content="Shift Manager"/>
 					</Grid>
-				</Grid>
+				</StackPanel>
 			</Grid>
 		</Grid>
 	</Viewbox>

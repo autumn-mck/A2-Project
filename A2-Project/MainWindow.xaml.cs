@@ -30,11 +30,11 @@ namespace A2_Project
 		// The content windows used for displaying things inside the main window
 		private RegStaff regWindow;
 		private CalandarView calWindow;
-		private ContactManagement contactManWindow;
+		private AllTableManger allTableManager;
 		private Stats statsWindow;
 		private ClientManagement cliWindow;
 		private InvoiceManagement invoiceWindow;
-		private AddingWindowTest testWindow;
+		private AddNewClientWindow newClientWindow;
 		private ShiftManager shiftWindow;
 		private readonly Login loginWindow;
 
@@ -54,19 +54,22 @@ namespace A2_Project
 
 			grdButtons = grdMenuButtons.Children.OfType<Grid>().ToArray();
 			// DEBUG: Allows easy access to the content windows. Currently in place to make testing easier
-			grdAccounts.MouseDown += GrdAccounts_MouseDown;
+			// TODO: Remove
+			grdAllTables.MouseDown += GrdAllTables_MouseDown;
 			grdCalander.MouseDown += GrdCalander_MouseDown;
 			grdClientManagement.MouseDown += GrdClientManagement_MouseDown;
 			grdAddStaff.MouseDown += GrdAddStaff_MouseDown;
 			grdViewStats.MouseDown += GrdViewStats_MouseDown;
 			grdInvoiceManagement.MouseDown += GrdInvoiceManagement_MouseDown;
-			grdTest.MouseDown += GrdTest_MouseDown;
+			grdAddNewClients.MouseDown += GrdAddNewClients_MouseDown;
 			grdShift.MouseDown += GrdShift_MouseDown;
 
 			foreach (Grid g in grdButtons)
 			{
-				Rectangle r = new Rectangle();
-				r.Fill = notHighlighted;
+				Rectangle r = new Rectangle
+				{
+					Fill = notHighlighted
+				};
 				Panel.SetZIndex(r, -1);
 				g.Children.Add(r);
 
@@ -125,7 +128,7 @@ namespace A2_Project
 			int lclMenuDir = menuDirection;
 			menuDirection = -menuDirection;
 			double tMax = 0.2; // The time taken for the transition in seconds
-			double a = 220; // The amplitude of the movement
+			double a = 250; // The amplitude of the movement
 			double tPassed = 0; // The time passed since the start of the animation
 			double prevT = 0; // The time passed the previous time the loop completed
 			Stopwatch stopwatch = new Stopwatch();
@@ -146,7 +149,7 @@ namespace A2_Project
 		public void LoggedIn()
 		{
 			lblContents.Content = null;
-			grdAccounts.MouseDown += GrdAccounts_MouseDown;
+			grdAllTables.MouseDown += GrdAllTables_MouseDown;
 			grdCalander.MouseDown += GrdCalander_MouseDown;
 			grdClientManagement.MouseDown += GrdClientManagement_MouseDown;
 			grdAddStaff.MouseDown += GrdAddStaff_MouseDown;
@@ -162,7 +165,7 @@ namespace A2_Project
 			if (regWindow != null) regWindow.Close();
 			if (calWindow != null) calWindow.Close();
 			if (loginWindow != null) loginWindow.Close();
-			if (contactManWindow != null) contactManWindow.Close();
+			if (allTableManager != null) allTableManager.Close();
 			if (statsWindow != null) statsWindow.Close();
 			toExit = true;
 			Application.Current.Shutdown();
@@ -190,11 +193,11 @@ namespace A2_Project
 			lblContents.Content = calWindow.Content;
 		}
 
-		private void GrdAccounts_MouseDown(object sender, MouseButtonEventArgs e)
+		private void GrdAllTables_MouseDown(object sender, MouseButtonEventArgs e)
 		{
-			if (contactManWindow is null)
-				contactManWindow = new ContactManagement() { Owner = this };
-			lblContents.Content = contactManWindow.Content;
+			if (allTableManager is null)
+				allTableManager = new AllTableManger() { Owner = this };
+			lblContents.Content = allTableManager.Content;
 		}
 
 		private void GrdClientManagement_MouseDown(object sender, MouseButtonEventArgs e)
@@ -225,11 +228,11 @@ namespace A2_Project
 			lblContents.Content = invoiceWindow.Content;
 		}
 
-		private void GrdTest_MouseDown(object sender, MouseButtonEventArgs e)
+		private void GrdAddNewClients_MouseDown(object sender, MouseButtonEventArgs e)
 		{
-			if (testWindow is null)
-				testWindow = new AddingWindowTest() { Owner = this };
-			lblContents.Content = testWindow.Content;
+			if (newClientWindow is null)
+				newClientWindow = new AddNewClientWindow() { Owner = this };
+			lblContents.Content = newClientWindow.Content;
 		}
 
 		private void GrdShift_MouseDown(object sender, MouseButtonEventArgs e)
