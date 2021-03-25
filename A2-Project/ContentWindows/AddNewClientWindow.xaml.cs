@@ -140,7 +140,7 @@ namespace A2_Project.ContentWindows
 		/// </summary>
 		private void Move(double yAmp, double xAmp, FrameworkElement[] elements, Rectangle progressRectangle = null)
 		{
-			double tMax = 0.4; // The time taken for the transition in seconds
+			double tMax = 0.2; // The time taken for the transition in seconds
 			double tPassed = 0; // The time passed since the start of the animation
 			double prevT = 0; // The time passed the previous time the loop completed
 			Stopwatch stopwatch = new Stopwatch();
@@ -205,6 +205,11 @@ namespace A2_Project.ContentWindows
 			Grid g = (Grid)((FrameworkElement)((FrameworkElement)((FrameworkElement)sender).Parent).Parent).Parent;
 			FrameworkElement[] elements = g.Children.OfType<FrameworkElement>().ToArray();
 			await Task.Run(() => Move(0, 1500, elements));
+		}
+
+		internal void StartAddNew(string mode, string clientID)
+		{
+			// TODO
 		}
 	}
 }

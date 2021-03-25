@@ -235,6 +235,18 @@ namespace A2_Project
 			lblContents.Content = newClientWindow.Content;
 		}
 
+		internal void ChangeToAddNew(string mode, string clientID)
+		{
+			if (newClientWindow is null)
+				newClientWindow = new AddNewClientWindow() { Owner = this };
+			lblContents.Content = newClientWindow.Content;
+
+			grdClientManagement.Children.OfType<Rectangle>().First().Fill = notHighlighted;
+			grdAddNewClients.Children.OfType<Rectangle>().First().Fill = selected;
+
+			newClientWindow.StartAddNew(mode, clientID);
+		}
+
 		private void GrdShift_MouseDown(object sender, MouseButtonEventArgs e)
 		{
 			if (shiftWindow is null)
