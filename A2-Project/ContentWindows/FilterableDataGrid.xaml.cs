@@ -190,7 +190,11 @@ namespace A2_Project.ContentWindows
 
 		internal void ClearSearch()
 		{
+			DataRowView o = (DataRowView)dtg.SelectedItem;
+			object[] prevSelection = null;
+			if (o is not null) prevSelection =  o.Row.ItemArray;
 			filterManager.ClearFilters();
+			dtg.SelectedIndex = currentData.IndexOf(currentData.Where(x => x[0] == (string)prevSelection[0]).FirstOrDefault());
 		}
 
 		/// <summary>
@@ -412,7 +416,7 @@ namespace A2_Project.ContentWindows
 
 		public void SetMaxHeight(double newMax)
 		{
-			dtg.MaxHeight = newMax - dtg.Margin.Top;
+			dtg.Height = newMax - dtg.Margin.Top;
 			grd.Height = newMax;
 		}
 
