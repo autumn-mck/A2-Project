@@ -195,6 +195,7 @@ namespace A2_Project.ContentWindows
 			if (o is not null) prevSelection =  o.Row.ItemArray;
 			filterManager.ClearFilters();
 			dtg.SelectedIndex = currentData.IndexOf(currentData.Where(x => x[0] == (string)prevSelection[0]).FirstOrDefault());
+			dtg.ScrollIntoView(dtg.SelectedItem);
 		}
 
 		/// <summary>
