@@ -791,7 +791,7 @@ namespace A2_Project.ContentWindows
 					DateTime bkDate = DateTime.Parse(bk[9]).Date;
 					if (bkDate >= startOfWeek && bkDate <= endOfWeek)
 					{
-						Rectangle r = GenRectFromData(bk, "r" + i.ToString());
+						Rectangle r = GenRectFromData(bk, "r" + i.ToString(), true);
 						if (r is not null) r.Tag = booking;
 					}
 				}
@@ -823,7 +823,7 @@ namespace A2_Project.ContentWindows
 					Rectangle r = grdResults.Children.OfType<Rectangle>().Where(r => !(r.Tag is null) && GetDataTag(r)[0] == data[0]).First();
 					grdResults.Children.Remove(r);
 				}
-				GenRectFromData(data);
+				GenRectFromData(data, null, true);
 				DBMethods.DBAccess.UpdateTable(tableName, columns.Select(x => x.Name).ToArray(), data, isNew);
 			}
 			else if (currentlySelected.Tag is BookingCreator booking)
@@ -831,7 +831,7 @@ namespace A2_Project.ContentWindows
 				booking.SetData(data, currentlySelected.Name.Substring(1));
 				Rectangle r = grdResults.Children.OfType<Rectangle>().Where(r => !(r.Tag is null) && GetDataTag(r)[0] == data[0]).First();
 				grdResults.Children.Remove(r);
-				r = GenRectFromData(data, "r" + currentlySelected.Name.Substring(1));
+				r = GenRectFromData(data, "r" + currentlySelected.Name.Substring(1), true);
 				r.Tag = booking;
 			}
 			else throw new NotImplementedException();
@@ -855,7 +855,7 @@ namespace A2_Project.ContentWindows
 		/// <summary>
 		/// Generate a rectangle from the passed in data
 		/// </summary>
-		private Rectangle GenRectFromData(string[] data, string name = null)
+		private Rectangle GenRectFromData(string[] data, string name = null, bool isExpensive = false)
 		{
 			if (data is null) return null;
 			// Do not generate rectangles for cancelled appointments
@@ -888,9 +888,8 @@ namespace A2_Project.ContentWindows
 
 			bool doesClash;
 
-			//doesClash = !DBMethods.MiscRequests.IsAppInShift(dDiff, data[3], d.TimeOfDay, d.TimeOfDay.Add(TimeSpan.FromMinutes(appLength)), d.Date);
-			// Note: Although checking fully if it clashes would be better, it currently adds too noticable a delay. Still useful for testing though.
-			doesClash = DBMethods.MiscRequests.DoesAppointmentClash(data, BookingParts, out _);
+			if (isExpensive) doesClash = DBMethods.MiscRequests.DoesAppointmentClash(data, BookingParts, out _);
+			else doesClash = !DBMethods.MiscRequests.IsAppInShift(dDiff, data[3], d.TimeOfDay, d.TimeOfDay.Add(TimeSpan.FromMinutes(appLength)), d.Date);
 
 			if (doesClash)
 			{
