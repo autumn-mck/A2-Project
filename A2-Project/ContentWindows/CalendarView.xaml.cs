@@ -357,7 +357,7 @@ namespace A2_Project.ContentWindows
 				Dispatcher.Invoke(() => {
 					if (mouseDown && Mouse.LeftButton == MouseButtonState.Released)
 					{
-						UpdateAfterMouseUp(currentlySelected);
+						UpdateAfterMouseUp((Rectangle)currentlySelected);
 					}
 
 					if (mouseDown && currentlySelected is FrameworkElement elem && elem.Parent is FrameworkElement parent)
@@ -604,22 +604,22 @@ namespace A2_Project.ContentWindows
 		{
 			if (sender != currentlySelected) return;
 
-			if (sender is FrameworkElement f)
+			if (sender is Rectangle r)
 			{
-				UpdateAfterMouseUp(f);
+				UpdateAfterMouseUp(r);
 			}
 		}
 
-		private void UpdateAfterMouseUp(FrameworkElement f)
+		private void UpdateAfterMouseUp(Rectangle r)
 		{
 			mouseDown = false;
-			if (f.Parent is Panel p && p != grdResults && f.Tag is BookingCreator bk)
+			if (r.Parent is Panel p && p != grdResults && r.Tag is BookingCreator bk)
 			{
-				p.Children.Remove(f);
-				f.MouseDown -= Rectangle_MouseDown;
-				f.MouseUp -= RctRect_MouseUp;
-				f.IsHitTestVisible = true;
-				bk.AddRectBack((Rectangle)f);
+				p.Children.Remove(r);
+				r.MouseDown -= Rectangle_MouseDown;
+				r.MouseUp -= RctRect_MouseUp;
+				r.IsHitTestVisible = true;
+				bk.AddRectBack(r);
 				hasMoved = false;
 				grdResults.MouseEnter -= GrdResults_MouseEnter;
 				currentlySelected = null;
@@ -628,16 +628,16 @@ namespace A2_Project.ContentWindows
 
 			SwitchToEditing();
 			editingSidebar.DisplayError("");
-			Panel.SetZIndex(f, 0);
+			Panel.SetZIndex(r, 0);
 
-			if (f.Margin.Top % (hourHeight / 4) != 0)
+			if (r.Margin.Top % (hourHeight / 4) != 0)
 			{
-				SnapMarginToGrid(f, Mouse.GetPosition((UIElement)f.Parent), out Thickness newMargin, out _, out _);
-				f.Margin = newMargin;
+				SnapMarginToGrid(r, Mouse.GetPosition((UIElement)r.Parent), out Thickness newMargin, out _, out _);
+				r.Margin = newMargin;
 			}
 
 			// Get the middle of the selected element
-			double midLeft = f.Margin.Left + f.Width / 2;
+			double midLeft = r.Margin.Left + r.Width / 2;
 
 			// Gets the difference in days between the start of the week and the day the selected appointment should be on
 			int dDiff = (int)(midLeft / (dayWidth * spaceBetweenDays));
@@ -648,30 +648,34 @@ namespace A2_Project.ContentWindows
 			DateTime startOfWeek = GetStartOfWeek();
 			DateTime appDate = startOfWeek.AddDays(dDiff);
 			// Save the user's changes to the database
-			string appID = GetDataTag(f)[0];
+			string appID = GetDataTag(r)[0];
 
-			TimeSpan t = TimeSpan.FromHours(dayStartTime - 1 + f.Margin.Top / hourHeight);
+			TimeSpan t = TimeSpan.FromHours(dayStartTime - 1 + r.Margin.Top / hourHeight);
 
-			if (f.Tag is string[])
+			if (r.Tag is string[])
 			{
 				DBMethods.MiscRequests.UpdateColumn(tableName, appDate.ToString("yyyy-MM-dd"), "Appointment Date", idColumnName, appID);
 				DBMethods.MiscRequests.UpdateColumn(tableName, t.ToString("hh\\:mm"), "Appointment Time", idColumnName, appID);
 				DBMethods.MiscRequests.UpdateColumn(tableName, roomID.ToString(), "Grooming Room ID", idColumnName, appID);
 
 				string[] newData = DBMethods.MiscRequests.GetByColumnData(tableName, idColumnName, appID, columns.Select(x => x.Name).ToArray())[0].ToArray();
-				f.Tag = newData;
+				r.Tag = newData;
 				editingSidebar.ChangeSelectedData(newData);
 			}
-			else if (f.Tag is BookingCreator booking)
+			else if (r.Tag is BookingCreator booking)
 			{
-				string[] data = GetDataTag(f);
+				string[] data = GetDataTag(r);
 				data[5] = roomID.ToString();
 				data[9] = appDate.ToString("yyyy-MM-dd");
 				data[10] = t.ToString("hh\\:mm");
-				booking.SetData(data, f.Name.Substring(1));
+				booking.SetData(data, r.Name.Substring(1));
 				editingSidebar.ChangeSelectedData(data);
 			}
 			else throw new NotImplementedException();
+
+			grdResults.Children.Remove(r);
+			Rectangle newRect = GenRectFromData(GetDataTag(r), r.Name, true);
+			if (r.Tag is BookingCreator bkPart) newRect.Tag = bkPart;
 		}
 
 		/// <summary>
