@@ -226,5 +226,17 @@ namespace A2_Project.ContentWindows
 		{
 			grdFKeyErrorOuter.Visibility = Visibility.Collapsed;
 		}
+
+		internal void AddNewItem()
+		{
+			string clientID = mode switch
+			{
+				contactString => dtgContacts.GetSelectedData()[1],
+				clientString => dtgClients.GetSelectedData()[0],
+				dogString => dtgDogs.GetSelectedData()[1],
+				_ => throw new NotImplementedException(),
+			};
+			((MainWindow)Owner).ChangeToAddNew(mode, clientID);
+		}
 	}
 }

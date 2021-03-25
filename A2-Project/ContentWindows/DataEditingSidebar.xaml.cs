@@ -564,7 +564,11 @@ namespace A2_Project.ContentWindows
 
 		private void BtnAddNew_Click(object sender, RoutedEventArgs e)
 		{
-			EditToAdd();
+			if (container is ClientManagement cliMan)
+			{
+				cliMan.AddNewItem();
+			}
+			else EditToAdd();
 		}
 		#endregion Edit Mode
 

@@ -614,7 +614,7 @@ namespace A2_Project.ContentWindows
 				Color.FromRgb(27, 94, 32), // Green
 				Color.FromRgb(49, 27, 146) // Deep Purple
 			};
-			GenerateBarGraph(getData, grdStaffBusiness, "Staff Time Spent Working", "", "", colours.Select(c => new SolidColorBrush(c)).ToArray());
+			GenerateBarGraph(getData, grdStaffBusiness, "No. Of Appointments Per Staff Member", "", "", colours.Select(c => new SolidColorBrush(c)).ToArray());
 		}
 
 		private void GraphAppByDayOfWeek()

@@ -3,7 +3,6 @@ using A2_Project.UserControls;
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Windows;
 
 namespace A2_Project.DBMethods
 {
@@ -88,16 +87,19 @@ namespace A2_Project.DBMethods
 			if (data[9] == "" || data[10] == "") return false;
 			DateTime compDateTime = DateTime.Parse(data[9]).Add(TimeSpan.Parse(data[10]));
 
-			foreach (BookingCreator b in booking)
+			if (booking is not null)
 			{
-				List<string[]> bkData = b.GetData();
-				foreach (string[] bk in bkData)
+				foreach (BookingCreator b in booking)
 				{
-					if (bk[9] == "" || bk[10] == "") continue;
-					if (bk[1] == data[1])
+					List<string[]> bkData = b.GetData();
+					foreach (string[] bk in bkData)
 					{
-						DateTime bkDateTime = DateTime.Parse(bk[9]).Add(TimeSpan.Parse(bk[10]));
-						if (compDateTime > bkDateTime) return false;
+						if (bk[9] == "" || bk[10] == "") continue;
+						if (bk[1] == data[1])
+						{
+							DateTime bkDateTime = DateTime.Parse(bk[9]).Add(TimeSpan.Parse(bk[10]));
+							if (compDateTime > bkDateTime) return false;
+						}
 					}
 				}
 			}
