@@ -132,6 +132,8 @@ namespace A2_Project.ContentWindows
 			double notSelMax = 150;
 			double selMax = 650;
 
+			lblEditingTitle.Content = $"Editing {mode}:";
+
 			if (mode == contactString)
 			{
 				dtgContacts.ClearSearch();
