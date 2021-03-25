@@ -48,12 +48,15 @@
 				</Style.Resources>
 			</Style>
 		</Grid.Resources>
-		<StackPanel x:Name="stpSelections" Orientation="Vertical">
-		<Label Name="lblContacts"/>
-		<Label Name="lblDogs"/>
-		<Label Name="lblClients"/>
+		<StackPanel x:Name="stpSelections" Orientation="Vertical" Margin="20, -20, 0, 0" VerticalAlignment="Center">
+			<Label Name="lblContacts"/>
+			<Label Name="lblDogs"/>
+			<Label Name="lblClients"/>
 		</StackPanel>
-		<Label Name="lblEditing" Margin="1000, 10, 0, 0"/>
+		<StackPanel Orientation="Vertical" VerticalAlignment="Center" HorizontalAlignment="Center" Margin="950, 0, 0, 0" Background="#0B0B0B">
+			<Label Name="lblEditingTitle" Content="Editing" FontSize="34" Margin="20, 20, 20, 20"/>
+			<Label Name="lblEditing" Margin="20, -30, -120, 20"/>
+		</StackPanel>
 		<Grid x:Name="grdFKeyErrorOuter" Width="550" Height="300" Background="#FFFFFF" Visibility="Hidden" Panel.ZIndex="1">
 			<Grid x:Name="grdFKeyErrorInner" Background="#111111" Margin="2,2,2,2">
 				<Grid.Resources>
