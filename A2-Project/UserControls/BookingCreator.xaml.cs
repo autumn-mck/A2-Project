@@ -46,6 +46,10 @@ namespace A2_Project.UserControls
 			container.RemoveRectsWithTag(this);
 			IsAdded = false;
 			stpContent.Children.Clear();
+
+			StaffID = container.GetBookingStaffID();
+			DogID = container.GetBookingDogID();
+
 			if (cbxNewBookType.SelectedIndex == 0)
 			{
 				data = new List<string[]>();
@@ -183,6 +187,13 @@ namespace A2_Project.UserControls
 				btnUpdate.Click += BtnUpdate_Click ;
 				stpContent.Children.Add(btnUpdate);
 
+				StackPanel stpGoTo = new StackPanel()
+				{
+					Orientation = Orientation.Vertical,
+					Name = "stpGoTo"
+				};
+				stpContent.Children.Add(stpGoTo);
+
 				cbxTimeType.SelectedIndex = 2;
 			}
 			else throw new NotImplementedException();
@@ -214,6 +225,12 @@ namespace A2_Project.UserControls
 				else if (cbxTimeType.SelectedIndex == 2) betweenPeriod = new TimeSpan(timeGap * 28, 0, 0, 0);
 				else throw new NotImplementedException();
 
+				StackPanel stpGoTo = stpContent.Children.OfType<StackPanel>().Where(s => s.Name == "stpGoTo").First();
+				stpGoTo.Children.Clear();
+
+				StaffID = container.GetBookingStaffID();
+				DogID = container.GetBookingDogID();
+
 				DBObjects.Column[] cols = DBObjects.DB.Tables.Where(t => t.Name == "Appointment").First().Columns;
 				for (int i = 0; i < count; i++)
 				{
@@ -229,6 +246,15 @@ namespace A2_Project.UserControls
 
 					data[i][9] = start.Add(betweenPeriod * i).ToString("yyyy-MM-dd");
 					data[i][10] = TimeSpan.Parse(tbxStartTime.Text).ToString("hh\\:mm");
+
+					Label lblFind = new Label()
+					{
+						Content = $"Go to appointment {i + 1}",
+						Name = $"l{i}",
+						FontSize = 20
+					};
+					lblFind.MouseDown += LblFind_MouseDown;
+					stpGoTo.Children.Add(lblFind);
 				}
 
 				container.RepBookingChanged(this);
@@ -250,6 +276,12 @@ namespace A2_Project.UserControls
 
 		private void Rct_MouseDown(object sender, System.Windows.Input.MouseButtonEventArgs e)
 		{
+			StaffID = container.GetBookingStaffID();
+			DogID = container.GetBookingDogID();
+
+			data[0][1] = DogID;
+			data[0][3] = StaffID;
+
 			Rectangle r = (Rectangle)sender;
 			r.MouseDown -= Rct_MouseDown;
 			Label lblFind = new Label()
