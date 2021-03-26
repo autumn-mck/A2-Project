@@ -83,7 +83,7 @@ namespace A2_Project.ContentWindows
 		/// <summary>
 		/// Returns true if the user entered data is valid
 		/// </summary>
-		private bool IsValid()
+		public bool IsValid(out string errMessage)
 		{
 			bool isAllValid = true;
 
@@ -112,7 +112,7 @@ namespace A2_Project.ContentWindows
 					isAllValid = isAllValid && isItemValid;
 				}
 			}
-			UpdateErrorMessages();
+			errMessage = UpdateErrorMessages();
 			return isAllValid;
 		}
 
@@ -121,7 +121,7 @@ namespace A2_Project.ContentWindows
 			UpdateErrorMessages();
 		}
 
-		private void UpdateErrorMessages()
+		private string UpdateErrorMessages()
 		{
 			// Used to display error messages to the user
 			string errCol1 = "";
@@ -156,6 +156,7 @@ namespace A2_Project.ContentWindows
 			}
 			tbcErr1.Text = errCol1;
 			tbcErr2.Text = errCol2;
+			return errCol1 + errCol2;
 		}
 
 		internal string[] GetData()
@@ -166,7 +167,7 @@ namespace A2_Project.ContentWindows
 			{
 				if (elem is Label lbl) data.Add(lbl.Content.ToString());
 				else if (elem is ValidatedItem valItem) data.Add(valItem.Text);
-				else if (elem is ComboBox cbxCombo) data.Add(cbxCombo.Text);
+				else if (elem is ComboBox cbxCombo) data.Add(cbxCombo.SelectedIndex.ToString());
 				else if (elem is CheckBox cbxCheck) data.Add(cbxCheck.IsChecked.Value ? "True" : "False");
 				else throw new NotImplementedException();
 			}
@@ -493,7 +494,7 @@ namespace A2_Project.ContentWindows
 		private async void SaveChanges(Button b)
 		{
 			// Checks if the entered data is valid before allowing the user to make changes
-			if (IsValid())
+			if (IsValid(out _))
 			{
 
 				// Moves the data entered into the text boxes to an array
@@ -574,7 +575,7 @@ namespace A2_Project.ContentWindows
 
 		private void CheckIsInitialApp()
 		{
-			if (tableName == "Appointment" && DBMethods.MiscRequests.IsAppointmentInitial(GetData(), ((CalandarView)container).BookingParts))
+			if (tableName == "Appointment" && container is CalandarView calView && DBMethods.MiscRequests.IsAppointmentInitial(GetData(), calView.BookingParts))
 			{
 				lblIsAppInitial.Visibility = Visibility.Visible;
 			}

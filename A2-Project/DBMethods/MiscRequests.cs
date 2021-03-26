@@ -127,7 +127,17 @@ namespace A2_Project.DBMethods
 				List<string[]> bkData = booking.GetData();
 				foreach (string[] bk in bkData)
 				{
-					if (bk == oldData || bk is null) continue; // Cannot clash with itself
+					if (bk[0] == oldData[0]) // Cannot clash with itself
+					{
+						if (date < DateTime.Now.Date)
+						{
+							errMessage = "An appointment cannot be booked in the past!";
+							return true;
+						}
+						continue;
+					}
+					
+					if (bk is null) continue; 
 					if (bk[9] == "" || bk[10] == "") continue; // Booking has not yet been made
 
 					if (

@@ -88,6 +88,8 @@ namespace A2_Project
 						((ValidatedTextbox)elem).SetHeight(elem.Height * 2);
 			}
 
+			if (elem is ComboBox cmb && containsSuggestedValue) cmb.SelectedIndex = 0;
+
 			if (elem is ValidatedItem item && containsSuggestedValue) item.Text = GetSuggestedValue(c).ToString();
 
 

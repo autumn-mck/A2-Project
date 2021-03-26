@@ -97,7 +97,9 @@ namespace A2_Project.ContentWindows
 			InitializeComponent();
 
 			stpBookDogID.Children.Add(UIMethods.GenAppropriateElement(columns[1], out _, false, true));
-			stpBookStaffID.Children.Add(UIMethods.GenAppropriateElement(columns[1], out _, false, true));
+			ComboBox cmbBkStaff = (ComboBox)UIMethods.GenAppropriateElement(columns[3], out _, false, true);
+			cmbBkStaff.LayoutTransform = new ScaleTransform(2, 2);
+			stpBookStaffID.Children.Add(cmbBkStaff);
 
 			// Start the thread for moving the selected element to the mouse when needed
 			Thread loopThread = new Thread(Loop);
@@ -550,7 +552,14 @@ namespace A2_Project.ContentWindows
 				rct.Stroke = Brushes.Black;
 				rct.StrokeThickness = 1;
 
-				if (DBMethods.MiscRequests.DoesAppointmentClash(GetDataTag(rct), BookingParts, out _))
+				bool doesClash = DBMethods.MiscRequests.DoesAppointmentClash(GetDataTag(rct), BookingParts, out _);
+
+				string[] prevSel = editingSidebar.GetData();
+				editingSidebar.ChangeSelectedData(GetDataTag(rct));
+				bool isDataValid = editingSidebar.IsValid(out _);
+				editingSidebar.ChangeSelectedData(prevSel);
+
+				if (doesClash || !isDataValid)
 				{
 					rct.StrokeThickness = 4;
 					rct.Stroke = Brushes.Red;
@@ -566,6 +575,7 @@ namespace A2_Project.ContentWindows
 				if (element is Rectangle rect)
 				{
 					// Create a new rectangle with the same properties as the old one
+					// TODO: Why? Why not GenNewRectWithData?
 					Rectangle newRect = new Rectangle
 					{
 						Width = rect.Width,
@@ -891,11 +901,25 @@ namespace A2_Project.ContentWindows
 			};
 
 			bool doesClash;
+			bool isDataValid;
 
-			if (isExpensive) doesClash = DBMethods.MiscRequests.DoesAppointmentClash(data, BookingParts, out _);
-			else doesClash = !DBMethods.MiscRequests.IsAppInShift(dDiff, data[3], d.TimeOfDay, d.TimeOfDay.Add(TimeSpan.FromMinutes(appLength)), d.Date);
+			if (isExpensive)
+			{
+				string[] prevSel = editingSidebar.GetData();
+				editingSidebar.ChangeSelectedData(data);
+				isDataValid = editingSidebar.IsValid(out _);
+				editingSidebar.ChangeSelectedData(prevSel);
 
-			if (doesClash)
+				doesClash = DBMethods.MiscRequests.DoesAppointmentClash(data, BookingParts, out _);
+			}
+			else
+			{
+				isDataValid = true;
+
+				doesClash = !DBMethods.MiscRequests.IsAppInShift(dDiff, data[3], d.TimeOfDay, d.TimeOfDay.Add(TimeSpan.FromMinutes(appLength)), d.Date);
+			}
+
+			if (doesClash || !isDataValid)
 			{
 				newRect.Stroke = Brushes.Red;
 				newRect.StrokeThickness = 4;
@@ -1042,11 +1066,13 @@ namespace A2_Project.ContentWindows
 
 		private void BtnConfirmBooking_Click(object sender, RoutedEventArgs e)
 		{
+			// TODO: Ensure booking ID is actually valid (References existing dog etc.) before saving
+
 			string[] bookingColumns = DBObjects.DB.Tables.Where(t => t.Name == "Booking").First().Columns.Select(x => x.Name).ToArray();
 			string[] bookingData = new string[] { GetNewBookingID(), DateTime.Now.Date.ToString("yyyy-MM-dd") };
 			DBMethods.DBAccess.UpdateTable("Booking", bookingColumns, bookingData, true);
 
-			bool doesAnyClash = false;
+			bool isAnyInvalid = false;
 			string totalErrMessage = "";
 
 			foreach (BookingCreator booking in BookingParts)
@@ -1056,13 +1082,24 @@ namespace A2_Project.ContentWindows
 					List<string[]> bkData = booking.GetData();
 					foreach (string[] bk in bkData)
 					{
-						doesAnyClash = DBMethods.MiscRequests.DoesAppointmentClash(bk, BookingParts, out string errMessage) || doesAnyClash;
-						if (errMessage != "") totalErrMessage += errMessage + "\n";
+						bool doesInstClash = DBMethods.MiscRequests.DoesAppointmentClash(bk, BookingParts, out string errMessage);
+						isAnyInvalid = doesInstClash || isAnyInvalid;
+
+						string[] prevSel = editingSidebar.GetData();
+						editingSidebar.ChangeSelectedData(bk);
+						bool isInstDataValid = editingSidebar.IsValid(out string err2Message);
+						editingSidebar.ChangeSelectedData(prevSel);
+						isAnyInvalid = !isInstDataValid || isAnyInvalid;
+
+						if (doesInstClash || !isInstDataValid) totalErrMessage += $"Appointment {bk[0]}:\n";
+
+						if (doesInstClash) totalErrMessage += errMessage + "\n";
+						if (!isInstDataValid) totalErrMessage += err2Message.Substring(1) + "\n";
 					}
 				}
 			}
 
-			if (doesAnyClash)
+			if (isAnyInvalid)
 			{
 				lblBookingErr.Visibility = Visibility.Visible;
 				lblBookingErr.Content = totalErrMessage;
@@ -1101,7 +1138,8 @@ namespace A2_Project.ContentWindows
 
 		public string GetBookingStaffID()
 		{
-			return stpBookStaffID.Children.OfType<ValidatedItem>().First().Text;
+			int selIndex = stpBookStaffID.Children.OfType<ComboBox>().First().SelectedIndex;
+			return selIndex.ToString();
 		}
 
 		public DateTime GetSelDate()
