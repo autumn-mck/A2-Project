@@ -20,10 +20,21 @@ namespace A2_Project
 				//dtg.DataContext = table.DefaultView;
 				dtg.Columns.Clear();
 			}
-			foreach (string str in columns.Select(c => c.Name))
-				table.Columns.Add(str);
-			for (int i = 0; i < data.Count; i++)
-				table.Rows.Add(data[i].ToArray());
+
+			if (data.Count > 0)
+			{
+				foreach (string str in columns.Select(c => c.Name))
+					table.Columns.Add(str);
+				for (int i = 0; i < data.Count; i++)
+					table.Rows.Add(data[i].ToArray());
+
+			}
+			else
+			{
+				// TODO: Display "No results!" or similar
+				table.Columns.Add("Note");
+				table.Rows.Add(new string[] { "No Results!" });
+			}
 
 			dtg.DataContext = table.DefaultView;
 			dtg.SelectedIndex = newSelIndex;

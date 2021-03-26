@@ -191,24 +191,18 @@ namespace A2_Project.ContentWindows
 				else if (c is ComboBox cmb) cmb.SelectedIndex = -1;
 				else if (c is DatePicker d) d.SelectedDate = (DateTime)UIMethods.GetSuggestedValue(columns[i]);
 				else if (c is CheckBox cbx) cbx.IsChecked = (bool)UIMethods.GetSuggestedValue(columns[i]);
-				// Any labels which were used to display primary keys now need to be editable
 				else if (c is Label l)
 				{
-					Panel cOwner = (Panel)l.Parent;
-					cOwner.Children.Remove(l);
-					c = new ValidatedTextbox(columns[i])
-					{
-						Margin = new Thickness(l.Margin.Left + 5, l.Margin.Top, 0, 0),
-						Tag = "Primary Key",
-						Text = UIMethods.GetSuggestedValue(columns[i]).ToString(),
-						HorizontalAlignment = HorizontalAlignment.Left,
-						VerticalAlignment = VerticalAlignment.Top
-					};
-					((ValidatedTextbox)c).AddTextChangedEvent(UpdateErrorEvent);
-					displayElements[i] = c;
-					cOwner.Children.Add(c);
+					l.Content = DBMethods.MiscRequests.GetMinKeyNotUsed(tableName, columns[i].Name);
 				}
 			}
+		}
+
+		internal void StartAddNew(string clientID)
+		{
+			EditToAdd();
+			if (tableName != "Client") ((ValidatedItem)displayElements[1]).Text = clientID;
+			else ((ValidatedDatePicker)displayElements[2]).SelectedDate = DateTime.Now.Date;
 		}
 
 		/// <summary>
@@ -358,7 +352,7 @@ namespace A2_Project.ContentWindows
 			};
 
 			// TODO: If I have time, get adding working?
-			//stp.Children.Add(grdAddMode);
+			stp.Children.Add(grdAddMode);
 			stp.Children.Add(grdEditMode);
 			stp.Children.Add(tbcErr1);
 

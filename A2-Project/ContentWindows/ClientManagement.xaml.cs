@@ -1,5 +1,8 @@
 ﻿using System;
 using System.Windows;
+using System.Windows.Controls;
+using System.Windows.Input;
+using System.Windows.Media;
 
 namespace A2_Project.ContentWindows
 {
@@ -13,14 +16,17 @@ namespace A2_Project.ContentWindows
 		private FilterableDataGrid dtgContacts;
 		private DBObjects.Column[] contactsColumns;
 		private DataEditingSidebar contactEditing;
+		private DataEditingSidebar contactAdding;
 
 		private FilterableDataGrid dtgDogs;
 		private DBObjects.Column[] dogsColumns;
 		private DataEditingSidebar dogsEditing;
+		private DataEditingSidebar dogsAdding;
 
 		private FilterableDataGrid dtgClients;
 		private DBObjects.Column[] clientsColumns;
 		private DataEditingSidebar clientsEditing;
+		private DataEditingSidebar clientsAdding;
 
 		private const string contactString = "Contacts";
 		private const string clientString = "Clients";
@@ -107,22 +113,31 @@ namespace A2_Project.ContentWindows
 				{
 					string[] selectedData = dtgContacts.GetSelectedData();
 					if (selectedData is null) return;
-					dtgDogs.ChangeSearch(1, selectedData[1]);
-					dtgClients.ChangeSearch(0, selectedData[1]);
+					if (selectedData[0] != "No Results!")
+					{
+						dtgDogs.ChangeSearch(1, selectedData[1]);
+						dtgClients.ChangeSearch(0, selectedData[1]);
+					}
 				}
 				else if (mode == dogString)
 				{
 					string[] selectedData = dtgDogs.GetSelectedData();
 					if (selectedData is null) return;
-					dtgContacts.ChangeSearch(1, selectedData[1]);
-					dtgClients.ChangeSearch(0, selectedData[1]);
+					if (selectedData[0] != "No Results!")
+					{
+						dtgContacts.ChangeSearch(1, selectedData[1]);
+						dtgClients.ChangeSearch(0, selectedData[1]);
+					}
 				}
 				else if (mode == clientString)
 				{
 					string[] selectedData = dtgClients.GetSelectedData();
 					if (selectedData is null) return;
-					dtgContacts.ChangeSearch(1, selectedData[0]);
-					dtgDogs.ChangeSearch(1, selectedData[0]);
+					if (selectedData[0] != "No Results!")
+					{
+						dtgContacts.ChangeSearch(1, selectedData[0]);
+						dtgDogs.ChangeSearch(1, selectedData[0]);
+					}
 				}
 				return;
 			}
@@ -132,12 +147,16 @@ namespace A2_Project.ContentWindows
 			double notSelMax = 150;
 			double selMax = 650;
 
-			lblEditingTitle.Content = $"Editing {mode}:";
+			lblEditBtn.Content = $"Editing {mode}";
+			lblStartAddingBtn.Content = $"Add New {mode}";
+
 
 			if (mode == contactString)
 			{
-				dtgContacts.ClearSearch();
 				string[] selectedData = dtgContacts.GetSelectedData();
+				if (selectedData[0] == "No Results!")
+				{ return; }
+				dtgContacts.ClearSearch();
 				if (selectedData is null) return;
 				dtgDogs.ChangeSearch(1, selectedData[1]);
 				dtgClients.ChangeSearch(0, selectedData[1]);
@@ -145,8 +164,10 @@ namespace A2_Project.ContentWindows
 			}
 			else if (mode == dogString)
 			{
-				dtgDogs.ClearSearch();
 				string[] selectedData = dtgDogs.GetSelectedData();
+				if (selectedData[0] == "No Results!")
+				{ return; }
+				dtgDogs.ClearSearch();
 				if (selectedData is null) return;
 				dtgContacts.ChangeSearch(1, selectedData[1]);
 				dtgClients.ChangeSearch(0, selectedData[1]);
@@ -154,8 +175,10 @@ namespace A2_Project.ContentWindows
 			}
 			else if (mode == clientString)
 			{
-				dtgClients.ClearSearch();
 				string[] selectedData = dtgClients.GetSelectedData();
+				if (selectedData[0] == "No Results!")
+				{ return; }
+				dtgClients.ClearSearch();
 				if (selectedData is null) return;
 				dtgContacts.ChangeSearch(1, selectedData[0]);
 				dtgDogs.ChangeSearch(1, selectedData[0]);
@@ -172,21 +195,27 @@ namespace A2_Project.ContentWindows
 			if (mode == contactString)
 			{
 				if (contactEditing is null) contactEditing = new DataEditingSidebar(contactsColumns, "Contact", this);
+				if (contactAdding is null) contactAdding = new DataEditingSidebar(contactsColumns, "Contact", this);
 				contactEditing.ChangeSelectedData(newData);
+				contactAdding.StartAddNew(GetClientID());
 				dtgDogs.UpdateSelectedIndex(-1);
 				dtgClients.UpdateSelectedIndex(-1);
 			}
 			else if (mode == dogString)
 			{
 				if (dogsEditing is null) dogsEditing = new DataEditingSidebar(dogsColumns, "Dog", this);
+				if (dogsAdding is null) dogsAdding = new DataEditingSidebar(dogsColumns, "Dog", this);
 				dogsEditing.ChangeSelectedData(newData);
+				dogsAdding.StartAddNew(GetClientID());
 				dtgContacts.UpdateSelectedIndex(-1);
 				dtgClients.UpdateSelectedIndex(-1);
 			}
 			else if (mode == clientString)
 			{
 				if (clientsEditing is null) clientsEditing = new DataEditingSidebar(clientsColumns, "Client", this);
+				if (clientsAdding is null) clientsAdding = new DataEditingSidebar(clientsColumns, "Client", this);
 				clientsEditing.ChangeSelectedData(newData);
+				clientsAdding.StartAddNew(GetClientID());
 				dtgDogs.UpdateSelectedIndex(-1);
 				dtgContacts.UpdateSelectedIndex(-1);
 			}
@@ -199,14 +228,17 @@ namespace A2_Project.ContentWindows
 			if (mode == contactString)
 			{
 				lblEditing.Content = contactEditing.Content;
+				lblAdding.Content = contactAdding.Content;
 			}
 			else if (mode == dogString)
 			{
 				lblEditing.Content = dogsEditing.Content;
+				lblAdding.Content = dogsAdding.Content;
 			}
 			else if (mode == clientString)
 			{
 				lblEditing.Content = clientsEditing.Content;
+				lblAdding.Content = clientsAdding.Content;
 			}
 		}
 
@@ -229,14 +261,44 @@ namespace A2_Project.ContentWindows
 
 		internal void AddNewItem()
 		{
-			string clientID = mode switch
-			{
-				contactString => dtgContacts.GetSelectedData()[1],
-				clientString => dtgClients.GetSelectedData()[0],
-				dogString => dtgDogs.GetSelectedData()[1],
-				_ => throw new NotImplementedException(),
-			};
-			((MainWindow)Owner).ChangeToAddNew(mode, clientID);
+			((MainWindow)Owner).ChangeToAddNew(mode, GetClientID());
+		}
+
+		private string GetClientID()
+		{
+			return dtgClients.GetClientID();
+		}
+
+		private void LblEditBtn_MouseDown(object sender, MouseButtonEventArgs e)
+		{
+			SelectLbl(lblEditBtn);
+			DeselectLbl(lblStartAddingBtn);
+
+			lblEditing.Visibility = Visibility.Visible;
+			lblAdding.Visibility = Visibility.Collapsed;
+		}
+
+		private void LblStartAddBtn_MouseDown(object sender, MouseButtonEventArgs e)
+		{
+			SelectLbl(lblStartAddingBtn);
+			DeselectLbl(lblEditBtn);
+
+			lblEditing.Visibility = Visibility.Collapsed;
+			lblAdding.Visibility = Visibility.Visible;
+		}
+
+		private static void SelectLbl(Label l)
+		{
+			l.Width = 420;
+			l.Background = new SolidColorBrush(Color.FromRgb(64, 64, 64));
+			l.Foreground = new SolidColorBrush(Color.FromRgb(241, 241, 241));
+		}
+
+		private static void DeselectLbl(Label l)
+		{
+			l.Width = 280;
+			l.Background = new SolidColorBrush(Color.FromRgb(37, 37, 37));
+			l.Foreground = new SolidColorBrush(Color.FromRgb(213, 213, 213));
 		}
 	}
 }
