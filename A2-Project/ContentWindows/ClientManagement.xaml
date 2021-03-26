@@ -49,13 +49,17 @@
 			</Style>
 		</Grid.Resources>
 		<StackPanel x:Name="stpSelections" Orientation="Vertical" Margin="20, -20, 0, 0" VerticalAlignment="Center">
+			<Label Name="lblClients"/>
 			<Label Name="lblContacts"/>
 			<Label Name="lblDogs"/>
-			<Label Name="lblClients"/>
 		</StackPanel>
 		<StackPanel Orientation="Vertical" VerticalAlignment="Center" HorizontalAlignment="Center" Margin="950, 0, 0, 0" Background="#0B0B0B">
-			<Label Name="lblEditingTitle" Content="Editing" FontSize="34" Margin="20, 20, 20, 20"/>
+			<StackPanel Orientation="Horizontal" Panel.ZIndex="1" HorizontalAlignment="Left" VerticalAlignment="Top">
+				<Label x:Name="lblEditBtn" Content="Editing" Background="#404040" Foreground="#F1F1F1" Margin="5" Width="420" HorizontalContentAlignment="Center" MouseDown="LblEditBtn_MouseDown" FontSize="30"/>
+				<Label x:Name="lblStartAddingBtn" Content="Add New" Background="#252525" Foreground="#D5D5D5" Margin="5" Width="280" HorizontalContentAlignment="Center" MouseDown="LblStartAddBtn_MouseDown" FontSize="30"/>
+			</StackPanel>
 			<Label Name="lblEditing" Margin="20, -30, -120, 20"/>
+			<Label Name="lblAdding" Margin="20, -30, -120, 20" Visibility="Collapsed"/>
 		</StackPanel>
 		<Grid x:Name="grdFKeyErrorOuter" Width="550" Height="300" Background="#FFFFFF" Visibility="Hidden" Panel.ZIndex="1">
 			<Grid x:Name="grdFKeyErrorInner" Background="#111111" Margin="2,2,2,2">

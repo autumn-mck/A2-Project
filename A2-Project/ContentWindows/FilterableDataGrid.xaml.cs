@@ -24,6 +24,8 @@ namespace A2_Project.ContentWindows
 
 		private UserControls.FilterManager filterManager;
 
+		string[] selItem;
+
 		public FilterableDataGrid(string tableName, Window _containingWindow)
 		{
 			Initialise(DBMethods.MetaRequests.GetColumnDataFromTable(tableName), _containingWindow);
@@ -78,13 +80,11 @@ namespace A2_Project.ContentWindows
 			// Otherwise if the item needs to be inserted
 			else
 			{
-				// Add the new item to the list of all current data
-				currentData.Add(data.ToList());
-				// Add it to the DataTable
-				dataTable.Rows.Add(data);
-				dtg.ItemsSource = dataTable.DefaultView;
-				// Select the item in the DataGrid and scroll to it
-				dtg.SelectedIndex = dataTable.Rows.Count - 1;
+				// Just get all the data again - otherwise stuff breaks.
+				FiltersSaved();
+
+				int newIndex = currentData.IndexOf(currentData.Where(x => x[0] == data[0]).First());
+				dtg.SelectedIndex = newIndex;
 				dtg.ScrollIntoView(dtg.SelectedItem);
 			}
 		}
@@ -370,6 +370,7 @@ namespace A2_Project.ContentWindows
 		{
 			if (e.AddedCells.Count == 0) return;
 			string[] newData = ((DataRowView)dtg.SelectedItems[0]).Row.ItemArray.OfType<string>().ToArray();
+			selItem = newData;
 
 			if (containingWindow is AllTableManger contactManagement) contactManagement.TableSelectionChanged(newData);
 			else if (containingWindow is ClientManagement clientManagement) clientManagement.TableSelectionChanged(this, newData);
@@ -389,6 +390,7 @@ namespace A2_Project.ContentWindows
 			{
 				case "Dog":
 				case "Contact": // Group contacts together by their ClientID
+					if (strArr.Length == 1) { row.Background = (SolidColorBrush)new BrushConverter().ConvertFrom("#161616"); break; }
 					if (Convert.ToInt32(strArr[1]) % 2 == 0) row.Background = (SolidColorBrush)new BrushConverter().ConvertFrom("#161616");
 					else row.Background = (SolidColorBrush)new BrushConverter().ConvertFrom("#252526");
 					break;
@@ -428,6 +430,12 @@ namespace A2_Project.ContentWindows
 			dtg.SelectedIndex = index;
 			if (index == -1) return;
 			dtg.ScrollIntoView(dtg.SelectedItem);
+		}
+
+		public string GetClientID()
+		{
+			if (currentData.Count == 1) return currentData[0][0];
+			else return selItem[0].ToString();
 		}
 	}
 }
