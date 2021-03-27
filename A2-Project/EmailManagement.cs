@@ -72,6 +72,11 @@ namespace A2_Project
 		}
 		#endregion 2FA
 
+		internal static void SendDataEmail(string recipient, DataTable dataTable, string[] tableHeaders)
+		{
+			SendEmail(recipient, "Data", GenerateTableHTML(DataTableToStringArrays(dataTable), tableHeaders));
+		}
+
 		#region Invoices
 		/// <summary>
 		/// Sends the contents of the DataTable as an email
@@ -94,12 +99,9 @@ namespace A2_Project
 			return data.ToArray();
 		}
 
-		/// <summary>
-		/// Generates the body HTML for an invoice email
-		/// </summary>
-		private static string GenerateInvoiceHTML(string[][] tableArr, string[] headers, string[] contactData)
+		private static string GetHeader()
 		{
-			string header = @"
+			return @"
 <!doctype html>
 <html>
 	<head>
@@ -184,6 +186,79 @@ namespace A2_Project
 			}
 		</style>
 	</head>";
+		}
+
+		private static string GenerateTableHTML(string[][] tableArr, string[] headers)
+		{
+			string header = GetHeader();
+
+			string body = String.Format(@"
+	<body>
+		<div class=""invoice-box"">
+			<table cellpadding=""0"" cellspacing=""0"">
+				<tr class=""top"">
+					<td colspan=""2"">
+						<table>
+							<tr>
+								<td class=""title"">
+									<img src=""https://drive.google.com/uc?export=view&id=1ib9GQTLzSi6WNdHJTDkUE-N2nPLeGbeW"" style=""width:100%; max-width:300px;"">
+									</td>
+								<td>
+									Data exported on {0}.
+								</td>
+							</tr>
+						</table>
+					</td>
+				</tr>", new string[] { DateTime.Now.ToString("dd/MM/yyyy") });
+
+			body += @"
+				<tr class=""information"">
+					<td colspan=""2"">
+						<table>
+							<tr>
+								<td>
+									JD Dog Care<br>
+									164 Kilbroney Rd<br>
+									Newtown, Rostrevor
+								</td>
+							</tr>
+						</table>
+					</td>
+				</tr>
+			</table>";
+
+			body += @"
+			<table cellpadding=""0"" cellspacing=""0"">
+				<tr class=""heading"">";
+			for (int i = 0; i < headers.Length; i++)
+				body += String.Format("<td>{0}</td>", headers[i]);
+			body += "</tr>";
+
+			for (int i = 0; i < tableArr.Length - 1; i++)
+			{
+				body += @"<tr class=""item"">";
+				for (int j = 0; j < tableArr[i].Length; j++)
+					body += String.Format("<td>{0}</td>", tableArr[i][j]);
+				body += "</tr>";
+			}
+			body += @"<tr class=""item last"">";
+			for (int j = 0; j < tableArr[tableArr.Length - 1].Length; j++)
+				body += String.Format("<td>{0}</td>", tableArr[tableArr.Length - 1][j]);
+			body += "</tr></table>";
+			body += @"
+		</div>
+	</body>
+</html>";
+
+			return header + body;
+		}
+
+		/// <summary>
+		/// Generates the body HTML for an invoice email
+		/// </summary>
+		private static string GenerateInvoiceHTML(string[][] tableArr, string[] headers, string[] contactData)
+		{
+			string header = GetHeader();
 
 			string body = String.Format(@"
 	<body>
