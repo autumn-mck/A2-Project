@@ -22,7 +22,7 @@
 				<StackPanel x:Name="stpShiftExc"/>
 			</ScrollViewer>
 			<Grid x:Name="grdNewExc" Background="#151515" VerticalAlignment="Bottom" Margin="10">
-				<StackPanel x:Name="stpNewExc"  Orientation="Horizontal">
+				<StackPanel x:Name="stpNewExc" Orientation="Horizontal">
 					<Label Content="For " FontSize="20"/>
 				</StackPanel>
 			</Grid>

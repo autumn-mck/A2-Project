@@ -1,6 +1,8 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
+using System.Windows;
 using System.Windows.Controls;
+using System.Windows.Media;
 
 namespace A2_Project.UserControls
 {
@@ -23,20 +25,19 @@ namespace A2_Project.UserControls
 
 			Tag = data[0];
 
-			ValidatedTextbox tbxNewExStaff = new ValidatedTextbox(columns[1]);
-			tbxNewExStaff.SetWidth(100);
-			tbxNewExStaff.ToggleImage();
-			tbxNewExStaff.Width = 90;
-			tbxNewExStaff.Text = data[1];
-			tbxNewExStaff.AddTextChangedEvent(TextChangedEvent);
-			stp.Children.Add(tbxNewExStaff);
+			ComboBox cbxExStaff = (ComboBox)UIMethods.GenAppropriateElement(columns[1], out _);
+			cbxExStaff.LayoutTransform = new ScaleTransform(1.5, 1.5);
+			cbxExStaff.Margin = new Thickness(0, 0, 10, 0);
+			cbxExStaff.SelectedIndex = int.Parse(data[1]);
+			cbxExStaff.SelectionChanged += CbxExStaff_SelectionChanged;
+			stp.Children.Add(cbxExStaff);
 
-			ValidatedDatePicker dtpNewExStart = new ValidatedDatePicker(columns[2]);
-			dtpNewExStart.ToggleImage();
-			dtpNewExStart.SetWidth(160);
-			dtpNewExStart.Text = data[2];
-			dtpNewExStart.AddTextChangedEvent(TextChangedEvent);
-			stp.Children.Add(dtpNewExStart);
+			ValidatedDatePicker dtpExStart = new ValidatedDatePicker(columns[2]);
+			dtpExStart.ToggleImage();
+			dtpExStart.SetWidth(160);
+			dtpExStart.Text = data[2];
+			dtpExStart.AddTextChangedEvent(TextChangedEvent);
+			stp.Children.Add(dtpExStart);
 
 			Label lbl = new Label()
 			{
@@ -45,13 +46,13 @@ namespace A2_Project.UserControls
 			};
 			stp.Children.Add(lbl);
 
-			ValidatedDatePicker dtpNewExEnd = new ValidatedDatePicker(columns[3]);
-			dtpNewExEnd.ToggleImage();
-			dtpNewExEnd.SetWidth(160);
-			dtpNewExStart.Height = 40;
-			dtpNewExEnd.Text = data[3];
-			dtpNewExEnd.AddTextChangedEvent(TextChangedEvent);
-			stp.Children.Add(dtpNewExEnd);
+			ValidatedDatePicker dtpExEnd = new ValidatedDatePicker(columns[3]);
+			dtpExEnd.ToggleImage();
+			dtpExEnd.SetWidth(160);
+			dtpExStart.Height = 40;
+			dtpExEnd.Text = data[3];
+			dtpExEnd.AddTextChangedEvent(TextChangedEvent);
+			stp.Children.Add(dtpExEnd);
 
 			prevData = GetNewData(out _);
 		}
@@ -69,23 +70,33 @@ namespace A2_Project.UserControls
 		private string[] GetNewData(out bool isValid)
 		{
 			string id = Tag.ToString();
-			ValidatedTextbox tbxStaff = stp.Children.OfType<ValidatedTextbox>().First();
+			ComboBox cbxStaff = stp.Children.OfType<ComboBox>().First();
 			ValidatedDatePicker[] dates = stp.Children.OfType<ValidatedDatePicker>().ToArray();
-			isValid = tbxStaff.IsValid && dates[0].IsValid && dates[1].IsValid;
-			return new string[] { id, tbxStaff.Text, dates[0].SelectedDate.ToString("yyyy-MM-dd"), dates[1].SelectedDate.ToString("yyyy-MM-dd") };
+			isValid = dates[0].IsValid && dates[1].IsValid;
+			return new string[] { id, cbxStaff.SelectedIndex.ToString(), dates[0].SelectedDate.ToString("yyyy-MM-dd"), dates[1].SelectedDate.ToString("yyyy-MM-dd") };
 		}
 
 		private void TextChangedEvent(object sender, TextChangedEventArgs e)
 		{
+			OnChanged();
+		}
+
+		private void CbxExStaff_SelectionChanged(object sender, SelectionChangedEventArgs e)
+		{
+			OnChanged();
+		}
+
+		private void OnChanged()
+		{
 			string[] newData = GetNewData(out bool isValid);
 			if (isValid && !newData.SequenceEqual(prevData))
 			{
-				btnSave.Visibility = System.Windows.Visibility.Visible;
+				btnSave.Visibility = Visibility.Visible;
 			}
-			else btnSave.Visibility = System.Windows.Visibility.Collapsed;
+			else btnSave.Visibility = Visibility.Collapsed;
 		}
 
-		private void BtnSave_Click(object sender, System.Windows.RoutedEventArgs e)
+		private void BtnSave_Click(object sender, RoutedEventArgs e)
 		{
 			string[] newData = GetNewData(out _);
 			prevData = newData;

@@ -76,12 +76,10 @@ namespace A2_Project.ContentWindows
 
 			UpdateShiftExcs();
 
-			ValidatedTextbox tbxNewExStaff = new ValidatedTextbox(shiftExcColumns[1]);
-			tbxNewExStaff.SetWidth(100);
-			tbxNewExStaff.ToggleImage();
-			tbxNewExStaff.Width = 90;
-			tbxNewExStaff.Text = "0";
-			stpNewExc.Children.Add(tbxNewExStaff);
+			FrameworkElement elemNewExStaff = UIMethods.GenAppropriateElement(shiftExcColumns[1], out _, false, true);
+			elemNewExStaff.LayoutTransform = new ScaleTransform(1.5, 1.5);
+			elemNewExStaff.Margin = new Thickness(0, 0, 10, 0);
+			stpNewExc.Children.Add(elemNewExStaff);
 
 			ValidatedDatePicker dtpNewExStart = new ValidatedDatePicker(shiftExcColumns[2]);
 			dtpNewExStart.ToggleImage();
@@ -130,14 +128,14 @@ namespace A2_Project.ContentWindows
 
 		private void BtnConfirmNewEx_Click(object sender, RoutedEventArgs e)
 		{
-			ValidatedTextbox tbxNewExStaff = stpNewExc.Children.OfType<ValidatedTextbox>().First();
+			ComboBox cbxNewExStaff = stpNewExc.Children.OfType<ComboBox>().First();
 			ValidatedDatePicker[] dates = stpNewExc.Children.OfType<ValidatedDatePicker>().ToArray();
 
-			if (tbxNewExStaff.IsValid && dates[0].IsValid && dates[1].IsValid && dates[0].SelectedDate <= dates[1].SelectedDate)
+			if (dates[0].IsValid && dates[1].IsValid && dates[0].SelectedDate <= dates[1].SelectedDate)
 			{
 				string[] newData = new string[4];
 				newData[0] = MiscRequests.GetMinKeyNotUsed("Shift Exception", "Shift Exception ID");
-				newData[1] = tbxNewExStaff.Text;
+				newData[1] = cbxNewExStaff.SelectedIndex.ToString();
 				newData[2] = dates[0].SelectedDate.ToString("dd-MM-yyyy");
 				newData[3] = dates[1].SelectedDate.ToString("dd-MM-yyyy");
 
