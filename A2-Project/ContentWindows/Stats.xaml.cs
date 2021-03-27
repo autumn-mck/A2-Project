@@ -52,42 +52,49 @@ namespace A2_Project.ContentWindows
 
 		private void ShowMiscStats()
 		{
+			// TODO: Any other misc stats?
 			DrawFullArea(grdMiscStats);
 			double baseY = 40;
 			double lblHeight = 30;
 			string timePeriod = cmbTimescale.SelectedItem.ToString().ToLower();
 
+			StackPanel stpMisc = new StackPanel()
+			{
+				Orientation = Orientation.Vertical,
+				HorizontalAlignment = HorizontalAlignment.Left,
+				VerticalAlignment = VerticalAlignment.Top,
+				Margin = new Thickness(40, 30, 0, 0)
+			};
+
 			double sales = DBMethods.GraphingRequests.GetIncomeSinceDate(minDate, DateTime.Now);
 			Label lblSalesLast = new Label()
 			{
-				Content = $"Sales {timePeriod}: £{sales}",
-				Margin = new Thickness(40, baseY, 0, 0)
+				Content = $"Sales {timePeriod}: £{sales}"
 			};
-			grdMiscStats.Children.Add(lblSalesLast);
+			stpMisc.Children.Add(lblSalesLast);
 
 			string gpp = "";
 			Label lblGPP = new Label()
 			{
-				Content = $"Gross profit % {timePeriod}: {gpp}%",
-				Margin = new Thickness(40, baseY + lblHeight, 0, 0)
+				Content = $"Gross profit % {timePeriod}: {gpp}%"
 			};
-			grdMiscStats.Children.Add(lblGPP);
+			//stpMisc.Children.Add(lblGPP);
 
 			string newCustCount = DBMethods.GraphingRequests.GetNewCusts(minDate);
 			Label lblNewCliCount = new Label()
 			{
-				Content = $"No. new customers over {timePeriod}: {newCustCount}",
-				Margin = new Thickness(40, baseY + lblHeight * 2, 0, 0)
+				Content = $"No. new customers over {timePeriod}: {newCustCount}"
 			};
-			grdMiscStats.Children.Add(lblNewCliCount);
+			stpMisc.Children.Add(lblNewCliCount);
 
 			string percCap = "";
 			Label lblPercCap = new Label()
 			{
-				Content = $"% capacity over {timePeriod}: {percCap}%",
-				Margin = new Thickness(40, baseY + lblHeight * 3, 0, 0)
+				Content = $"% capacity over {timePeriod}: {percCap}%"
 			};
-			grdMiscStats.Children.Add(lblPercCap);
+			//stpMisc.Children.Add(lblPercCap);
+
+			grdMiscStats.Children.Add(stpMisc);
 		}
 
 		private static void GenerateBarGraph(GetData getData, Grid grid, string title, string prefix = "", string suffix = "", Brush[] brushes = null)
@@ -650,7 +657,7 @@ namespace A2_Project.ContentWindows
 		private void GraphCustReturn()
 		{
 			GetData getData = new GetData(DBMethods.GraphingRequests.GetCustReturns);
-			GenerateLineGraph(getData, grdRepeatCustomers, "Return Customers");
+			GenerateLineGraph(getData, grdRepeatCustomers, "Dog Last Appointment Date");
 		}
 
 		private void GraphIncome()

@@ -101,24 +101,6 @@ namespace A2_Project.DBMethods
 		// TODO: What does this even do? Get it to actually work.
 		public static void GetCustReturns(ref double[][] data, ref string[] headers, DateTime minDate)
 		{
-			//DateTime startDate = MaxDate(Convert.ToDateTime(DBAccess.GetStringsWithQuery("SELECT MIN([Client Join Date]) FROM [Client]")[0]), minDate);
-			//DateTime endDate = DateTime.Now.Date;
-			//int diff = (int)(endDate - startDate).TotalDays;
-			//List<int> returnRates = new List<int>();
-			//double increment = diff / 75.0;
-
-			//for (double i = 0; i < diff; i += increment)
-			//{
-			//	DateTime timeConsid = startDate.AddDays(i);
-			//	int clientsInTime = Convert.ToInt32(DBAccess.GetStringsWithQuery($"SELECT COUNT([Client ID]) FROM [Client] WHERE [Client Join Date] < '{timeConsid:yyyy-MM-dd}';")[0]);
-			//	int clientsLeftInTime = DBAccess.GetStringsWithQuery($"SELECT Count([Booking ID]) FROM [Booking] WHERE [Booking].[Date Made] BETWEEN '{timeConsid.AddDays(-increment * 10)}' AND '{timeConsid}' H")
-			//}
-			//data[0] = returnRates.ToArray();
-			//headers = InterpolateDates(startDate, diff);
-
-			//List<string> ls = DBAccess.GetStringsWithQuery("SELECT TOP 1 [Booking].[Date Made] FROM [Booking] INNER JOIN [Appointment] ON [Booking].[Booking ID] = [Appointment].[Booking ID] INNER JOIN [Dog] On [Dog].[Dog ID] = [Appointment].[Dog ID] GROUP BY [Dog].[Client ID] ORDER BY [Booking].[Date Made];");
-
-
 			DateTime startDate = MaxDate(Convert.ToDateTime(DBAccess.GetStringsWithQuery("SELECT MIN([Client Join Date]) FROM [Client]")[0]), minDate);
 			DateTime endDate = DateTime.Now;
 			double diff = (endDate - startDate).TotalDays;
@@ -126,16 +108,17 @@ namespace A2_Project.DBMethods
 			int count = 0;
 			for (double i = 0; i < diff; i += diff / 40.0)
 			{
-				string query = "SELECT SUM(1) FROM [Client] " +
-				"INNER JOIN [Dog] ON [Dog].[Client ID] = [Client].[Client ID] INNER JOIN [Appointment] ON [Appointment].[Dog ID] = [Dog].[Dog ID] " +
-				"INNER JOIN [Booking] ON [Booking].[Booking ID] = [Appointment].[Booking ID] " +
-				$"WHERE [Client].[Client Join Date] BETWEEN '{startDate.AddDays(i - diff / 40.0):yyyy-MM-dd}' AND '{startDate.AddDays(i):yyyy-MM-dd}' " +
-				"GROUP BY [Client].[Client ID] HAVING COUNT([Booking].[Booking ID]) < 2;";
+				string query = "SELECT TOP 1 WITH TIES [Appointment].[Appointment Date] FROM [Appointment] " +
+				$"WHERE [Appointment].[Appointment Date] <= '{startDate.Add(TimeSpan.FromDays(i)):yyyy-MM-dd}' " +
+				"GROUP BY [Appointment].[Dog ID];";
+
+				query = "SELECT b.[Appointment Date] FROM [Appointment] AS a " +
+				"CROSS APPLY (SELECT TOP 1 [Appointment Date] From [Appointment] WHERE [Dog ID] = a.[Dog ID] ORDER BY [Appointment Date] desc) as b " +
+				$"WHERE b.[Appointment Date] BETWEEN '{startDate.Add(TimeSpan.FromDays(i - diff / 40.0)):yyyy-MM-dd}' AND '{startDate.Add(TimeSpan.FromDays(i)):yyyy-MM-dd}';";
 
 				List<List<string>> result = DBAccess.GetListStringsWithQuery(query);
 
-				if (count == 0) returns.Add(result.Count);
-				else returns.Add(result.Count + returns[count - 1]);
+				returns.Add(result.Count);
 				count++;
 			}
 			data[0] = returns.ToArray();
