@@ -37,28 +37,34 @@ namespace A2_Project.ContentWindows
 			tbcErr1 = new TextBlock()
 			{
 				MaxHeight = 300,
-				Margin = new Thickness(5, -20, 0, 0)
+				Margin = new Thickness(5, -20, 0, 0),
+				IsHitTestVisible = false
 			};
-			tbcErr2 = new TextBlock();
+			tbcErr2 = new TextBlock()
+			{
+				IsHitTestVisible = false
+			};
 
 			InitializeComponent();
 
 			GenUI(canAddOrDelete);
 		}
 
-		private void UpdateToOwner(string[] data, bool isNew)
+		private bool UpdateToOwner(string[] data, bool isNew)
 		{
 			if (container is AllTableManger contact)
 			{
 				contact.UpdateFromSidebar(data, isNew);
+				return true;
 			}
 			else if (container is CalandarView calandar)
 			{
-				calandar.UpdateFromSidebar(data, isNew);
+				return calandar.UpdateFromSidebar(data, isNew);
 			}
 			else if (container is ClientManagement cliMan)
 			{
 				cliMan.UpdateFromSidebar(data, isNew);
+				return true;
 			}
 			else throw new NotImplementedException();
 		}
@@ -422,8 +428,16 @@ namespace A2_Project.ContentWindows
 
 			if (canAddOrDelete)
 			{
-				grdEditMode.Children.Add(btnAddNew);
-				grdEditMode.Children.Add(btnDeleteItem);
+				if (container is ClientManagement)
+				{
+					btnDeleteItem.Margin = new Thickness(0, 45, 0, 0);
+					grdEditMode.Children.Add(btnDeleteItem);
+				}
+				else
+				{
+					grdEditMode.Children.Add(btnDeleteItem);
+					grdEditMode.Children.Add(btnAddNew);
+				}
 			}
 
 			Button btnInsertNew = new Button()
@@ -502,24 +516,17 @@ namespace A2_Project.ContentWindows
 				}
 
 				// Allows the user to be alerted if an error occurred while trying to save their changes
-				bool succeeded;
 				// Checks if the item already exists and needs updated or is new and needs inserted by checking if the primary key is taken
 				bool isNew = DBMethods.MiscRequests.IsPKeyFree(tableName, columns[0].Name, selectedData[0]);
-				try
-				{
-					UpdateToOwner(selectedData, isNew);
-					succeeded = true;
-				}
-				catch
-				{
-					succeeded = false;
-				}
+				bool succeeded = UpdateToOwner(selectedData, isNew);
 
 				if (b is not null)
 				{
 					if (succeeded)
 					{
+						// TODO: Why is this commented out?
 						//if (isNew) AddToEdit();
+
 						// Tell the user their changes have been saved without displaying an intrusive message
 						b.Content = "Changes saved!";
 						await Task.Delay(2000);
@@ -527,7 +534,6 @@ namespace A2_Project.ContentWindows
 					}
 					else
 					{
-						tbcErr1.Text = "\nError: Appointment would clash!";
 						b.Content = "Error occurred!";
 						await Task.Delay(2000);
 						b.Content = "Save Changes";
@@ -554,6 +560,7 @@ namespace A2_Project.ContentWindows
 		/// </summary>
 		private void BtnRevert_Click(object sender, RoutedEventArgs e)
 		{
+			// TODO: Does not work after the "save changes" button is clicked.
 			ChangeSelectedData();
 		}
 
@@ -561,7 +568,7 @@ namespace A2_Project.ContentWindows
 		{
 			if (container is ClientManagement cliMan)
 			{
-				cliMan.AddNewItem();
+				throw new NotImplementedException();
 			}
 			else EditToAdd();
 		}
@@ -584,7 +591,8 @@ namespace A2_Project.ContentWindows
 		#region AddMode
 		private void BtnCancelAddition_Click(object sender, RoutedEventArgs e)
 		{
-			AddToEdit();
+			if (container is ClientManagement) EditToAdd();
+			else AddToEdit();
 		}
 		#endregion AddMode
 	}

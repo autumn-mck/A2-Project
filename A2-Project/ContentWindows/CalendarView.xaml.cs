@@ -824,11 +824,26 @@ namespace A2_Project.ContentWindows
 		/// <summary>
 		/// Update the selected data from the rectangle
 		/// </summary>
-		public void UpdateFromSidebar(string[] data, bool isNew)
+		public bool UpdateFromSidebar(string[] data, bool isNew)
 		{
 			bool doesClash = DBMethods.MiscRequests.DoesAppointmentClash(data, BookingParts, out string errMessage);
 			editingSidebar.DisplayError(errMessage);
-			if (doesClash) throw new NotImplementedException();
+
+			if (doesClash) return false;
+
+			string[] prevData = GetDataTag(currentlySelected);
+
+			if ((prevData[2] == "3" && data[2] != "3") || (prevData[2] != "3" && data[2] == "3"))
+			{
+				editingSidebar.DisplayError("Error: You cannot change an appointment\nto/from allergy therapy!");
+				return false;
+			}
+
+			if (data[2] == "3" && data[6] == "True")
+			{
+				editingSidebar.DisplayError("Error: An allergy appointment cannot\ninclude this option!");
+				return false;
+			}
 
 			if (currentlySelected.Tag is string[])
 			{
@@ -849,6 +864,8 @@ namespace A2_Project.ContentWindows
 				r.Tag = booking;
 			}
 			else throw new NotImplementedException();
+
+			return true;
 		}
 
 		internal void CancelApp()

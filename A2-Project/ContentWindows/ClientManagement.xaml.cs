@@ -259,11 +259,6 @@ namespace A2_Project.ContentWindows
 			grdFKeyErrorOuter.Visibility = Visibility.Collapsed;
 		}
 
-		internal void AddNewItem()
-		{
-			((MainWindow)Owner).ChangeToAddNew(mode, GetClientID());
-		}
-
 		private string GetClientID()
 		{
 			return dtgClients.GetClientID();

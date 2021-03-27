@@ -32,7 +32,7 @@ namespace A2_Project.UserControls
 			StaffID = _staffID;
 			container = _container;
 
-			cbxNewBookType.ItemsSource = new string[] { "Appointment", "Recurring Appointment" };
+			cbxNewBookType.ItemsSource = new string[] { "Appointment", "Recurring Appointment", "Allergy Therapy" };
 			cbxNewBookType.SelectedIndex = 0;
 		}
 
@@ -50,6 +50,7 @@ namespace A2_Project.UserControls
 			StaffID = container.GetBookingStaffID();
 			DogID = container.GetBookingDogID();
 
+			// Standard Appointment
 			if (cbxNewBookType.SelectedIndex == 0)
 			{
 				data = new List<string[]>();
@@ -78,6 +79,7 @@ namespace A2_Project.UserControls
 				r.MouseDown += Rct_MouseDown;
 				stpContent.Children.Add(r);
 			}
+			// Recurring Appointment
 			else if (cbxNewBookType.SelectedIndex == 1)
 			{
 				StackPanel stpTime = new StackPanel()
@@ -196,6 +198,133 @@ namespace A2_Project.UserControls
 
 				cbxTimeType.SelectedIndex = 2;
 			}
+			// Allergy Appointment
+			else if (cbxNewBookType.SelectedIndex == 2)
+			{
+				StackPanel stpTime = new StackPanel()
+				{
+					Name = "stpTime",
+					Orientation = Orientation.Horizontal
+				};
+
+				Label lblRepeat = new Label()
+				{
+					Content = "Repeating every"
+				};
+				stpTime.Children.Add(lblRepeat);
+
+				TextBox tbxTimePeriod = new TextBox()
+				{
+					Name = "tbxTimePeriod",
+					Margin = new Thickness(10, 0, 10, 0),
+					MinWidth = 30,
+					MaxWidth = 100,
+					FontSize = 24,
+					Background = null,
+					TextWrapping = TextWrapping.Wrap,
+					Foreground = new SolidColorBrush(Color.FromRgb(241, 241, 241)),
+					CaretBrush = new SolidColorBrush(Color.FromRgb(241, 241, 241)),
+					HorizontalContentAlignment = HorizontalAlignment.Center,
+					VerticalContentAlignment = VerticalAlignment.Center,
+					Text = "4"
+				};
+				tbxTimePeriod.PreviewTextInput += Tbx_OnlyAllowNumbers;
+				stpTime.Children.Add(tbxTimePeriod);
+
+				ComboBox cbxTimeType = new ComboBox()
+				{
+					Name = "cbxTimeType",
+					ItemsSource = new string[] { "days", "weeks", "months" },
+					Width = 100,
+					VerticalAlignment = VerticalAlignment.Top,
+					LayoutTransform = new ScaleTransform(2, 2)
+				};
+				stpTime.Children.Add(cbxTimeType);
+
+				TextBox tbxBookCount = new TextBox()
+				{
+					Name = "tbxBookCount",
+					Margin = new Thickness(10, 0, 5, 0),
+					MinWidth = 30,
+					MaxWidth = 100,
+					FontSize = 24,
+					Background = null,
+					TextWrapping = TextWrapping.Wrap,
+					Foreground = new SolidColorBrush(Color.FromRgb(241, 241, 241)),
+					CaretBrush = new SolidColorBrush(Color.FromRgb(241, 241, 241)),
+					HorizontalContentAlignment = HorizontalAlignment.Center,
+					VerticalContentAlignment = VerticalAlignment.Center,
+					Text = "4"
+				};
+				tbxBookCount.PreviewTextInput += Tbx_OnlyAllowNumbers;
+				stpTime.Children.Add(tbxBookCount);
+
+				Label lblTimes = new Label()
+				{
+					Content = "times."
+				};
+				stpTime.Children.Add(lblTimes);
+
+				stpContent.Children.Add(stpTime);
+
+				StackPanel stpStart = new StackPanel()
+				{
+					Name = "stpStart",
+					Orientation = Orientation.Horizontal,
+					Margin = new Thickness(0, 10, 0, 0)
+				};
+
+				Label lblStartAt = new Label()
+				{
+					Content = "Starting at "
+				};
+				stpStart.Children.Add(lblStartAt);
+
+				ValidatedTextbox tbxStartTime = new ValidatedTextbox(DBObjects.DB.Tables.Where(t => t.Name == "Appointment").First().Columns.Where(c => c.Name == "Appointment Time").First())
+				{
+					Text = "9:00",
+					Width = double.NaN
+				};
+				stpStart.Children.Add(tbxStartTime);
+				tbxStartTime.SetWidth(110);
+
+				CustomizableDatePicker dtpDate = new CustomizableDatePicker()
+				{
+					LayoutTransform = new ScaleTransform(1.5, 1.5),
+					FontSize = 16,
+					SelectedDate = ((CalandarView)container).GetSelDate(),
+					Margin = new Thickness(10, 0, 0, 0)
+				};
+				stpStart.Children.Add(dtpDate);
+
+				stpContent.Children.Add(stpStart);
+
+				Button btnUpdate = new Button()
+				{
+					Content = "Save Changes",
+					FontSize = 24,
+					HorizontalAlignment = HorizontalAlignment.Left
+				};
+				btnUpdate.Click += BtnUpdate_Click;
+				stpContent.Children.Add(btnUpdate);
+
+				StackPanel stpGoTo = new StackPanel()
+				{
+					Orientation = Orientation.Vertical,
+					Name = "stpGoTo"
+				};
+				stpContent.Children.Add(stpGoTo);
+
+				Label lblErr = new Label()
+				{
+					Name = "lblErr",
+					Visibility = Visibility.Collapsed,
+					Foreground = new SolidColorBrush(Color.FromRgb(100, 62, 66))
+				};
+				stpContent.Children.Add(lblErr);
+
+				cbxTimeType.SelectedIndex = 1;
+			}
 			else throw new NotImplementedException();
 		}
 
@@ -203,6 +332,7 @@ namespace A2_Project.UserControls
 		{
 			try
 			{
+				bool wasPrevAdded = IsAdded;
 				IsAdded = true;
 				StackPanel stpTime = stpContent.Children.OfType<StackPanel>().Where(s => s.Name == "stpTime").First();
 				TextBox tbxTimePeriod = stpTime.Children.OfType<TextBox>().Where(t => t.Name == "tbxTimePeriod").First();
@@ -213,17 +343,38 @@ namespace A2_Project.UserControls
 				ValidatedTextbox tbxStartTime = stpStart.Children.OfType<ValidatedTextbox>().First();
 				CustomizableDatePicker dtpDate = stpStart.Children.OfType<CustomizableDatePicker>().First();
 
+				Label lblErr = stpContent.Children.OfType<Label>().Where(l => l.Name == "lblErr").FirstOrDefault();
+				if (lblErr is not null) lblErr.Visibility = Visibility.Collapsed;
+
 				int count = Convert.ToInt32(tbxBookCount.Text);
 				int timeGap = Convert.ToInt32(tbxTimePeriod.Text);
 
 				data = new List<string[]>();
 
+				// TODO: Option to add appointment to next free slot, not just put down ignoring if it clashes?
+				// TODO: Also, gen rectangle as expensive
 				DateTime start = dtpDate.SelectedDate.Value;
 				TimeSpan betweenPeriod;
 				if (cbxTimeType.SelectedIndex == 0) betweenPeriod = new TimeSpan(timeGap, 0, 0, 0);
 				else if (cbxTimeType.SelectedIndex == 1) betweenPeriod = new TimeSpan(timeGap * 7, 0, 0, 0);
 				else if (cbxTimeType.SelectedIndex == 2) betweenPeriod = new TimeSpan(timeGap * 28, 0, 0, 0);
 				else throw new NotImplementedException();
+
+				if (cbxNewBookType.SelectedIndex == 2 && betweenPeriod.TotalDays < 14)
+				{
+					IsAdded = wasPrevAdded;
+					lblErr.Content = "Error: allergy appointments must be at least 2 weeks apart!";
+					lblErr.Visibility = Visibility.Visible;
+					return;
+				}
+
+				if (cbxNewBookType.SelectedIndex == 2 && count < 4)
+				{
+					IsAdded = wasPrevAdded;
+					lblErr.Content = "Error: allergy appointments must have at least 3 follow ups!";
+					lblErr.Visibility = Visibility.Visible;
+					return;
+				}
 
 				StackPanel stpGoTo = stpContent.Children.OfType<StackPanel>().Where(s => s.Name == "stpGoTo").First();
 				stpGoTo.Children.Clear();
@@ -243,6 +394,8 @@ namespace A2_Project.UserControls
 					data[i][1] = DogID;
 					data[i][3] = StaffID;
 					data[i][4] = BookingID;
+
+					if (cbxNewBookType.SelectedIndex == 2) data[i][2] = "3";
 
 					data[i][9] = start.Add(betweenPeriod * i).ToString("yyyy-MM-dd");
 					data[i][10] = TimeSpan.Parse(tbxStartTime.Text).ToString("hh\\:mm");
