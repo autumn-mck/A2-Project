@@ -9,33 +9,33 @@ namespace A2_Project.DBMethods
 		private static readonly string[] months = new string[] { "Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec" };
 		private static readonly List<List<string>> appTypeData = MetaRequests.GetAllFromTable("Appointment Type");
 
-		public static void GetCountOfAppointmentTypes(ref int[][] data, ref string[] headers, DateTime minDate)
+		public static void GetCountOfAppointmentTypes(ref double[][] data, ref string[] headers, DateTime minDate)
 		{
 			string dataQuery = "SELECT Count([Appointment Type ID]) FROM [Appointment] " +
 			$"WHERE [Appointment Date] BETWEEN '{minDate:yyyy-MM-dd}' AND '{DateTime.Now:yyyy-MM-dd}' " +
 			"GROUP BY [Appointment Type ID] ORDER BY [Appointment Type ID];";
-			data[0] = DBAccess.GetStringsWithQuery(dataQuery).Select(int.Parse).ToArray();
+			data[0] = DBAccess.GetStringsWithQuery(dataQuery).Select(double.Parse).ToArray();
 			headers = DBAccess.GetStringsWithQuery("SELECT [Description] FROM [Appointment Type] ORDER BY [Appointment Type ID];").ToArray();
 		}
 
-		public static void GetBusinessOfStaff(ref int[][] data, ref string[] headers, DateTime minDate)
+		public static void GetBusinessOfStaff(ref double[][] data, ref string[] headers, DateTime minDate)
 		{
 			string dataQuery = "SELECT Count([Staff ID]) FROM [Appointment] " +
 			$"WHERE [Appointment Date] BETWEEN '{minDate:yyyy-MM-dd}' AND '{DateTime.Now:yyyy-MM-dd}' " +
 			"GROUP BY [Staff ID] ORDER BY [Staff ID];";
-			data[0] = DBAccess.GetStringsWithQuery(dataQuery).Select(int.Parse).ToArray();
+			data[0] = DBAccess.GetStringsWithQuery(dataQuery).Select(double.Parse).ToArray();
 			headers = DBAccess.GetStringsWithQuery("SELECT [Staff Name] FROM [Staff] ORDER BY [Staff ID];").ToArray();
 		}
 
 		/// <summary>
 		/// Gets the number of clients over time
 		/// </summary>
-		public static void GetGrowthOverTime(ref int[][] data, ref string[] headers, DateTime minDate)
+		public static void GetGrowthOverTime(ref double[][] data, ref string[] headers, DateTime minDate)
 		{
 			DateTime startDate = MaxDate(Convert.ToDateTime(DBAccess.GetStringsWithQuery("SELECT MIN([Client Join Date]) FROM [Client]")[0]), minDate);
 			DateTime endDate = DateTime.Now.Date;
 			int diff = (int)(endDate - startDate).TotalDays;
-			List<int> growth = new List<int>();
+			List<double> growth = new List<double>();
 			for (double i = 0; i < diff; i += diff / 75.0)
 			{
 				string query = $"SELECT COUNT([Client ID]) FROM [Client] WHERE [Client Join Date] < '{startDate.AddDays(i):yyyy-MM-dd}';";
@@ -48,58 +48,58 @@ namespace A2_Project.DBMethods
 		/// <summary>
 		/// Gets the number of appointments on each day of the week
 		/// </summary>
-		public static void GetAppsByDayOfWeek(ref int[][] data, ref string[] headers, DateTime minDate)
+		public static void GetAppsByDayOfWeek(ref double[][] data, ref string[] headers, DateTime minDate)
 		{
 			string query = "SET DATEFIRST 1; SELECT Count([Appointment ID]) FROM [Appointment] " +
 			$"WHERE [Appointment Date] BETWEEN '{minDate:yyyy-MM-dd}' AND '{DateTime.Now:yyyy-MM-dd}' " +
 			"GROUP BY DatePart(WeekDay, [Appointment Date]) ORDER BY DatePart(WeekDay, [Appointment Date]);";
-			data[0] = DBAccess.GetStringsWithQuery(query).Select(x => Convert.ToInt32(x)).ToArray();
+			data[0] = DBAccess.GetStringsWithQuery(query).Select(x => Convert.ToDouble(x)).ToArray();
 			headers = new string[] { "Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun" };
 		}
 
 		/// <summary>
 		/// Gets the number of appointments in each month of the last year
 		/// </summary>
-		public static void GetBookingsInMonths(ref int[][] data, ref string[] headers, DateTime minDate)
+		public static void GetBookingsInMonths(ref double[][] data, ref string[] headers, DateTime minDate)
 		{
 			string query = "SELECT Count([Appointment ID]) FROM [Appointment] " +
 			$"WHERE [Appointment Date] BETWEEN '{DateTime.Now.AddYears(-1):yyyy-MM-dd}' AND '{DateTime.Now:yyyy-MM-dd}' " +
 			"GROUP BY DatePart(Month, [Appointment Date]) ORDER BY DatePart(Month, [Appointment Date]);";
-			data[0] = DBAccess.GetStringsWithQuery(query).Select(x => Convert.ToInt32(x)).ToArray();
+			data[0] = DBAccess.GetStringsWithQuery(query).Select(x => Convert.ToDouble(x)).ToArray();
 			headers = months;
 		}
 
 		/// <summary>
 		/// Gets a rolling average of what % of appointments have been cancelled over time
 		/// </summary>
-		public static void GetAppCancelRate(ref int[][] data, ref string[] headers, DateTime minDate)
+		public static void GetAppCancelRate(ref double[][] data, ref string[] headers, DateTime minDate)
 		{
 			DateTime startDate = MaxDate(Convert.ToDateTime(DBAccess.GetStringsWithQuery("SELECT MIN([Appointment Date]) FROM Appointment")[0]), minDate);
 			DateTime endDate = DateTime.Now;
 			int diff = (int)(endDate - startDate).TotalDays;
 			double increment = diff / 75.0;
-			List<int> cancelRate = new List<int>();
+			List<double> cancelRate = new List<double>();
 			for (double i = 0; i < diff; i += increment)
 			{
 				DateTime currentDate = startDate.AddDays(i);
 
 				string totalInTimeQuery = "SELECT COUNT([Appointment ID]) FROM [Appointment] " +
 				$"WHERE [Appointment Date] BETWEEN '{currentDate.AddDays(-increment * 10):yyyy-MM-dd}' AND '{currentDate:yyyy-MM-dd}';";
-				int totalInTime = Convert.ToInt32(DBAccess.GetStringsWithQuery(totalInTimeQuery)[0]);
+				double totalInTime = Convert.ToInt32(DBAccess.GetStringsWithQuery(totalInTimeQuery)[0]);
 
 				string cancelledInTimeQuery = "SELECT COUNT([Appointment ID]) FROM [Appointment] " +
 				$"WHERE [Is Cancelled] = 1 AND [Appointment Date] BETWEEN '{currentDate.AddDays(-increment * 10):yyyy-MM-dd}' AND '{currentDate:yyyy-MM-dd}';";
-				int cancelledInTime = Convert.ToInt32(DBAccess.GetStringsWithQuery(cancelledInTimeQuery)[0]);
+				double cancelledInTime = Convert.ToInt32(DBAccess.GetStringsWithQuery(cancelledInTimeQuery)[0]);
 				if (cancelledInTime == 0 || totalInTime == 0)
 					cancelRate.Add(0);
-				else cancelRate.Add((int)((float)cancelledInTime * 100 / totalInTime));
+				else cancelRate.Add(cancelledInTime * 100 / totalInTime);
 			}
 			data[0] = cancelRate.ToArray();
 			headers = InterpolateDates(startDate, diff);
 		}
 
 		// TODO: What does this even do? Get it to actually work.
-		public static void GetCustReturns(ref int[][] data, ref string[] headers, DateTime minDate)
+		public static void GetCustReturns(ref double[][] data, ref string[] headers, DateTime minDate)
 		{
 			//DateTime startDate = MaxDate(Convert.ToDateTime(DBAccess.GetStringsWithQuery("SELECT MIN([Client Join Date]) FROM [Client]")[0]), minDate);
 			//DateTime endDate = DateTime.Now.Date;
@@ -122,7 +122,7 @@ namespace A2_Project.DBMethods
 			DateTime startDate = MaxDate(Convert.ToDateTime(DBAccess.GetStringsWithQuery("SELECT MIN([Client Join Date]) FROM [Client]")[0]), minDate);
 			DateTime endDate = DateTime.Now;
 			double diff = (endDate - startDate).TotalDays;
-			List<int> returns = new List<int>();
+			List<double> returns = new List<double>();
 			int count = 0;
 			for (double i = 0; i < diff; i += diff / 40.0)
 			{
@@ -142,10 +142,10 @@ namespace A2_Project.DBMethods
 			headers = InterpolateDates(startDate, (int)diff);
 		}
 
-		public static void GetIncomeLastYear(ref int[][] data, ref string[] headers, DateTime minDate)
+		public static void GetIncomeLastYear(ref double[][] data, ref string[] headers, DateTime minDate)
 		{
 			headers = new string[12];
-			data[0] = new int[12];
+			data[0] = new double[12];
 			DateTime endDate = DateTime.Now.Date;
 			DateTime startDate = endDate.AddMonths(-12);
 			for (int i = 0; i < 12; i++)
@@ -175,7 +175,7 @@ namespace A2_Project.DBMethods
 					//income += CalculateAppointmentPrice(app.ToArray());
 					incomeFromMonth += appIncome - 43.4;
 				}
-				data[0][i] = (int)Math.Round(incomeFromMonth);
+				data[0][i] = Math.Round(incomeFromMonth);
 			}
 		}
 
