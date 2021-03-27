@@ -48,31 +48,31 @@
 					</Grid>
 					<Grid x:Name="grdCalander">
 						<Image Source="/Resources/calendar.png"/>
-						<Label Content="Calander"/>
-					</Grid>
-					<Grid x:Name="grdAllTables">
-						<Image Source="/Resources/accounts.png"/>
-						<Label Content="Manage All Tables"/>
+						<Label Content="Calendar"/>
 					</Grid>
 					<Grid x:Name="grdClientManagement">
 						<Image Source="/Resources/notebook.png"/>
 						<Label Content="Manage Clients/Dogs"/>
 					</Grid>
-					<Grid x:Name="grdAddStaff">
-						<Image Source="/Resources/addStaff.png"/>
-						<Label Content="Register New Staff"/>
-					</Grid>
 					<Grid x:Name="grdViewStats">
 						<Image Source="/Resources/charts.png"/>
 						<Label Content="View Statistics"/>
 					</Grid>
+					<Grid x:Name="grdShift">
+						<Image Source="/Resources/shifts.png"/>
+						<Label Content="Shift Manager"/>
+					</Grid>
+					<Grid x:Name="grdAddStaff">
+						<Image Source="/Resources/addStaff.png"/>
+						<Label Content="Register New Staff"/>
+					</Grid>
+					<Grid x:Name="grdAllTables">
+						<Image Source="/Resources/accounts.png"/>
+						<Label Content="Manage All Tables"/>
+					</Grid>
 					<Grid x:Name="grdInvoiceManagement">
 						<Image Source="/Resources/gbp.png"/>
 						<Label Content="Send Invoices"/>
-					</Grid>
-					<Grid x:Name="grdShift">
-						<Image Source="/Resources/calendar.png"/>
-						<Label Content="Shift Manager"/>
 					</Grid>
 				</StackPanel>
 			</Grid>

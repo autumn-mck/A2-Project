@@ -357,7 +357,6 @@ namespace A2_Project.ContentWindows
 				Visibility = Visibility.Collapsed
 			};
 
-			// TODO: If I have time, get adding working?
 			stp.Children.Add(grdAddMode);
 			stp.Children.Add(grdEditMode);
 			stp.Children.Add(tbcErr1);
@@ -525,7 +524,7 @@ namespace A2_Project.ContentWindows
 					if (succeeded)
 					{
 						// TODO: Why is this commented out?
-						//if (isNew) AddToEdit();
+						if (isNew) AddToEdit();
 
 						// Tell the user their changes have been saved without displaying an intrusive message
 						b.Content = "Changes saved!";

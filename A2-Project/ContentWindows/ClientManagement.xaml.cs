@@ -62,6 +62,13 @@ namespace A2_Project.ContentWindows
 				case dogString: dtgDogs.UpdateData(data, isNew); break;
 				case clientString: dtgClients.UpdateData(data, isNew); break;
 			}
+
+			if (isNew)
+			{
+				string prevMode = mode;
+				UpdateMode("");
+				UpdateMode(prevMode);
+			}
 		}
 
 		internal void DeleteItem(bool deleteRef = false)
@@ -143,6 +150,8 @@ namespace A2_Project.ContentWindows
 			}
 
 			mode = newMode;
+
+			if (mode == "") return;
 			
 			double notSelMax = 150;
 			double selMax = 650;

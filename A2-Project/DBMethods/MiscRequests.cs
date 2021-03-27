@@ -80,7 +80,7 @@ namespace A2_Project.DBMethods
 			string dogID = data[1];
 			if (dogID == "") return false;
 
-			List<List<string>> results = DBAccess.GetListStringsWithQuery($"SELECT TOP 1 [Appointment].[Appointment ID], [Appointment].[Appointment Date], [Appointment].[Appointment Time] FROM [Appointment] INNER JOIN [Dog] ON [Dog].[Dog ID] = [Appointment].[Dog ID] WHERE [Dog].[Dog ID] = {dogID} ORDER BY [Appointment].[Appointment Date], [Appointment].[Appointment Time];");
+			List<List<string>> results = DBAccess.GetListStringsWithQuery($"SELECT TOP 1 [Appointment].[Appointment ID], [Appointment].[Appointment Date], [Appointment].[Appointment Time] FROM [Appointment] INNER JOIN [Dog] ON [Dog].[Dog ID] = [Appointment].[Dog ID] WHERE [Dog].[Dog ID] = {dogID} AND [Appointment].[Is Cancelled] = 'False' ORDER BY [Appointment].[Appointment Date], [Appointment].[Appointment Time];");
 			if (results.Count == 0) return true;
 
 

@@ -32,7 +32,7 @@ CREATE TABLE [Dog] (
 	[Dog ID] INT NOT NULL PRIMARY KEY,
 	[Client ID] INT NOT NULL REFERENCES [Client] ON DELETE CASCADE,
 	[Dog Name] VARCHAR(30) NOT NULL,
-	[Dog DOB] DATE,
+	[Dog DOB] DATE NOT NULL,
 	[Dog Gender] VARCHAR(1),
 	[Dog Type] VARCHAR(40)
 	-- TODO: Note on dog?
