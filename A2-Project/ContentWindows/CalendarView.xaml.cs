@@ -874,7 +874,7 @@ namespace A2_Project.ContentWindows
 			return true;
 		}
 
-		internal void CancelApp()
+		internal bool CancelApp()
 		{
 			if (currentlySelected.Tag is BookingCreator booking)
 			{
@@ -884,10 +884,20 @@ namespace A2_Project.ContentWindows
 			else
 			{
 				string[] data = GetDataTag(currentlySelected);
-				DBMethods.MiscRequests.UpdateColumn("Appointment", "True", "Is Cancelled", "Appointment ID", data[0]);
-				grdResults.Children.Remove(currentlySelected);
+
+				if (data[2] == "3")
+				{
+					editingSidebar.DisplayError("Error: You cannot only cancel part of an\nallergy appointment.");
+					return false;
+				}
+				else
+				{
+					DBMethods.MiscRequests.UpdateColumn("Appointment", "True", "Is Cancelled", "Appointment ID", data[0]);
+					grdResults.Children.Remove(currentlySelected);
+				}
 			}
 			currentlySelected = null;
+			return true;
 		}
 
 		/// <summary>

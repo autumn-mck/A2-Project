@@ -466,8 +466,10 @@ namespace A2_Project.ContentWindows
 
 		private void BtnCancelApp_Click(object sender, RoutedEventArgs e)
 		{
-			if (container is CalandarView cal) cal.CancelApp();
-			EmptySidebar();
+			if (container is CalandarView cal)
+			{
+				if (cal.CancelApp()) EmptySidebar();
+			}
 		}
 
 		public void EmptySidebar()
