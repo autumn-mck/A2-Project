@@ -1050,6 +1050,11 @@ namespace A2_Project.ContentWindows
 
 		internal void DeleteBookingPart(BookingCreator bookingCreator)
 		{
+			if (currentlySelected.Tag == bookingCreator)
+			{
+				editingSidebar.EmptySidebar();
+			}
+
 			BookingParts.Remove(bookingCreator);
 			stpBookingManager.Children.Remove(bookingCreator);
 			List<Rectangle> rcts = grdResults.Children.OfType<Rectangle>().Where(r => r.Tag == bookingCreator).ToList();
