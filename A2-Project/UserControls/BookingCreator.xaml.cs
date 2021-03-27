@@ -452,7 +452,7 @@ namespace A2_Project.UserControls
 		{
 			List<string[]> data = GetData();
 			string name = ((FrameworkElement)sender).Name;
-			container.SelectSpecificAppointment(data[Convert.ToInt32(name.Substring(1))]);
+			container.SelectSpecificAppointment(data[Convert.ToInt32(name[1..])]);
 		}
 
 		internal List<string[]> GetData()

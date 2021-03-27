@@ -108,11 +108,7 @@ namespace A2_Project.DBMethods
 			int count = 0;
 			for (double i = 0; i < diff; i += diff / 40.0)
 			{
-				string query = "SELECT TOP 1 WITH TIES [Appointment].[Appointment Date] FROM [Appointment] " +
-				$"WHERE [Appointment].[Appointment Date] <= '{startDate.Add(TimeSpan.FromDays(i)):yyyy-MM-dd}' " +
-				"GROUP BY [Appointment].[Dog ID];";
-
-				query = "SELECT b.[Appointment Date] FROM [Appointment] AS a " +
+				string query = "SELECT b.[Appointment Date] FROM [Appointment] AS a " +
 				"CROSS APPLY (SELECT TOP 1 [Appointment Date] From [Appointment] WHERE [Dog ID] = a.[Dog ID] ORDER BY [Appointment Date] desc) as b " +
 				$"WHERE b.[Appointment Date] BETWEEN '{startDate.Add(TimeSpan.FromDays(i - diff / 40.0)):yyyy-MM-dd}' AND '{startDate.Add(TimeSpan.FromDays(i)):yyyy-MM-dd}';";
 
@@ -146,7 +142,7 @@ namespace A2_Project.DBMethods
 					"WHEN [Nails And Teeth] = 'True' THEN 10 " +
 					"ELSE 0 " +
 				"END " +
-				$"FROM [Appointment] WHERE [Is Paid] = 1 AND [Appointment Date] BETWEEN '{startDate.AddMonths(i):yyyy-MM-dd}' AND '{startDate.AddMonths(i + 1):yyyy-MM-dd}';";
+				$"FROM [Appointment] WHERE [Paid] = 1 AND [Appointment Date] BETWEEN '{startDate.AddMonths(i):yyyy-MM-dd}' AND '{startDate.AddMonths(i + 1):yyyy-MM-dd}';";
 				List<List<string>> dataFromMonth = DBAccess.GetListStringsWithQuery(query);
 				double incomeFromMonth = 0;
 				foreach (List<string> appData in dataFromMonth)
@@ -160,18 +156,6 @@ namespace A2_Project.DBMethods
 				}
 				data[0][i] = Math.Round(incomeFromMonth);
 			}
-		}
-
-		private static double CalculateAppointmentPrice(string[] data)
-		{
-			double price = 0;
-
-			price += Convert.ToDouble(appTypeData[Convert.ToInt32(data[0])][2]);
-			if (data[1] == "True") price += 10;
-			if (MiscRequests.IsAppointmentInitial(data, null)) price += 5;
-			price *= (100.0 - GetBookingDiscount(data[2])) / 100.0;
-
-			return price;
 		}
 
 		public static double GetBookingDiscount(string bookingID)
@@ -218,7 +202,7 @@ namespace A2_Project.DBMethods
 				"WHEN [Nails And Teeth] = 'True' THEN 10 " +
 				"ELSE 0 " +
 			"END " +
-			$"FROM [Appointment] WHERE [Is Paid] = 1 AND [Appointment Date] BETWEEN '{minDate:yyyy-MM-dd}' AND '{maxDate:yyyy-MM-dd}';";
+			$"FROM [Appointment] WHERE [Paid] = 1 AND [Appointment Date] BETWEEN '{minDate:yyyy-MM-dd}' AND '{maxDate:yyyy-MM-dd}';";
 			List<List<string>> allPriceData = DBAccess.GetListStringsWithQuery(query);
 			double income = 0;
 			foreach (List<string> appData in allPriceData)

@@ -54,8 +54,6 @@ namespace A2_Project.ContentWindows
 		{
 			// TODO: Any other misc stats?
 			DrawFullArea(grdMiscStats);
-			double baseY = 40;
-			double lblHeight = 30;
 			string timePeriod = cmbTimescale.SelectedItem.ToString().ToLower();
 
 			StackPanel stpMisc = new StackPanel()
