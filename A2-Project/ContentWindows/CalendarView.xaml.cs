@@ -235,7 +235,7 @@ namespace A2_Project.ContentWindows
 					FontSize = 20,
 					HorizontalAlignment = HorizontalAlignment.Left,
 					VerticalAlignment = VerticalAlignment.Top,
-					ItemsSource = new string[] { "Staff Member", "Is Paid", "Appointment Type", "Includes Nails And Teeth" },
+					ItemsSource = new string[] { "Staff Member", "Paid", "Appointment Type", "Includes Nails And Teeth" },
 					SelectedIndex = selIndex
 				};
 				cmbKey.SelectionChanged += CmbKeyOptions_SelectionChanged;
@@ -309,8 +309,8 @@ namespace A2_Project.ContentWindows
 				case "Staff Member":
 					keyLabels = DBMethods.MetaRequests.GetAllFromTable("Staff").Select(x => x[1]).ToArray();
 					break;
-				case "Is Paid":
-					keyLabels = new string[] { "Not Paid For", "Paid For" };
+				case "Paid":
+					keyLabels = new string[] { "Not Paid", "Paid" };
 					break;
 				case "Appointment Type":
 					keyLabels = DBMethods.MetaRequests.GetAllFromTable("Appointment Type").Select(x => x[3]).ToArray();
@@ -342,7 +342,7 @@ namespace A2_Project.ContentWindows
 			return cmbCase switch
 			{
 				"Staff Member" => new SolidColorBrush(colours[Convert.ToInt32(rectData[3])]),
-				"Is Paid" => new SolidColorBrush(colours[Convert.ToInt32(Convert.ToBoolean(rectData[8]))]),
+				"Paid" => new SolidColorBrush(colours[Convert.ToInt32(Convert.ToBoolean(rectData[8]))]),
 				"Appointment Type" => new SolidColorBrush(colours[Convert.ToInt32(rectData[2])]),
 				"Includes Nails And Teeth" => new SolidColorBrush(colours[Convert.ToInt32(Convert.ToBoolean(rectData[6]))]),
 				_ => throw new NotImplementedException(),
