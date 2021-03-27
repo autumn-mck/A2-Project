@@ -92,31 +92,31 @@ namespace A2_Project.ContentWindows
 
 		private static void GenerateBarGraph(GetData getData, Grid grid, string title, string prefix = "", string suffix = "", Brush[] brushes = null)
 		{
-			int[][] data = new int[1][];
+			double[][] data = new double[1][];
 			string[] xAxisLabels = Array.Empty<string>();
 			getData(ref data, ref xAxisLabels, minDate);
 
-			int max = GetMax(data);
-			int min = GetMin(data);
+			double max = GetMax(data);
+			double min = GetMin(data);
 			LabelGraph(grid, data[0].Length, xAxisLabels, title, prefix, suffix, max, min);
 			GenerateBars(grid, data, max, min, brushes, prefix);
 		}
 
 		private static void GenerateLineGraph(GetData getData, Grid grid, string title, string prefix = "", string suffix = "")
 		{
-			int[][] data = new int[1][];
+			double[][] data = new double[1][];
 			string[] xAxisLabels = Array.Empty<string>();
 			getData(ref data, ref xAxisLabels, minDate);
 
-			int max = GetMax(data);
-			int min = GetMin(data);
+			double max = GetMax(data);
+			double min = GetMin(data);
 			LabelGraph(grid, data[0].Length, xAxisLabels, title, prefix, suffix, max, min);
 			GenerateLines(grid, data, max, data.Length > 1, min);
 		}
 
 		private static void GeneratePieChart(GetData getData, Grid grid, string title)
 		{
-			int[][] data = new int[1][];
+			double[][] data = new double[1][];
 			string[] headers = Array.Empty<string>();
 			getData(ref data, ref headers, minDate);
 
@@ -124,27 +124,27 @@ namespace A2_Project.ContentWindows
 			GeneratePie(grid, data, headers);
 		}
 
-		private static void LabelGraph(Grid grid, int length, string[] xAxisLabels, string title, string prefix, string suffix, int max, int min)
+		private static void LabelGraph(Grid grid, int length, string[] xAxisLabels, string title, string prefix, string suffix, double max, double min)
 		{
 			GenerateTitle(grid, title);
 			LabelXAxis(grid, length, xAxisLabels);
 			LabelYAxis(grid, max, min, prefix, suffix);
 		}
 
-		private static int GetMax(int[][] arr)
+		private static double GetMax(double[][] arr)
 		{
-			int max = 0;
-			foreach (int[] inArr in arr)
+			double max = 0;
+			foreach (double[] inArr in arr)
 			{
 				max = Math.Max(max, inArr.Max());
 			}
 			return max;
 		}
 
-		private static int GetMin(int[][] arr)
+		private static double GetMin(double[][] arr)
 		{
-			int min = 0;
-			foreach (int[] inArr in arr)
+			double min = 0;
+			foreach (double[] inArr in arr)
 			{
 				min = Math.Min(inArr.Min(), min);
 			}
@@ -165,7 +165,7 @@ namespace A2_Project.ContentWindows
 			grid.Children.Add(newRect);
 		}
 
-		private static void LabelYAxis(Grid grid, int max, int min, string prefix, string suffix)
+		private static void LabelYAxis(Grid grid, double max, double min, string prefix, string suffix)
 		{
 			if (max == 0 && min == 0)
 			{
@@ -182,8 +182,8 @@ namespace A2_Project.ContentWindows
 			}
 			else
 			{
-				int maxHeight = (int)RoundToSigFigs(max, 2);
-				int minHeight = (int)RoundToSigFigs(min, 2);
+				double maxHeight = (double)RoundToSigFigs(max, 2);
+				double minHeight = (double)RoundToSigFigs(min, 2);
 
 				double aboveZero = (double)maxHeight / (maxHeight - minHeight);
 				double belowZero = 1 - aboveZero;
@@ -234,7 +234,7 @@ namespace A2_Project.ContentWindows
 			}
 		}
 
-		private static void GenYLabel(Grid grid, string prefix, string suffix, int maxValue, double countDirection, double i, double marginTop)
+		private static void GenYLabel(Grid grid, string prefix, string suffix, double maxValue, double countDirection, double i, double marginTop)
 		{
 			Rectangle rct = new Rectangle()
 			{
@@ -308,12 +308,12 @@ namespace A2_Project.ContentWindows
 			}
 		}
 
-		private static void GenerateBars(Grid grid, int[][] data, int max, int min, Brush[] brushes, string prefix)
+		private static void GenerateBars(Grid grid, double[][] data, double max, double min, Brush[] brushes, string prefix)
 		{
 			DrawFullArea(grid);
 
-			int maxHeight = (int)RoundToSigFigs(max, 2);
-			int minHeight = (int)RoundToSigFigs(min, 2);
+			double maxHeight = RoundToSigFigs(max, 2);
+			double minHeight = RoundToSigFigs(min, 2);
 
 			double aboveZero = (double)maxHeight / (maxHeight - minHeight);
 			double belowZero = 1 - aboveZero;
@@ -322,7 +322,7 @@ namespace A2_Project.ContentWindows
 
 			if (data.Length == 1)
 			{
-				int[] arr = data[0];
+				double[] arr = data[0];
 				for (int i = 0; i < arr.Length; i++)
 				{
 					double height;
@@ -371,10 +371,10 @@ namespace A2_Project.ContentWindows
 			}
 		}
 
-		private static void GenerateLines(Grid grid, int[][] data, int max, bool isColoured, int min)
+		private static void GenerateLines(Grid grid, double[][] data, double max, bool isColoured, double min)
 		{
 			DrawFullArea(grid);
-			foreach (int[] inArr in data)
+			foreach (double[] inArr in data)
 			{
 				Color colour;
 				if (isColoured) colour = GenerateRandomColour();
@@ -397,8 +397,8 @@ namespace A2_Project.ContentWindows
 					break;
 				}
 
-				int maxHeight = (int)RoundToSigFigs(max, 2);
-				int minHeight = (int)RoundToSigFigs(min, 2);
+				double maxHeight = RoundToSigFigs(max, 2);
+				double minHeight = RoundToSigFigs(min, 2);
 
 				double aboveZero = (double)maxHeight / (maxHeight - minHeight);
 				double belowZero = 1 - aboveZero;
@@ -432,7 +432,7 @@ namespace A2_Project.ContentWindows
 			}
 		}
 
-		private static void GeneratePie(Grid grid, int[][] data, string[] headers)
+		private static void GeneratePie(Grid grid, double[][] data, string[] headers)
 		{
 			DrawFullArea(grid);
 
@@ -446,7 +446,7 @@ namespace A2_Project.ContentWindows
 			};
 
 			// Note: For now, only generates 1 pie chart, regardless of how much data it is given.
-			int[] arr = data[0];
+			double[] arr = data[0];
 			double sum = arr.Sum();
 			double totalSoFar = 0;
 
@@ -601,7 +601,7 @@ namespace A2_Project.ContentWindows
 			return value;
 		}
 
-		private delegate void GetData(ref int[][] data, ref string[] xAxisLabels, DateTime min);
+		private delegate void GetData(ref double[][] data, ref string[] xAxisLabels, DateTime min);
 
 		private void GraphAppTypes()
 		{
