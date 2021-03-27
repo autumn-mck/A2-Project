@@ -218,5 +218,15 @@ namespace A2_Project {
                 return ((byte[])(obj));
             }
         }
+        
+        /// <summary>
+        ///   Looks up a localized resource of type System.Byte[].
+        /// </summary>
+        public static byte[] shifts {
+            get {
+                object obj = ResourceManager.GetObject("shifts", resourceCulture);
+                return ((byte[])(obj));
+            }
+        }
     }
 }

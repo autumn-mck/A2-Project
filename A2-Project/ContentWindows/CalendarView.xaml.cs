@@ -465,6 +465,7 @@ namespace A2_Project.ContentWindows
 				{
 					DeleteBookingPart(b);
 				}
+				BookingParts = new List<BookingCreator>();
 			}
 			else
 			{
@@ -513,8 +514,13 @@ namespace A2_Project.ContentWindows
 				roomID = (int)roomIDOffset;
 			}
 
+			if (roomID < 0) roomID = 0;
+			if (dDiff > 6) dDiff = 6;
+
 			// 'Snap' the appointment to a grid to represent where it should be
 			newMargin = new Thickness(dDiff * dayWidth * spaceBetweenDays + roomID * dayWidth / appRoomCount, midTop - midTop % ySnap, 0, 0);
+
+			newMargin.Left = Math.Max(0, newMargin.Left);
 
 			newMargin.Top = Math.Max(hourHeight, newMargin.Top);
 			newMargin.Top = Math.Min((dayEndTime + 1 - dayStartTime) * hourHeight - elem.Height, newMargin.Top);
@@ -873,6 +879,7 @@ namespace A2_Project.ContentWindows
 			if (currentlySelected.Tag is BookingCreator booking)
 			{
 				DeleteBookingPart(booking);
+				BookingParts.Remove(booking);
 			}
 			else
 			{
@@ -1051,6 +1058,7 @@ namespace A2_Project.ContentWindows
 				grdResults.Children.Remove(r);
 			}
 			bookingCreator = null;
+			currentlySelected = null;
 		}
 
 		internal void StartBookAppt(Rectangle sender)
@@ -1173,12 +1181,11 @@ namespace A2_Project.ContentWindows
 		public void RepBookingChanged(BookingCreator sender)
 		{
 			RemoveRectsWithTag(sender);
-
 			
 			List<string[]> appData = sender.GetData();
 			for (int i = 0; i < appData.Count; i++)
 			{
-				Rectangle r = GenRectFromData(appData[i], "r" + i.ToString());
+				Rectangle r = GenRectFromData(appData[i], "r" + i.ToString(), true);
 				r.Tag = sender;
 			}
 		}

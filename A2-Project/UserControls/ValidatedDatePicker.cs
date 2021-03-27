@@ -18,7 +18,7 @@ namespace A2_Project.UserControls
 
 		public DateTime SelectedDate
 		{
-			get { return (DateTime)datePicker.SelectedDate; }
+			get { return datePicker.SelectedDate.Value; }
 			set { datePicker.SelectedDate = value; }
 		}
 
@@ -58,7 +58,6 @@ namespace A2_Project.UserControls
 
 		private void IsValidDate_TextChanged(object sender, TextChangedEventArgs e)
 		{
-			// TODO: This bit should probably be integrated into Validation.Validate
 			IsValid = Validation.Validate(Text, Column, out string errorMessage);
 			ErrorMessage = errorMessage;
 		}

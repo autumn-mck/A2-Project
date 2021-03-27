@@ -94,7 +94,6 @@ namespace A2_Project.ContentWindows
 		{
 			int[][] data = new int[1][];
 			string[] xAxisLabels = Array.Empty<string>();
-			// TODO: await?
 			getData(ref data, ref xAxisLabels, minDate);
 
 			int max = GetMax(data);
@@ -118,7 +117,6 @@ namespace A2_Project.ContentWindows
 		private static void GeneratePieChart(GetData getData, Grid grid, string title)
 		{
 			int[][] data = new int[1][];
-			// TODO: headers should probably be out, not ref
 			string[] headers = Array.Empty<string>();
 			getData(ref data, ref headers, minDate);
 
@@ -338,7 +336,7 @@ namespace A2_Project.ContentWindows
 					Brush b;
 					if (prefix == "£")
 					{
-						
+
 						if (arr[i] < 0)
 						{
 							double fr = (Math.Min((double)arr[i] / (double)minHeight, 1) + 0.6) / 1.6;
@@ -351,7 +349,11 @@ namespace A2_Project.ContentWindows
 						}
 					}
 					else if (brushes is null) b = Brushes.White;
-					else b = brushes[i];
+					else
+					{
+						if (i < brushes.Length) b = brushes[i];
+						else b = new SolidColorBrush(GenerateRandomColour());
+					}
 
 					Rectangle newRect = new Rectangle
 					{
@@ -456,14 +458,13 @@ namespace A2_Project.ContentWindows
 			};
 
 			// The brushes used to colour the appointment types
-			// TODO: This means that currently the application will crash if there are more than 5 appointment types
 			Brush[] brushes = new Brush[]
 			{
-				new SolidColorBrush(Color.FromRgb(74, 20, 140)), // Purple
-				new SolidColorBrush(Color.FromRgb(191, 54, 12)), // Orange
-				new SolidColorBrush(Color.FromRgb(27, 94, 32)), // Green
 				new SolidColorBrush(Color.FromRgb(183, 28, 28)), // Red
-				new SolidColorBrush(Color.FromRgb(25, 118, 210)) // Blue
+				new SolidColorBrush(Color.FromRgb(13, 71, 161)), // Blue
+				new SolidColorBrush(Color.FromRgb(190, 96, 0)), // Dark orange? Not quite brown
+				new SolidColorBrush(Color.FromRgb(27, 94, 32)), // Green
+				new SolidColorBrush(Color.FromRgb(49, 27, 146)) // Deep Purple
 			};
 
 			// A grid to contain the pie chart
@@ -491,9 +492,14 @@ namespace A2_Project.ContentWindows
 				string isLargeArcStr = arr[i] / sum > 0.5 ? "1" : "0";
 
 				// Creates a circle sector for the pie chart to represent arr[i]
+
+				Brush brush;
+				if (i < brushes.Length) brush = brushes[i];
+				else brush = new SolidColorBrush(GenerateRandomColour());
+
 				Path sector = new Path()
 				{
-					Fill = brushes[i],
+					Fill = brush,
 					Data = Geometry.Parse($"M{startPos.X},{startPos.Y} L{p1.X},{-p1.Y} A{radius},{radius} 0 {isLargeArcStr} 1 {p2.X},{-p2.Y} z")
 				};
 				pie.Children.Add(sector);
@@ -518,7 +524,7 @@ namespace A2_Project.ContentWindows
 				// Creates a rectangle with the colour of the sector as part of the key
 				Rectangle rct = new Rectangle()
 				{
-					Fill = brushes[i],
+					Fill = brush,
 					Height = 20,
 					Width = 20,
 					Stroke = Brushes.Black,

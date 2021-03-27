@@ -33,6 +33,7 @@
     <None Remove="Resources\menubar.png" />
     <None Remove="Resources\notebook.png" />
     <None Remove="Resources\printer.png" />
+    <None Remove="Resources\shifts.png" />
   </ItemGroup>
 
   <ItemGroup>
@@ -59,6 +60,7 @@
     <Resource Include="Resources\menu.png" />
     <Resource Include="Resources\notebook.png" />
     <Resource Include="Resources\printer.png" />
+    <Resource Include="Resources\shifts.png" />
   </ItemGroup>
 
   <ItemGroup>

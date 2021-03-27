@@ -13,7 +13,7 @@ namespace A2_Project.DBMethods
 		{
 			string dataQuery = "SELECT Count([Appointment Type ID]) FROM [Appointment] " +
 			$"WHERE [Appointment Date] BETWEEN '{minDate:yyyy-MM-dd}' AND '{DateTime.Now:yyyy-MM-dd}' " +
-			"GROUP BY [Appointment Type ID];";
+			"GROUP BY [Appointment Type ID] ORDER BY [Appointment Type ID];";
 			data[0] = DBAccess.GetStringsWithQuery(dataQuery).Select(int.Parse).ToArray();
 			headers = DBAccess.GetStringsWithQuery("SELECT [Description] FROM [Appointment Type] ORDER BY [Appointment Type ID];").ToArray();
 		}
@@ -151,7 +151,7 @@ namespace A2_Project.DBMethods
 			for (int i = 0; i < 12; i++)
 			{
 				headers[i] = months[startDate.AddMonths(i).Month - 1];
-				// TODO: Consider if is first booking and booking discount
+				// Note: Does not consider if is first booking and booking discount
 				string query = "SELECT " +
 				"CASE " +
 					"WHEN [Appointment Type ID] = 0 THEN 35 " +
@@ -223,7 +223,7 @@ namespace A2_Project.DBMethods
 
 		public static double GetIncomeSinceDate(DateTime minDate, DateTime maxDate)
 		{
-			// TODO: Is appointment initial, discount based on booking count
+			// Note: Does not take into account is appointment initial, discount based on booking count
 			string query = "SELECT " +
 			"CASE " + 
 				"WHEN [Appointment Type ID] = 0 THEN 35 " +
