@@ -38,15 +38,26 @@
 				</Style.Resources>
 			</Style>
 		</Grid.Resources>
-		<Label x:Name="lblSelTable" Content="Table:" HorizontalAlignment="Left" Foreground="#D5D5D5" FontSize="30" Margin="10,14,0,0" VerticalAlignment="Top"/>
-		<ComboBox x:Name="cmbTable" HorizontalAlignment="Left" Margin="130,33,0,0" VerticalAlignment="Top" Width="120" SelectionChanged="CmbTable_SelectionChanged" RenderTransformOrigin="0.5,0.5">
-			<ComboBox.RenderTransform>
-				<ScaleTransform ScaleX="1.5" ScaleY="1.5"/>
-			</ComboBox.RenderTransform>
-		</ComboBox>
-		<Label x:Name="lblSearchData" HorizontalAlignment="Left" VerticalAlignment="Top" Margin="0,100,0,0"/>
+		<StackPanel Orientation="Horizontal">
+			<Grid Background="#0B0B0B" HorizontalAlignment="Left" VerticalAlignment="Center">
+				<Label x:Name="lblSelTable" Content="Table:" HorizontalAlignment="Left" Foreground="#D5D5D5" FontSize="30" Margin="10,14,0,0" VerticalAlignment="Top"/>
+				<ComboBox x:Name="cmbTable" HorizontalAlignment="Left" Margin="110,26,0,0" VerticalAlignment="Top" Width="120" SelectionChanged="CmbTable_SelectionChanged">
+					<ComboBox.LayoutTransform>
+						<ScaleTransform ScaleX="1.5" ScaleY="1.5"/>
+					</ComboBox.LayoutTransform>
+				</ComboBox>
+				<Label x:Name="lblSearchData" HorizontalAlignment="Left" VerticalAlignment="Top" Margin="10,70,10,10"/>
 
-		<Label x:Name="lblSidebar" HorizontalAlignment="Right" Width="950"/>
+				<StackPanel Orientation="Horizontal" VerticalAlignment="Top" HorizontalAlignment="Right" Margin="300, 15, 0, 0">
+					<Button x:Name="btnPrint" Content="Print" FontSize="24" Width="100" HorizontalAlignment="Left" Margin="10" VerticalAlignment="Top" Click="BtnPrint_Click"/>
+					<Button x:Name="btnEmail" Content="Email" FontSize="24" Width="100" HorizontalAlignment="Left" Margin="10" VerticalAlignment="Top" Click="BtnEmail_Click"/>
+				</StackPanel>
+			</Grid>
+
+			<Grid HorizontalAlignment="Right" VerticalAlignment="Center" Background="#0B0B0B" Margin="100, 0, 0, 0">
+				<Label x:Name="lblSidebar" HorizontalAlignment="Right" VerticalAlignment="Top" Margin="20, 20, -125, 20"/>
+			</Grid>
+		</StackPanel>
 
 		<Grid x:Name="grdFKeyErrorOuter" Width="550" Height="300" Background="#FFFFFF" Visibility="Hidden" Panel.ZIndex="1">
 			<Grid x:Name="grdFKeyErrorInner" Background="#111111" Margin="2,2,2,2">
@@ -58,11 +69,9 @@
 					</Style>
 				</Grid.Resources>
 				<TextBlock x:Name="tblFKeyRefError" Text="Error message here" Margin="10,10,10,10"/>
-				<Button x:Name="btnFkeyErrorAccept" Click="BtnFkeyErrorAccept_Click" Content="Accept" HorizontalAlignment="Center" VerticalAlignment="Bottom" Margin="200,0,0,10"/>
-				<Button x:Name="btnFkeyErrorDecline" Click="BtnFkeyErrorDecline_Click" Content="Decline" HorizontalAlignment="Center" VerticalAlignment="Bottom" Margin="-200,0,0,10"/>
+				<Button x:Name="btnFkeyErrorAccept" FontSize="24" Click="BtnFkeyErrorAccept_Click" Content="Accept" HorizontalAlignment="Center" VerticalAlignment="Bottom" Margin="200,0,0,10"/>
+				<Button x:Name="btnFkeyErrorDecline" FontSize="24" Click="BtnFkeyErrorDecline_Click" Content="Decline" HorizontalAlignment="Center" VerticalAlignment="Bottom" Margin="-200,0,0,10"/>
 			</Grid>
 		</Grid>
-		<Button x:Name="btnPrint" Content="Print" FontSize="24" Width="100" HorizontalAlignment="Left" Margin="770,28,0,0" VerticalAlignment="Top" Click="BtnPrint_Click"/>
-		<Button x:Name="btnEmail" Content="Email" FontSize="24" Width="100" HorizontalAlignment="Left" Margin="663,28,0,0" VerticalAlignment="Top" Click="BtnEmail_Click"/>
 	</Grid>
 </Window>
