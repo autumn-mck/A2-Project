@@ -70,10 +70,6 @@
 						<Image Source="/Resources/gbp.png"/>
 						<Label Content="Send Invoices"/>
 					</Grid>
-					<Grid x:Name="grdAddNewClients">
-						<Image Source="/Resources/gbp.png"/>
-						<Label Content="Add New Clients"/>
-					</Grid>
 					<Grid x:Name="grdShift">
 						<Image Source="/Resources/calendar.png"/>
 						<Label Content="Shift Manager"/>

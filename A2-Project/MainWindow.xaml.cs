@@ -34,7 +34,6 @@ namespace A2_Project
 		private Stats statsWindow;
 		private ClientManagement cliWindow;
 		private InvoiceManagement invoiceWindow;
-		private AddNewClientWindow newClientWindow;
 		private ShiftManager shiftWindow;
 		private readonly Login loginWindow;
 
@@ -61,7 +60,6 @@ namespace A2_Project
 			grdAddStaff.MouseDown += GrdAddStaff_MouseDown;
 			grdViewStats.MouseDown += GrdViewStats_MouseDown;
 			grdInvoiceManagement.MouseDown += GrdInvoiceManagement_MouseDown;
-			grdAddNewClients.MouseDown += GrdAddNewClients_MouseDown;
 			grdShift.MouseDown += GrdShift_MouseDown;
 
 			foreach (Grid g in grdButtons)
@@ -226,25 +224,6 @@ namespace A2_Project
 			if (invoiceWindow is null)
 				invoiceWindow = new InvoiceManagement() { Owner = this };
 			lblContents.Content = invoiceWindow.Content;
-		}
-
-		private void GrdAddNewClients_MouseDown(object sender, MouseButtonEventArgs e)
-		{
-			if (newClientWindow is null)
-				newClientWindow = new AddNewClientWindow() { Owner = this };
-			lblContents.Content = newClientWindow.Content;
-		}
-
-		internal void ChangeToAddNew(string mode, string clientID)
-		{
-			if (newClientWindow is null)
-				newClientWindow = new AddNewClientWindow() { Owner = this };
-			lblContents.Content = newClientWindow.Content;
-
-			grdClientManagement.Children.OfType<Rectangle>().First().Fill = notHighlighted;
-			grdAddNewClients.Children.OfType<Rectangle>().First().Fill = selected;
-
-			newClientWindow.StartAddNew(mode, clientID);
 		}
 
 		private void GrdShift_MouseDown(object sender, MouseButtonEventArgs e)

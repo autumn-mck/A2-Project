@@ -35,6 +35,7 @@ CREATE TABLE [Dog] (
 	[Dog DOB] DATE,
 	[Dog Gender] VARCHAR(1),
 	[Dog Type] VARCHAR(40)
+	-- TODO: Note on dog?
 );
 
 --CREATE TABLE [Staff] (
@@ -123,6 +124,13 @@ INSERT INTO [Appointment Type] VALUES (
 	2,
 	50,
 	'Wash, Brush & Full Cut'
+);
+
+INSERT INTO [Appointment Type] VALUES (
+	3,
+	1.5,
+	60,
+	'Allergy Therapy'
 );
 
 CREATE TABLE [Grooming Room] (
