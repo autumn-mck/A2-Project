@@ -3,6 +3,8 @@ using System.Collections.Generic;
 using System.Data;
 using System.Linq;
 using System.Windows;
+using A2_Project.UserControls;
+using A2_Project.DBObjects;
 
 namespace A2_Project.ContentWindows
 {
@@ -16,9 +18,17 @@ namespace A2_Project.ContentWindows
 		private string[][] contactData;
 		private string[] columns = { "Booking ID", "ID", "Dog", "App Type", "Staff", "Nails and Teeth", "Date", "Time", "Price" };
 
+		ValidatedTextbox tbxClientID;
+
 		public InvoiceManagement()
 		{
 			InitializeComponent();
+
+			Column staffIDCol = DB.Tables.Where(t => t.Name == "Dog").First().Columns[1];
+			tbxClientID = (ValidatedTextbox)UIMethods.GenAppropriateElement(staffIDCol, out _, false, true);
+			tbxClientID.Margin = new Thickness(110, 5, 0, 0);
+			tbxClientID.AddTextChangedEvent(TbxClientID_TextChanged);
+			grd.Children.Add(tbxClientID);
 		}
 
 		private void BtnPrint_Click(object sender, RoutedEventArgs e)
@@ -33,7 +43,7 @@ namespace A2_Project.ContentWindows
 
 		private void TbxClientID_TextChanged(object sender, System.Windows.Controls.TextChangedEventArgs e)
 		{
-			if (tbxClientID.Text == "") return;
+			if (!tbxClientID.IsValid) return;
 			contactData = DBMethods.MiscRequests.GetContactDataFromClient(tbxClientID.Text).Select(x => x.ToArray()).ToArray();
 			lblContactDetails.Content = $"{contactData[0][0]}\n{contactData[0][1]}\n{contactData[0][2]}";
 
@@ -47,11 +57,6 @@ namespace A2_Project.ContentWindows
 
 			dtgData.Visibility = Visibility.Visible;
 			dtgData.ItemsSource = table.DefaultView;
-		}
-
-		private void TbxClientID_PreviewTextInput(object sender, System.Windows.Input.TextCompositionEventArgs e)
-		{
-			if (!int.TryParse(e.Text, out _)) e.Handled = true;
 		}
 	}
 }
