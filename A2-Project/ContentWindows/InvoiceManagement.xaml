@@ -11,25 +11,29 @@
 		<TextBox x:Name="tbxClientID" PreviewTextInput="TbxClientID_PreviewTextInput" TextChanged="TbxClientID_TextChanged" FontSize="24" MinWidth="100" Margin="110, 5, 0, 0" HorizontalAlignment="Left" VerticalAlignment="Top"/>
 		<Button x:Name="btnPrint" Content="Print" FontSize="24" Width="100" Margin="10,50,0,0" HorizontalAlignment="Left" VerticalAlignment="Top" Click="BtnPrint_Click"/>
 		<Button x:Name="btnEmail" Content="Email" FontSize="24" Width="100" Margin="10,90,0,0" HorizontalAlignment="Left" VerticalAlignment="Top" Click="BtnEmail_Click"/>
-		<Grid x:Name="grdPaper" Background="#FFFFFF" Height="945" Width="1336.5">
-			<Grid.Resources>
-				<Style TargetType="Label">
-					<Setter Property="HorizontalAlignment" Value="Left"/>
-					<Setter Property="VerticalAlignment" Value="Top"/>
-					<Setter Property="Foreground" Value="#333333"/>
-					<Setter Property="FontSize" Value="20"/>
-				</Style>
-				<Style TargetType="DataGrid">
-					<Setter Property="HorizontalAlignment" Value="Center"/>
-					<Setter Property="VerticalAlignment" Value="Top"/>
-				</Style>
-			</Grid.Resources>
-			<Image Source="/Resources/logoblack.png" Width="400" Margin="10" HorizontalAlignment="Left" VerticalAlignment="Top"/>
-			<Label Name="lblInvoiceDetails" Content="Invoice No: 1&#xD;&#xA;Date Created: 01/01/2021&#xD;&#xA;Any other information?" HorizontalAlignment="Right" Margin="0,10,10,0"/>
-			<Label Name="lblDogCareDetails" Content="JD Dog Care&#xD;&#xA;164 Kilbroney Road&#xD;&#xA;Newtown&#xD;&#xA;Rostrevor" Margin="10,120,0,0"/>
-			<Label Name="lblContactDetails" Content="Contact Name&#xD;&#xA;Contact Phone No&#xD;&#xA;Contact Email&#xD;&#xA;Contact Address?" Margin="0, 120, 10, 0" HorizontalAlignment="Right"/>
-			<Viewbox Margin="40, 250, 40, 0" VerticalAlignment="Top">
-				<DataGrid x:Name="dtgData" IsHitTestVisible="False" CanUserAddRows="False" Visibility="Hidden"/>
+		<Grid>
+			<Viewbox x:Name="vbxPaper" Height="945" Width="1336.5">
+				<Grid x:Name="grdPaper" Background="#FFFFFF" Height="945" Width="1336.5">
+					<Grid.Resources>
+						<Style TargetType="Label">
+							<Setter Property="HorizontalAlignment" Value="Left"/>
+							<Setter Property="VerticalAlignment" Value="Top"/>
+							<Setter Property="Foreground" Value="#333333"/>
+							<Setter Property="FontSize" Value="20"/>
+						</Style>
+						<Style TargetType="DataGrid">
+							<Setter Property="HorizontalAlignment" Value="Center"/>
+							<Setter Property="VerticalAlignment" Value="Top"/>
+						</Style>
+					</Grid.Resources>
+					<Image Source="/Resources/logoblack.png" Width="400" Margin="10" HorizontalAlignment="Left" VerticalAlignment="Top"/>
+					<Label Name="lblInvoiceDetails" Content="Invoice No: 1&#xD;&#xA;Date Created: 01/01/2021&#xD;&#xA;Any other information?" HorizontalAlignment="Right" Margin="0,10,10,0"/>
+					<Label Name="lblDogCareDetails" Content="JD Dog Care&#xD;&#xA;164 Kilbroney Road&#xD;&#xA;Newtown&#xD;&#xA;Rostrevor" Margin="10,120,0,0"/>
+					<Label Name="lblContactDetails" Content="Contact Name&#xD;&#xA;Contact Phone No&#xD;&#xA;Contact Email&#xD;&#xA;Contact Address?" Margin="0, 120, 10, 0" HorizontalAlignment="Right"/>
+					<Viewbox Margin="40, 250, 40, 0" VerticalAlignment="Top">
+						<DataGrid x:Name="dtgData" IsHitTestVisible="False" CanUserAddRows="False" Visibility="Hidden"/>
+					</Viewbox>
+				</Grid>
 			</Viewbox>
 		</Grid>
 	</Grid>

@@ -165,6 +165,11 @@ namespace A2_Project.ContentWindows
 			return sql;
 		}
 
+		internal DataTable GetDataTable()
+		{
+			return dataTable;
+		}
+
 		private static Column FindRefColumn(List<Table> tables, int index)
 		{
 			// Does A ref B?

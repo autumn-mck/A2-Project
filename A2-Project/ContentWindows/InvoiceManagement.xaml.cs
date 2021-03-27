@@ -23,7 +23,7 @@ namespace A2_Project.ContentWindows
 
 		private void BtnPrint_Click(object sender, RoutedEventArgs e)
 		{
-			PrintingMethods.Print(grdPaper);
+			PrintingMethods.Print(vbxPaper);
 		}
 
 		private void BtnEmail_Click(object sender, RoutedEventArgs e)
