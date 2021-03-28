@@ -53,7 +53,7 @@
 			<Label Name="lblContacts"/>
 			<Label Name="lblDogs"/>
 		</StackPanel>
-		<StackPanel Orientation="Vertical" VerticalAlignment="Center" HorizontalAlignment="Center" Margin="950, 0, 0, 0" Background="#0B0B0B">
+		<StackPanel Orientation="Vertical" VerticalAlignment="Center" HorizontalAlignment="Center" Margin="1000, 0, 0, 0" Background="#0B0B0B">
 			<StackPanel Orientation="Horizontal" Panel.ZIndex="1" HorizontalAlignment="Left" VerticalAlignment="Top">
 				<Label x:Name="lblEditBtn" Content="Editing" Background="#404040" Foreground="#F1F1F1" Margin="5" Width="420" HorizontalContentAlignment="Center" MouseDown="LblEditBtn_MouseDown" FontSize="30"/>
 				<Label x:Name="lblStartAddingBtn" Content="Add New" Background="#252525" Foreground="#D5D5D5" Margin="5" Width="280" HorizontalContentAlignment="Center" MouseDown="LblStartAddBtn_MouseDown" FontSize="30"/>

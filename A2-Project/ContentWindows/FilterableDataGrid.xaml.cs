@@ -48,6 +48,8 @@ namespace A2_Project.ContentWindows
 			currentData = DBMethods.MetaRequests.GetAllFromTable(tableName, columns.Select(c => c.Name).ToArray());
 
 			DtgMethods.CreateTable(currentData, tableName, ref dtg, columns, ref dataTable, true);
+			dtg.FontSize = 14;
+
 			lblCount.Content = $"Count: {currentData.Count}";
 
 			//try { dtgData.SelectedIndex = 0; }
@@ -397,7 +399,6 @@ namespace A2_Project.ContentWindows
 			DataGridRow row = e.Row;
 			DataRowView drv = (DataRowView)row.Item;
 			string[] strArr = drv.Row.ItemArray.Cast<string>().ToArray();
-
 			switch (tableName)
 			{
 				case "Dog":
@@ -412,6 +413,7 @@ namespace A2_Project.ContentWindows
 					else row.Background = (SolidColorBrush)new BrushConverter().ConvertFrom("#252526");
 					break;
 			}
+			//row.FontSize = 14;
 
 			// Set the text colour to slightly less bright than white
 			row.Foreground = (SolidColorBrush)new BrushConverter().ConvertFrom("#EEEEEE");
