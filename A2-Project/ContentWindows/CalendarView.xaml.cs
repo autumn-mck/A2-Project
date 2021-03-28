@@ -90,9 +90,9 @@ namespace A2_Project.ContentWindows
 			colours = new Color[]
 			{
 				Color.FromRgb(183, 28, 28), // Red
-				Color.FromRgb(13, 71, 161), // Blue
+				Color.FromRgb(2, 119, 189), // Blue
 				Color.FromRgb(190, 96, 0), // Dark orange? Not quite brown
-				Color.FromRgb(27, 94, 32), // Green
+				Color.FromRgb(46, 125, 50), // Green
 				Color.FromRgb(49, 27, 146) // Deep Purple
 			};
 
@@ -570,8 +570,8 @@ namespace A2_Project.ContentWindows
 
 				if (doesClash || !isDataValid)
 				{
-					rct.StrokeThickness = 4;
-					rct.Stroke = Brushes.Red;
+					rct.StrokeThickness = 3;
+					rct.Stroke = Brushes.White;
 				}
 			}
 
@@ -965,8 +965,8 @@ namespace A2_Project.ContentWindows
 
 			if (doesClash || !isDataValid)
 			{
-				newRect.Stroke = Brushes.Red;
-				newRect.StrokeThickness = 4;
+				newRect.StrokeThickness = 3;
+				newRect.Stroke = Brushes.White;
 			}
 
 			if (currentlySelected is not null && currentlySelected.Tag == data)
