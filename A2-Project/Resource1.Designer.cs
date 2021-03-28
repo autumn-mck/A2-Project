@@ -121,6 +121,16 @@ namespace A2_Project {
         }
         
         /// <summary>
+        ///   Looks up a localized resource of type System.Byte[].
+        /// </summary>
+        public static byte[] database {
+            get {
+                object obj = ResourceManager.GetObject("database", resourceCulture);
+                return ((byte[])(obj));
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to ubmX5rMKRjF3ZY7.
         /// </summary>
         public static string emailPassword {

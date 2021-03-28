@@ -208,6 +208,7 @@ namespace A2_Project.DBMethods
 		private static string[] InterpolateDates(DateTime startDate, int diff)
 		{
 			List<string> dates = new List<string>();
+			if (diff == 0) return new string[] { startDate.ToString("dd/MM/yyyy"), startDate.ToString("dd/MM/yyyy") };
 			for (double i = 0; i <= diff; i += (double)diff / 6)
 			{
 				dates.Add(startDate.AddDays(i).ToString("dd/MM/yyyy"));

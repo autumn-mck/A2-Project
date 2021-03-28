@@ -35,6 +35,7 @@ namespace A2_Project
 		private ClientManagement cliWindow;
 		private InvoiceManagement invoiceWindow;
 		private ShiftManager shiftWindow;
+		private DBManager dbManager;
 		private readonly Login loginWindow;
 
 		private SolidColorBrush notHighlighted = new SolidColorBrush(Color.FromRgb(161, 161, 161));
@@ -61,6 +62,7 @@ namespace A2_Project
 			grdViewStats.MouseDown += GrdViewStats_MouseDown;
 			grdInvoiceManagement.MouseDown += GrdInvoiceManagement_MouseDown;
 			grdShift.MouseDown += GrdShift_MouseDown;
+			grdDBManagement.MouseDown += GrdDBManagement_MouseDown;
 
 			foreach (Grid g in grdButtons)
 			{
@@ -232,6 +234,13 @@ namespace A2_Project
 			if (shiftWindow is null)
 				shiftWindow = new ShiftManager() { Owner = this };
 			lblContents.Content = shiftWindow.Content;
+		}
+
+		private void GrdDBManagement_MouseDown(object sender, MouseButtonEventArgs e)
+		{
+			if (dbManager is null)
+				dbManager = new DBManager() { Owner = this };
+			lblContents.Content = dbManager.Content;
 		}
 		#endregion MouseDown Events
 		#endregion Events

@@ -124,6 +124,7 @@ namespace A2_Project.ContentWindows
 			double max = 0;
 			foreach (double[] inArr in arr)
 			{
+				if (inArr.Length == 0) continue;
 				max = Math.Max(max, inArr.Max());
 			}
 			return max;
@@ -134,6 +135,7 @@ namespace A2_Project.ContentWindows
 			double min = 0;
 			foreach (double[] inArr in arr)
 			{
+				if (inArr.Length == 0) continue;
 				min = Math.Min(inArr.Min(), min);
 			}
 			return min;
