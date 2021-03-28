@@ -17,5 +17,6 @@
 		<Button x:Name="btnResetDB" Content="Reset Database" Click="BtnResetDB_Click" Margin="0, 0, 0, 100"/>
 		<Button x:Name="btnGenNewData" Content="Generate New Data" Click="BtnGenNewData_Click"/>
 		<TextBox x:Name="tbxSeed" Text="Enter seed here" HorizontalAlignment="Center" FontSize="24" MinWidth="50" VerticalAlignment="Center" Margin="0, 100, 0, 0" PreviewTextInput="Tbx_OnlyAllowNumbers"/>
+		<Label Content="Warning: The following buttons&#xD;&#xA;will clear the existing database!" FontSize="20" Foreground="#EE3030" Margin="0, 0, 0, 220" VerticalAlignment="Center" HorizontalAlignment="Center"/>
 	</Grid>
 </Window>
