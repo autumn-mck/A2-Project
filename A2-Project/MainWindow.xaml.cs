@@ -166,6 +166,7 @@ namespace A2_Project
 			if (allTableManager != null) allTableManager.Close();
 			if (statsWindow != null) statsWindow.Close();
 			toExit = true;
+			db.Close();
 			Application.Current.Shutdown();
 		}
 
