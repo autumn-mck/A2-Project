@@ -398,8 +398,7 @@ INSERT INTO [Shift] VALUES (
 
 		private void BtnGenNewData_Click(object sender, RoutedEventArgs e)
 		{
-			// Not a very thorough check, but should cover most cases.
-			if (DBMethods.MiscRequests.IsPKeyFree("Appointment", "Appointment ID", "0")) BtnResetDB_Click(null, null);
+			if (DBMethods.DBAccess.GetStringsWithQuery("SELECT MIN([Client Join Date]) FROM [Client]")[0] != "") BtnResetDB_Click(null, null);
 
 			if (!int.TryParse(tbxSeed.Text, out int seed))
 				seed = 6;

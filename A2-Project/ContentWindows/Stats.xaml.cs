@@ -86,7 +86,10 @@ namespace A2_Project.ContentWindows
 
 			double max = GetMax(data);
 			double min = GetMin(data);
-			LabelGraph(grid, data[0].Length, xAxisLabels, title, prefix, suffix, max, min);
+			int length;
+			if (data[0] is not null) length = data[0].Length;
+			else length = 0;
+			LabelGraph(grid, length, xAxisLabels, title, prefix, suffix, max, min);
 			GenerateBars(grid, data, max, min, brushes, prefix);
 		}
 
@@ -98,7 +101,10 @@ namespace A2_Project.ContentWindows
 
 			double max = GetMax(data);
 			double min = GetMin(data);
-			LabelGraph(grid, data[0].Length, xAxisLabels, title, prefix, suffix, max, min);
+			int length;
+			if (data[0] is not null) length = data[0].Length;
+			else length = 0;
+			LabelGraph(grid, length, xAxisLabels, title, prefix, suffix, max, min);
 			GenerateLines(grid, data, max, data.Length > 1, min);
 		}
 
@@ -124,7 +130,7 @@ namespace A2_Project.ContentWindows
 			double max = 0;
 			foreach (double[] inArr in arr)
 			{
-				if (inArr.Length == 0) continue;
+				if (inArr is null || inArr.Length == 0) continue;
 				max = Math.Max(max, inArr.Max());
 			}
 			return max;
@@ -135,7 +141,7 @@ namespace A2_Project.ContentWindows
 			double min = 0;
 			foreach (double[] inArr in arr)
 			{
-				if (inArr.Length == 0) continue;
+				if (inArr is null || inArr.Length == 0) continue;
 				min = Math.Min(inArr.Min(), min);
 			}
 			return min;
@@ -308,6 +314,9 @@ namespace A2_Project.ContentWindows
 			double aboveZero = (double)maxHeight / (maxHeight - minHeight);
 			double belowZero = 1 - aboveZero;
 
+			if (double.IsNaN(aboveZero)) aboveZero = 1;
+			if (double.IsNaN(belowZero)) belowZero = 1;
+
 			double zeroMarginTop = 34 + aboveZero * 200;
 
 			if (data.Length == 1)
@@ -318,6 +327,7 @@ namespace A2_Project.ContentWindows
 					double height;
 					if (arr[i] < 0) height = (double)arr[i] / minHeight * belowZero * 200;
 					else height = (double)arr[i] / maxHeight * aboveZero * 200;
+					if (arr[i] == 0) height = 0;
 
 					double marginTop;
 					if (arr[i] < 0) marginTop = zeroMarginTop;
