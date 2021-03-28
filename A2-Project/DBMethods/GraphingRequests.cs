@@ -32,7 +32,9 @@ namespace A2_Project.DBMethods
 		/// </summary>
 		public static void GetGrowthOverTime(ref double[][] data, ref string[] headers, DateTime minDate)
 		{
-			DateTime startDate = MaxDate(Convert.ToDateTime(DBAccess.GetStringsWithQuery("SELECT MIN([Client Join Date]) FROM [Client]")[0]), minDate);
+			List<string> ls = DBAccess.GetStringsWithQuery("SELECT MIN([Client Join Date]) FROM [Client]");
+			if (ls[0] == "") return;
+			DateTime startDate = MaxDate(Convert.ToDateTime(ls[0]), minDate);
 			DateTime endDate = DateTime.Now.Date;
 			int diff = (int)(endDate - startDate).TotalDays;
 			List<double> growth = new List<double>();
@@ -74,7 +76,9 @@ namespace A2_Project.DBMethods
 		/// </summary>
 		public static void GetAppCancelRate(ref double[][] data, ref string[] headers, DateTime minDate)
 		{
-			DateTime startDate = MaxDate(Convert.ToDateTime(DBAccess.GetStringsWithQuery("SELECT MIN([Appointment Date]) FROM Appointment")[0]), minDate);
+			string ls = DBAccess.GetStringsWithQuery("SELECT MIN([Appointment Date]) FROM Appointment")[0];
+			if (ls == "") return;
+			DateTime startDate = MaxDate(Convert.ToDateTime(ls), minDate);
 			DateTime endDate = DateTime.Now;
 			int diff = (int)(endDate - startDate).TotalDays;
 			double increment = diff / 75.0;
