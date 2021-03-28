@@ -454,9 +454,9 @@ namespace A2_Project.ContentWindows
 			Brush[] brushes = new Brush[]
 			{
 				new SolidColorBrush(Color.FromRgb(183, 28, 28)), // Red
-				new SolidColorBrush(Color.FromRgb(13, 71, 161)), // Blue
+				new SolidColorBrush(Color.FromRgb(2, 119, 189)), // Blue
 				new SolidColorBrush(Color.FromRgb(190, 96, 0)), // Dark orange? Not quite brown
-				new SolidColorBrush(Color.FromRgb(27, 94, 32)), // Green
+				new SolidColorBrush(Color.FromRgb(46, 125, 50)), // Green
 				new SolidColorBrush(Color.FromRgb(49, 27, 146)) // Deep Purple
 			};
 
@@ -608,9 +608,9 @@ namespace A2_Project.ContentWindows
 			Color[] colours = new Color[]
 			{
 				Color.FromRgb(183, 28, 28), // Red
-				Color.FromRgb(13, 71, 161), // Blue
+				Color.FromRgb(2, 119, 189), // Blue
 				Color.FromRgb(190, 96, 0), // Dark orange? Not quite brown
-				Color.FromRgb(27, 94, 32), // Green
+				Color.FromRgb(46, 125, 50), // Green
 				Color.FromRgb(49, 27, 146) // Deep Purple
 			};
 			GenerateBarGraph(getData, grdStaffBusiness, "No. Of Appointments Per Staff Member", "", "", colours.Select(c => new SolidColorBrush(c)).ToArray());
