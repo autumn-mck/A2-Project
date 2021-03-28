@@ -73,6 +73,8 @@ namespace A2_Project.ContentWindows
 
 		public List<BookingCreator> BookingParts { get; set; }
 
+		private bool updateOnDateChanged = true;
+
 		public CalandarView()
 		{
 			BookingParts = new List<BookingCreator>();
@@ -235,7 +237,7 @@ namespace A2_Project.ContentWindows
 					FontSize = 20,
 					HorizontalAlignment = HorizontalAlignment.Left,
 					VerticalAlignment = VerticalAlignment.Top,
-					ItemsSource = new string[] { "Staff Member", "Paid", "Appointment Type", "Includes Nails And Teeth" },
+					ItemsSource = new string[] { "Staff Member", "Appointment Type", "Includes Nails And Teeth", "Paid" },
 					SelectedIndex = selIndex
 				};
 				cmbKey.SelectionChanged += CmbKeyOptions_SelectionChanged;
@@ -478,7 +480,7 @@ namespace A2_Project.ContentWindows
 					{
 						grdResults.Children.Remove(rect);
 					}
-					DBMethods.MiscRequests.UpdateColumn("Appointment", "True", "Is Cancelled", "Appointment ID", app[0]);
+					DBMethods.MiscRequests.UpdateColumn("Appointment", "True", "Cancelled", "Appointment ID", app[0]);
 				}
 			}
 		}
@@ -704,6 +706,12 @@ namespace A2_Project.ContentWindows
 
 		private void DatePicker_SelectedDateChanged(object sender, SelectionChangedEventArgs e)
 		{
+			if (!updateOnDateChanged) return;
+
+			updateOnDateChanged = false;
+			datePicker.SelectedDate = GetStartOfWeek();
+			updateOnDateChanged = true;
+
 			// Clear the previous results
 			grdResults.Children.Clear();
 
@@ -855,7 +863,7 @@ namespace A2_Project.ContentWindows
 			{
 				if (!isNew)
 				{
-					Rectangle r = grdResults.Children.OfType<Rectangle>().Where(r => !(r.Tag is null) && GetDataTag(r)[0] == data[0]).First();
+					Rectangle r = grdResults.Children.OfType<Rectangle>().Where(r => !(r.Tag is null) && GetDataTag(r)[0] == data[0]).FirstOrDefault();
 					grdResults.Children.Remove(r);
 				}
 				GenRectFromData(data, null, true);
@@ -863,11 +871,12 @@ namespace A2_Project.ContentWindows
 			}
 			else if (currentlySelected.Tag is BookingCreator booking)
 			{
-				booking.SetData(data, currentlySelected.Name.Substring(1));
-				Rectangle r = grdResults.Children.OfType<Rectangle>().Where(r => !(r.Tag is null) && GetDataTag(r)[0] == data[0]).First();
+				booking.SetData(data, currentlySelected.Name[1..]);
+				Rectangle r = grdResults.Children.OfType<Rectangle>().Where(r => !(r.Tag is null) && r.Tag == booking && GetDataTag(r)[0] == data[0]).FirstOrDefault();
 				grdResults.Children.Remove(r);
-				r = GenRectFromData(data, "r" + currentlySelected.Name.Substring(1), true);
-				r.Tag = booking;
+				Rectangle rNew = GenRectFromData(data, currentlySelected.Name, true);
+				rNew.Tag = booking;
+				currentlySelected = rNew;
 			}
 			else throw new NotImplementedException();
 
@@ -892,7 +901,7 @@ namespace A2_Project.ContentWindows
 				}
 				else
 				{
-					DBMethods.MiscRequests.UpdateColumn("Appointment", "True", "Is Cancelled", "Appointment ID", data[0]);
+					DBMethods.MiscRequests.UpdateColumn("Appointment", "True", "Cancelled", "Appointment ID", data[0]);
 					grdResults.Children.Remove(currentlySelected);
 				}
 			}
@@ -1060,7 +1069,7 @@ namespace A2_Project.ContentWindows
 
 		internal void DeleteBookingPart(BookingCreator bookingCreator)
 		{
-			if (currentlySelected.Tag == bookingCreator)
+			if (currentlySelected is not null && currentlySelected.Tag == bookingCreator)
 			{
 				editingSidebar.EmptySidebar();
 			}

@@ -41,16 +41,19 @@ namespace A2_Project.ContentWindows
 			contactsColumns = DBMethods.MetaRequests.GetColumnDataFromTable("Contact");
 			dtgContacts = new FilterableDataGrid(contactsColumns, this);
 			dtgContacts.SetMaxHeight(300);
+			dtgContacts.HideCount();
 			lblContacts.Content = dtgContacts.Content;
 
 			dogsColumns = DBMethods.MetaRequests.GetColumnDataFromTable("Dog");
 			dtgDogs = new FilterableDataGrid(dogsColumns, this);
 			dtgDogs.SetMaxHeight(300);
+			dtgDogs.HideCount();
 			lblDogs.Content = dtgDogs.Content;
 
 			clientsColumns = DBMethods.MetaRequests.GetColumnDataFromTable("Client");
 			dtgClients = new FilterableDataGrid(clientsColumns, this);
 			dtgClients.SetMaxHeight(300);
+			dtgClients.HideCount();
 			lblClients.Content = dtgClients.Content;
 		}
 

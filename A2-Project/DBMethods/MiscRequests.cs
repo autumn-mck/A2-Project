@@ -17,7 +17,7 @@ namespace A2_Project.DBMethods
 
 		public static List<List<string>> GetAllAppointmentsOnDay(DateTime day, string[] headers)
 		{
-			return DBAccess.GetListStringsWithQuery("SELECT * FROM [Appointment] WHERE [Appointment Date] = '" + day.ToString("yyyy-MM-dd") + "' AND [Is Cancelled] = 'False';", headers);
+			return DBAccess.GetListStringsWithQuery("SELECT * FROM [Appointment] WHERE [Appointment Date] = '" + day.ToString("yyyy-MM-dd") + "' AND [Cancelled] = 'False';", headers);
 		}
 
 		public static List<List<string>> GetByColumnData(string table, string column, string toMatch, string[] headers = null)
@@ -80,7 +80,7 @@ namespace A2_Project.DBMethods
 			string dogID = data[1];
 			if (dogID == "") return false;
 
-			List<List<string>> results = DBAccess.GetListStringsWithQuery($"SELECT TOP 1 [Appointment].[Appointment ID], [Appointment].[Appointment Date], [Appointment].[Appointment Time] FROM [Appointment] INNER JOIN [Dog] ON [Dog].[Dog ID] = [Appointment].[Dog ID] WHERE [Dog].[Dog ID] = {dogID} AND [Appointment].[Is Cancelled] = 'False' ORDER BY [Appointment].[Appointment Date], [Appointment].[Appointment Time];");
+			List<List<string>> results = DBAccess.GetListStringsWithQuery($"SELECT TOP 1 [Appointment].[Appointment ID], [Appointment].[Appointment Date], [Appointment].[Appointment Time] FROM [Appointment] INNER JOIN [Dog] ON [Dog].[Dog ID] = [Appointment].[Dog ID] WHERE [Dog].[Dog ID] = {dogID} AND [Appointment].[Cancelled] = 'False' ORDER BY [Appointment].[Appointment Date], [Appointment].[Appointment Time];");
 			if (results.Count == 0) return true;
 
 
@@ -159,7 +159,7 @@ namespace A2_Project.DBMethods
 			}
 
 			string query = $"SELECT * FROM [Appointment] WHERE [Appointment].[Appointment Date] = '{date:yyyy-MM-dd}' " +
-			$"AND [Appointment].[Appointment Time] < '{appEnd}' AND [Appointment].[Is Cancelled] = 'False';";
+			$"AND [Appointment].[Appointment Time] < '{appEnd}' AND [Appointment].[Cancelled] = 'False';";
 			List<List<string>> allOnDay = DBAccess.GetListStringsWithQuery(query);
 			// An appointment cannot clash with itself, so remove the appointment with the same unique ID (If it exists)
 			allOnDay.Remove(allOnDay.Where(a => a[0] == oldData[0]).FirstOrDefault());
@@ -258,7 +258,7 @@ namespace A2_Project.DBMethods
 			"INNER JOIN [Appointment Type] ON [Appointment Type].[Appointment Type ID] = [Appointment].[Appointment Type ID] " +
 			$"WHERE [Dog].[Client ID] = {clientID} AND " +
 			$"[Appointment].[Appointment Date] BETWEEN '{DateTime.Now.AddMonths(-12):yyyy-MM-dd}' AND '{DateTime.Now:yyyy-MM-dd}' " +
-			"AND [Appointment].[Is Cancelled] = 'False' ORDER BY [Appointment].[Appointment Date];";
+			"AND [Appointment].[Cancelled] = 'False' ORDER BY [Appointment].[Appointment Date];";
 
 			List<List<string>> results = DBAccess.GetListStringsWithQuery(query);
 

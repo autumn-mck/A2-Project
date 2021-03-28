@@ -20,6 +20,7 @@ namespace A2_Project.ContentWindows
 		private string[] selectedData;
 		private readonly string tableName;
 		private Label lblIsAppInitial;
+		private Label lblIsNewBooking;
 		private Label lblErrMessage;
 
 		private TextBlock tbcErr1;
@@ -258,6 +259,7 @@ namespace A2_Project.ContentWindows
 			}
 
 			CheckIsInitialApp();
+			CheckIsNewApp();
 		}
 
 		#region Programmatic UI Generation
@@ -399,6 +401,13 @@ namespace A2_Project.ContentWindows
 			};
 			stp.Children.Add(lblIsAppInitial);
 
+			lblIsNewBooking = new Label()
+			{
+				Content = "Note: This is a new appointment.\nGo to Booking to confirm it.",
+				Visibility = Visibility.Collapsed
+			};
+			stp.Children.Add(lblIsNewBooking);
+
 			lblErrMessage = new Label()
 			{
 				Content = "",
@@ -525,9 +534,6 @@ namespace A2_Project.ContentWindows
 				{
 					if (succeeded)
 					{
-						// TODO: Why is this commented out?
-						if (isNew) AddToEdit();
-
 						// Tell the user their changes have been saved without displaying an intrusive message
 						b.Content = "Changes saved!";
 						await Task.Delay(2000);
@@ -567,7 +573,7 @@ namespace A2_Project.ContentWindows
 
 		private void BtnAddNew_Click(object sender, RoutedEventArgs e)
 		{
-			if (container is ClientManagement cliMan)
+			if (container is ClientManagement)
 			{
 				throw new NotImplementedException();
 			}
@@ -582,6 +588,15 @@ namespace A2_Project.ContentWindows
 				lblIsAppInitial.Visibility = Visibility.Visible;
 			}
 			else lblIsAppInitial.Visibility = Visibility.Collapsed;
+		}
+
+		private void CheckIsNewApp()
+		{
+			if (tableName == "Appointment" && container is CalandarView && DBMethods.MiscRequests.IsPKeyFree("Appointment", "Appointment ID", GetData()[0]))
+			{
+				lblIsNewBooking.Visibility = Visibility.Visible;
+			}
+			else lblIsNewBooking.Visibility = Visibility.Collapsed;
 		}
 
 		private void TbxDogId_TextChanged(object sender, TextChangedEventArgs e)

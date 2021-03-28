@@ -41,11 +41,14 @@ namespace A2_Project.ContentWindows
 			InitializeComponent();
 			columns = _columns;
 			tableName = columns[0].TableName;
+			lblManageFilters.Content = $"Manage {tableName} Filters (0)";
+
 			containingWindow = _containingWindow;
 
 			currentData = DBMethods.MetaRequests.GetAllFromTable(tableName, columns.Select(c => c.Name).ToArray());
 
 			DtgMethods.CreateTable(currentData, tableName, ref dtg, columns, ref dataTable, true);
+			lblCount.Content = $"Count: {currentData.Count}";
 
 			//try { dtgData.SelectedIndex = 0; }
 			//catch { }
@@ -92,11 +95,12 @@ namespace A2_Project.ContentWindows
 		public void ChangeSearch(int columnIndex, string value)
 		{
 			filterManager.ChangeSearch(columnIndex, value);
+			lblCount.Content = $"Count: {currentData.Count}";
 		}
 
 		internal void FiltersSaved()
 		{
-			lblManageFilters.Content = $"Manage Filters ({filterManager.GetFilterCount()})";
+			lblManageFilters.Content = $"Manage {tableName} Filters ({filterManager.GetFilterCount()})";
 			grdFiltersOuter.Visibility = Visibility.Collapsed;
 
 			List<string> tablesReferenced = filterManager.GetTablesReferenced();
@@ -112,6 +116,8 @@ namespace A2_Project.ContentWindows
 				currentData = DBMethods.DBAccess.GetListStringsWithQuery(sql);
 
 				DtgMethods.CreateTable(currentData, tableName, ref dtg, columns, ref dataTable, true);
+
+				lblCount.Content = $"Count: {currentData.Count}";
 			}
 			catch
 			{
@@ -201,6 +207,7 @@ namespace A2_Project.ContentWindows
 			filterManager.ClearFilters();
 			dtg.SelectedIndex = currentData.IndexOf(currentData.Where(x => x[0] == (string)prevSelection[0]).FirstOrDefault());
 			dtg.ScrollIntoView(dtg.SelectedItem);
+			lblCount.Content = $"Count: {currentData.Count}";
 		}
 
 		/// <summary>
@@ -441,6 +448,11 @@ namespace A2_Project.ContentWindows
 		{
 			if (currentData.Count == 1) return currentData[0][0];
 			else return selItem[0].ToString();
+		}
+
+		public void HideCount()
+		{
+			lblCount.Visibility = Visibility.Collapsed;
 		}
 	}
 }

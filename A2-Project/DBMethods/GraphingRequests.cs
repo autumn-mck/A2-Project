@@ -88,7 +88,7 @@ namespace A2_Project.DBMethods
 				double totalInTime = Convert.ToInt32(DBAccess.GetStringsWithQuery(totalInTimeQuery)[0]);
 
 				string cancelledInTimeQuery = "SELECT COUNT([Appointment ID]) FROM [Appointment] " +
-				$"WHERE [Is Cancelled] = 1 AND [Appointment Date] BETWEEN '{currentDate.AddDays(-increment * 10):yyyy-MM-dd}' AND '{currentDate:yyyy-MM-dd}';";
+				$"WHERE [Cancelled] = 1 AND [Appointment Date] BETWEEN '{currentDate.AddDays(-increment * 10):yyyy-MM-dd}' AND '{currentDate:yyyy-MM-dd}';";
 				double cancelledInTime = Convert.ToInt32(DBAccess.GetStringsWithQuery(cancelledInTimeQuery)[0]);
 				if (cancelledInTime == 0 || totalInTime == 0)
 					cancelRate.Add(0);
@@ -121,7 +121,7 @@ namespace A2_Project.DBMethods
 			headers = InterpolateDates(startDate, (int)diff);
 		}
 
-		public static void GetIncomeLastYear(ref double[][] data, ref string[] headers, DateTime minDate)
+		public static void GetGrossProfitLastYear(ref double[][] data, ref string[] headers, DateTime minDate)
 		{
 			headers = new string[12];
 			data[0] = new double[12];
@@ -188,7 +188,7 @@ namespace A2_Project.DBMethods
 			return DBAccess.GetStringsWithQuery($"SELECT Count([Client ID]) FROM [Client] WHERE [Client].[Client Join Date] BETWEEN '{minDate:yyyy-MM-dd}' AND '{DateTime.Now:yyyy-MM-dd}';")[0];
 		}
 
-		public static double GetIncomeSinceDate(DateTime minDate, DateTime maxDate)
+		public static double GetIncomeSince(DateTime minDate, DateTime maxDate)
 		{
 			// Note: Does not take into account is appointment initial, discount based on booking count
 			string query = "SELECT " +

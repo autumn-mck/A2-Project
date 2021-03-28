@@ -41,8 +41,8 @@
 			<Label x:Name="lblUsername" Content="Name:" HorizontalAlignment="Left" Margin="211,350,0,0"/>
 			<Label x:Name="lblPassword" Content="Password:" HorizontalAlignment="Left" Margin="211,510,0,0"/>
 			<Label x:Name="lblRePassword" Content="Re-enter your password:" HorizontalAlignment="Left" Margin="211,670,0,0"/>
-			<Label x:Name="lblEmail" Content="(Optional) Email:" HorizontalAlignment="Left" Margin="1146,510,0,0"/>
-			<Label x:Name="lblPhoneNo" Content="(Optional) Phone number:" HorizontalAlignment="Left" Margin="1146,337,0,0"/>
+			<Label x:Name="lblEmail" Content="Email:" HorizontalAlignment="Left" Margin="1146,510,0,0"/>
+			<Label x:Name="lblPhoneNo" Content="Phone number:" HorizontalAlignment="Left" Margin="1146,337,0,0"/>
 			<TextBox x:Name="txtName" HorizontalAlignment="Left" Margin="211,429,0,0" TextChanged="TxtBox_TextChanged" TabIndex="1"/>
 			<TextBox x:Name="txtPhoneNo" HorizontalAlignment="Left" Margin="1146,429,0,0" TextChanged="TxtBox_TextChanged" TabIndex="4"/>
 			<TextBox x:Name="txtEmail" HorizontalAlignment="Left" Margin="1148,584,0,0" TextChanged="TxtBox_TextChanged" TabIndex="5"/>
