@@ -70,7 +70,9 @@ namespace A2_Project.DBMethods
 
 		internal static string GetMinKeyNotUsed(string table, string col, List<BookingCreator> booking)
 		{
-			int id = Convert.ToInt32(DBAccess.GetStringsWithQuery($"SELECT Max([{col}]) FROM [{table}];")[0]);
+			string res = DBAccess.GetStringsWithQuery($"SELECT Max([{col}]) FROM [{table}];")[0];
+			if (res == "") return (booking.Select(b => b.GetData().Count).Sum() + 1).ToString();
+			int id = Convert.ToInt32(res);
 			id += booking.Select(b => b.GetData().Count).Sum() + 1;
 			return id.ToString();
 		}
