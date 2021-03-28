@@ -52,33 +52,28 @@ namespace A2_Project.ContentWindows
 
 		private void ShowMiscStats()
 		{
-			// TODO: Any other misc stats?
 			DrawFullArea(grdMiscStats);
 			string timePeriod = cmbTimescale.SelectedItem.ToString();
 
-			StackPanel stpMisc = new StackPanel()
+			Grid stpMisc = new Grid()
 			{
-				Orientation = Orientation.Vertical,
 				HorizontalAlignment = HorizontalAlignment.Left,
 				VerticalAlignment = VerticalAlignment.Top,
-				Margin = new Thickness(40, 30, 0, 0)
+				Margin = new Thickness(0, 30, 0, 0),
+				Height = 200
 			};
 
 			double sales = DBMethods.GraphingRequests.GetIncomeSince(minDate, DateTime.Now);
-			Label lblSalesLast = new Label()
-			{
-				Content = $"SALES\n{timePeriod}: £{sales}",
-				FontSize = 20
-			};
-			stpMisc.Children.Add(lblSalesLast);
-
 			string newCustCount = DBMethods.GraphingRequests.GetNewCusts(minDate);
-			Label lblNewCliCount = new Label()
+			TextBlock tblMisc = new TextBlock()
 			{
-				Content = $"NEW CUSTOMERS\n{timePeriod}: {newCustCount}",
+				Text = $"{timePeriod}\nSales: £{sales:N0}\nNew Customers: {newCustCount:N0}",
+				HorizontalAlignment = HorizontalAlignment.Center,
+				TextAlignment = TextAlignment.Center,
+				VerticalAlignment = VerticalAlignment.Center,
 				FontSize = 20
 			};
-			stpMisc.Children.Add(lblNewCliCount);
+			stpMisc.Children.Add(tblMisc);
 
 			grdMiscStats.Children.Add(stpMisc);
 		}
