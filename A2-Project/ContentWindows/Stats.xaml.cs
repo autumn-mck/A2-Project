@@ -33,7 +33,7 @@ namespace A2_Project.ContentWindows
 			grdDaysOfWeek.Children.Clear();
 			grdGrowth.Children.Clear();
 			grdGrossProfit.Children.Clear();
-			grdRepeatCustomers.Children.Clear();
+			grdIncome.Children.Clear();
 			grdStaffBusiness.Children.Clear();
 		}
 
@@ -45,7 +45,7 @@ namespace A2_Project.ContentWindows
 			GraphAppByDayOfWeek();
 			GraphAppByMonth();
 			GraphAppCancelRate();
-			GraphCustReturn();
+			GraphIncome();
 			GraphGrossProfit();
 			ShowMiscStats();
 		}
@@ -203,7 +203,7 @@ namespace A2_Project.ContentWindows
 					TextBlock tbl = new TextBlock
 					{
 						Text = prefix + Math.Round(RoundToSigFigs(i / countAbove * maxHeight, 2), 2, MidpointRounding.AwayFromZero) + suffix + "  ",
-						Margin = new Thickness(0, marginTop - 7, 463, 0),
+						Margin = new Thickness(-500, marginTop - 7, 463, 0),
 						Foreground = Brushes.White,
 						TextWrapping = TextWrapping.Wrap,
 						VerticalAlignment = VerticalAlignment.Top,
@@ -244,7 +244,7 @@ namespace A2_Project.ContentWindows
 			TextBlock tbl = new TextBlock
 			{
 				Text = prefix + Math.Abs(Math.Round(RoundToSigFigs(i / countDirection * maxValue, 2), 2, MidpointRounding.AwayFromZero)) + suffix + "  ",
-				Margin = new Thickness(0, marginTop - 7, 463, 0),
+				Margin = new Thickness(-500, marginTop - 7, 463, 0),
 				Foreground = Brushes.White,
 				TextWrapping = TextWrapping.Wrap,
 				VerticalAlignment = VerticalAlignment.Top,
@@ -640,10 +640,10 @@ namespace A2_Project.ContentWindows
 			GenerateLineGraph(getData, grdAppCancelRate, "Appointment Cancel Rate Over Time", "", "%");
 		}
 
-		private void GraphCustReturn()
+		private void GraphIncome()
 		{
-			GetData getData = new GetData(DBMethods.GraphingRequests.GetCustReturns);
-			GenerateLineGraph(getData, grdRepeatCustomers, "Dog Last Appointment Date");
+			GetData getData = new GetData(DBMethods.GraphingRequests.GetIncomeLastYear);
+			GenerateBarGraph(getData, grdIncome, "Income (Rolling 12 Months)", "£");
 		}
 
 		private void GraphGrossProfit()

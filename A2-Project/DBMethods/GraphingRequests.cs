@@ -98,7 +98,7 @@ namespace A2_Project.DBMethods
 			headers = InterpolateDates(startDate, diff);
 		}
 
-		// TODO: What does this even do? Get it to actually work.
+		// No longer used, but kept around as it could be useful some day.
 		public static void GetCustReturns(ref double[][] data, ref string[] headers, DateTime minDate)
 		{
 			DateTime startDate = MaxDate(Convert.ToDateTime(DBAccess.GetStringsWithQuery("SELECT MIN([Client Join Date]) FROM [Client]")[0]), minDate);
@@ -153,6 +153,43 @@ namespace A2_Project.DBMethods
 
 					//income += CalculateAppointmentPrice(app.ToArray());
 					incomeFromMonth += appIncome - 43.4;
+				}
+				data[0][i] = Math.Round(incomeFromMonth);
+			}
+		}
+
+		public static void GetIncomeLastYear(ref double[][] data, ref string[] headers, DateTime minDate)
+		{
+			headers = new string[12];
+			data[0] = new double[12];
+			DateTime endDate = DateTime.Now.Date;
+			DateTime startDate = endDate.AddMonths(-12);
+			for (int i = 0; i < 12; i++)
+			{
+				headers[i] = months[startDate.AddMonths(i).Month - 1];
+				// Note: Does not consider if is first booking and booking discount
+				string query = "SELECT " +
+				"CASE " +
+					"WHEN [Appointment Type ID] = 0 THEN 35 " +
+					"WHEN [Appointment Type ID] = 1 THEN 40 " +
+					"WHEN [Appointment Type ID] = 2 THEN 50 " +
+					"ELSE 0 " +
+				"END, " +
+				"CASE " +
+					"WHEN [Nails And Teeth] = 'True' THEN 10 " +
+					"ELSE 0 " +
+				"END " +
+				$"FROM [Appointment] WHERE [Paid] = 1 AND [Appointment Date] BETWEEN '{startDate.AddMonths(i):yyyy-MM-dd}' AND '{startDate.AddMonths(i + 1):yyyy-MM-dd}';";
+				List<List<string>> dataFromMonth = DBAccess.GetListStringsWithQuery(query);
+				double incomeFromMonth = 0;
+				foreach (List<string> appData in dataFromMonth)
+				{
+					double appIncome = Convert.ToDouble(appData[0]);
+					appIncome += Convert.ToDouble(appData[1]);
+					//appIncome = appIncome * (100.0 - GetBookingDiscount(appData[2]));
+
+					//income += CalculateAppointmentPrice(app.ToArray());
+					incomeFromMonth += appIncome;
 				}
 				data[0][i] = Math.Round(incomeFromMonth);
 			}
