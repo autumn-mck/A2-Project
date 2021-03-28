@@ -31,7 +31,6 @@ namespace A2_Project
 			}
 			else
 			{
-				// TODO: Display "No results!" or similar
 				table.Columns.Add("Note");
 				table.Rows.Add(new string[] { "No Results!" });
 			}

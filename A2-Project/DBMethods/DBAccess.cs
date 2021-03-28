@@ -6,8 +6,8 @@ namespace A2_Project.DBMethods
 {
 	public static class DBAccess
 	{
-		// TODO: https://stackoverflow.com/questions/14376473/what-are-good-ways-to-prevent-sql-injection
-		// Because https://xkcd.com/327/
+		// Note: Currently has no protection against SQL injection.
+		// https://stackoverflow.com/questions/14376473/what-are-good-ways-to-prevent-sql-injection
 
 		public static Database Db { get; set; }
 

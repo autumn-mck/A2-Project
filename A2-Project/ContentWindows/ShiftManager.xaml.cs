@@ -515,7 +515,6 @@ namespace A2_Project.ContentWindows
 		{
 			DBAccess.UpdateTable("Shift Exception", shiftExcColumns.Select(s => s.Name).ToArray(), shiftException.GetData(), false);
 			UpdateShiftExcs();
-			// TODO: Scroll to updated item or something?
 		}
 
 		private void UpdateShiftExcs()

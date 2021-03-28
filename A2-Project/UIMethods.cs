@@ -82,7 +82,6 @@ namespace A2_Project
 				};
 
 				// If the text box has the potential of containing a lot of data, double its height to allow the text it contains to be easier to read.
-				// TODO: Enforce max length
 				if (c.Constraints.Type == "varchar")
 					if (Convert.ToInt32(c.Constraints.MaxSize) > 50)
 						((ValidatedTextbox)elem).SetHeight(elem.Height * 2);

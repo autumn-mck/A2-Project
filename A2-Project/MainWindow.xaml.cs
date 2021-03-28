@@ -186,7 +186,6 @@ namespace A2_Project
 			thread.Start();
 		}
 
-		// TODO: See if the following methods can be simplified
 		private void GrdCalander_MouseDown(object sender, MouseButtonEventArgs e)
 		{
 			if (calWindow is null)

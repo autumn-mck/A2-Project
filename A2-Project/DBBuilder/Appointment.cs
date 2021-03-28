@@ -55,7 +55,6 @@ namespace A2_Project.DBBuilder
 
 		private static string BoolAsOneOrZero(bool eval)
 		{
-			// TODO: Is this needed?
 			if (eval) return "'1'";
 			else return "'0'";
 		}

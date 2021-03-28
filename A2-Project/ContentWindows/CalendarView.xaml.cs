@@ -584,7 +584,6 @@ namespace A2_Project.ContentWindows
 				if (element is Rectangle rect)
 				{
 					// Create a new rectangle with the same properties as the old one
-					// TODO: Why? Why not GenNewRectWithData?
 					Rectangle newRect = new Rectangle
 					{
 						Width = rect.Width,
@@ -725,7 +724,6 @@ namespace A2_Project.ContentWindows
 			// If something is currently selected and the mouse is down, the selected element should be carried over to the next week
 			if (currentlySelected is not null && mouseDown)
 			{
-				// TODO: For now, this just adds it in the same position it was in before. Is there anything I can do about this?
 				// It should probably check for a valid position before placing it
 				grdResults.Children.Add(currentlySelected);
 			}
@@ -1116,8 +1114,6 @@ namespace A2_Project.ContentWindows
 
 		private void BtnConfirmBooking_Click(object sender, RoutedEventArgs e)
 		{
-			// TODO: Ensure booking ID is actually valid (References existing dog etc.) before saving
-
 			string[] bookingColumns = DBObjects.DB.Tables.Where(t => t.Name == "Booking").First().Columns.Select(x => x.Name).ToArray();
 			string[] bookingData = new string[] { GetNewBookingID(), DateTime.Now.Date.ToString("yyyy-MM-dd") };
 			DBMethods.DBAccess.UpdateTable("Booking", bookingColumns, bookingData, true);

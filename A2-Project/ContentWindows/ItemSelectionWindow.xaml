@@ -7,7 +7,6 @@
         mc:Ignorable="d"
         Title="ItemSelectionWindow" Background="#151515" SizeToContent="WidthAndHeight" MinWidth="500" Closing="Window_Closing">
 	<StackPanel x:Name="stp" Orientation="Vertical" HorizontalAlignment="Left" VerticalAlignment="Top">
-		<!--TODO: If this is going to be a seperate window, it probably needs viewboxes?-->
 		<Label Name="lblDtg" VerticalAlignment="Top" HorizontalAlignment="Left"/>
 	</StackPanel>
 </Window>

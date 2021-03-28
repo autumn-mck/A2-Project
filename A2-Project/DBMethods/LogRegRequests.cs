@@ -16,7 +16,6 @@ namespace A2_Project.DBMethods
 
 		public static bool IsNameTaken(string name)
 		{
-			// TODO: StaffName should be enforced as unique
 			return DBAccess.GetStringsWithQuery("SELECT COUNT([Staff ID]) FROM [Staff] WHERE [Staff].[Staff Name] = '" + name + "';")[0] == "0";
 		}
 
@@ -42,7 +41,6 @@ namespace A2_Project.DBMethods
 		/// </summary>
 		private static string ComputeHash(string toHash)
 		{
-			// TODO: This method should probably be moved somewhere else
 			byte[] bytes = Array.Empty<byte>();
 			using (SHA256 sha256Hash = SHA256.Create())
 			{

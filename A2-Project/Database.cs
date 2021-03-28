@@ -22,8 +22,6 @@ namespace A2_Project
 			SqlConnectionStringBuilder scStrBuild = new SqlConnectionStringBuilder
 			{
 				DataSource = "(LocalDB)\\MSSQLLocalDB",
-				// TODO: An absolute file path should not be used here.
-				//AttachDBFilename = "|DataDirectory|DogCareDB.mdf",
 				IntegratedSecurity = true
 			};
 			scStrBuild.AttachDBFilename = Directory.GetCurrentDirectory() + "\\DogCareDB.mdf";
