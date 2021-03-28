@@ -402,12 +402,13 @@ namespace A2_Project.ContentWindows
 			{
 				case "Dog":
 				case "Contact": // Group contacts together by their ClientID
-					if (strArr.Length == 1) { row.Background = (SolidColorBrush)new BrushConverter().ConvertFrom("#161616"); break; }
-					if (Convert.ToInt32(strArr[1]) % 2 == 0) row.Background = (SolidColorBrush)new BrushConverter().ConvertFrom("#161616");
+					if (strArr.Length == 1) { row.Background = (SolidColorBrush)new BrushConverter().ConvertFrom("#0A0A0A"); break; }
+					if (Convert.ToInt32(strArr[1]) % 2 == 0) row.Background = (SolidColorBrush)new BrushConverter().ConvertFrom("#0A0A0A");
 					else row.Background = (SolidColorBrush)new BrushConverter().ConvertFrom("#252526");
 					break;
 				default:
-					if (Convert.ToInt32(strArr[0]) % 2 == 0) row.Background = (SolidColorBrush)new BrushConverter().ConvertFrom("#161616");
+					if (strArr.Length == 1) { row.Background = (SolidColorBrush)new BrushConverter().ConvertFrom("#0A0A0A"); break; }
+					if (Convert.ToInt32(strArr[0]) % 2 == 0) row.Background = (SolidColorBrush)new BrushConverter().ConvertFrom("#0A0A0A");
 					else row.Background = (SolidColorBrush)new BrushConverter().ConvertFrom("#252526");
 					break;
 			}
