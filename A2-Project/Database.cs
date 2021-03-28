@@ -26,7 +26,7 @@ namespace A2_Project
 				//AttachDBFilename = "|DataDirectory|DogCareDB.mdf",
 				IntegratedSecurity = true
 			};
-			scStrBuild.AttachDBFilename = "C:\\Users\\james\\Desktop\\Projects\\A2-Project\\A2-Project\\DogCareDB.mdf";
+			scStrBuild.AttachDBFilename = Directory.GetCurrentDirectory() + "\\DogCareDB.mdf";
 			string scStr = scStrBuild.ToString();
 			Conn = new SqlConnection(scStr);
 			// Try to connect to the database. If a connection cannot be made, something has probably gone badly wrong
@@ -39,6 +39,11 @@ namespace A2_Project
 			{
 				return false;
 			}
+		}
+
+		public void Close()
+		{
+			Conn.Close();
 		}
 	}
 }
