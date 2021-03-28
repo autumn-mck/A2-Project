@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Windows.Controls;
 using System.Windows.Media;
 
@@ -22,6 +23,8 @@ namespace A2_Project.UserControls
 			}
 		}
 
+		private bool isFKey;
+
 		public ValidatedTextbox(DBObjects.Column column) : base (column)
 		{
 			tbx = new TextBox()
@@ -39,7 +42,9 @@ namespace A2_Project.UserControls
 			stpContent.Children.Add(tbx);
 			stpContent.Children.Add(img);
 
-			if (Column.Constraints.ForeignKey is not null)
+			isFKey = Column.Constraints.ForeignKey is not null;
+
+			if (isFKey)
 			{
 				Button b = new Button()
 				{
@@ -77,6 +82,30 @@ namespace A2_Project.UserControls
 		{
 			IsValid = Validation.Validate(Text, Column, out string errorMessage);
 			ErrorMessage = errorMessage;
+
+			if (isFKey && IsValid)
+			{
+				string toolTip = GetTooltipText();
+				ToolTip = toolTip;
+			}
+		}
+
+		private string GetTooltipText()
+		{
+			DBObjects.ForeignKey fKey = Column.Constraints.ForeignKey;
+			List<string> data = DBMethods.MiscRequests.GetByColumnData(fKey.ReferencedTable, fKey.ReferencedColumn, Text)[0];
+			try
+			{
+				switch (fKey.ReferencedTable)
+				{
+					case "Staff":
+					case "Grooming Room": return data[1];
+					case "Dog":
+					case "Contact": return data[2]; 
+				}
+			}
+			catch { return null; }
+			return null;
 		}
 
 		private void Tbx_OnlyAllowNumbers(object sender, System.Windows.Input.TextCompositionEventArgs e)
