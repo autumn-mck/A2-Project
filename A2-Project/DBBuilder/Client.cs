@@ -26,7 +26,6 @@ namespace A2_Project.DBBuilder
 				Contacts.Add(new Contact(AllData.GetNextContactID() + Contacts.Count, ClientID, forename + " " + surname, RandGen.GenEmail(forename, surname).ToLower(), address, county, town, postcode, RandGen.GenPhoneNo()));
 			}
 
-			// TODO: Could improve over just generating between 1 and 3
 			Dogs = new List<Dog>();
 			int dogCount = random.Next(1, 4);
 			for (int i = 0; i < dogCount; i++)

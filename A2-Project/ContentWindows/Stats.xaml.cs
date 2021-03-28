@@ -407,7 +407,7 @@ namespace A2_Project.ContentWindows
 
 				for (int i = 0; i < inArr.Length - 1; i++)
 				{
-					// TODO: Allow line graphs to graph below 0 properly
+					// Note: Line graphs cannot currently graph below 0
 					//double height;
 					//if (inArr[i] < 0) height = (double)inArr[i] / minHeight * belowZero * 200;
 					//else height = (double)inArr[i] / maxHeight * aboveZero * 200;

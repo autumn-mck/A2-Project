@@ -352,7 +352,6 @@ namespace A2_Project.UserControls
 
 				data = new List<string[]>();
 
-				// TODO: Option to add appointment to next free slot, not just put down ignoring if it clashes?
 				DateTime start = dtpDate.SelectedDate.Value;
 				TimeSpan betweenPeriod;
 				if (cbxTimeType.SelectedIndex == 0) betweenPeriod = new TimeSpan(timeGap, 0, 0, 0);

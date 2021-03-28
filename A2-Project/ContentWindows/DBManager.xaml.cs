@@ -52,7 +52,8 @@ CREATE TABLE[Dog] (
 	[Dog Name] VARCHAR(30) NOT NULL,
 	[Dog DOB] DATE NOT NULL,
 	[Dog Gender] VARCHAR(1),
-	[Dog Type] VARCHAR(40)
+	[Dog Type] VARCHAR(40),
+	[Dog Notes] VARCHAR(255)
 );
 
 CREATE TABLE[Staff] (

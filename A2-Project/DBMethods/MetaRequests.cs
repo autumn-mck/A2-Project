@@ -23,7 +23,6 @@ namespace A2_Project.DBMethods
 		/// </summary>
 		public static List<List<string>> GetAllFromTable(string tableName, string[] headers = null)
 		{
-			// TODO: Should be in MiscRequests
 			return DBAccess.GetListStringsWithQuery("SELECT * FROM [" + tableName + "];", headers);
 		}
 
@@ -45,7 +44,6 @@ namespace A2_Project.DBMethods
 
 		public static Column[] GetColumnDataFromTable(string tableName)
 		{
-			// TODO: Badly needs optimised
 			List<List<string>> types = GetDataTypesFromTable(tableName);
 			ForeignKey[] foreignKeys = GetFKeyOfTable(tableName);
 			Column[] columns = new Column[types.Count];

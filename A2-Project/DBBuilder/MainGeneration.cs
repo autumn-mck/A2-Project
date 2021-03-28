@@ -134,7 +134,6 @@ namespace A2_Project.DBBuilder
 				int prevDiff = 0;
 				for (int i = 0; i < appToMake; i++)
 				{
-					// TODO: Can generate appointments in the past. Should probably do something about that?
 					Appointment app = BookAppointment(d, booking.BookingID, prevDiff);
 					booking.Appointments.Add(app);
 					prevDiff = (int)(currentSimDate - app.AppointmentDate).TotalDays;
@@ -263,8 +262,6 @@ namespace A2_Project.DBBuilder
 
 		private int[] StaffIDArr(DateTime date, int time, int length)
 		{
-			// TODO: End time too, not just start time
-			// TODO: Link into database?
 			int dow = ((int)date.DayOfWeek + 6) % 7;
 
 			int end = time + length;
