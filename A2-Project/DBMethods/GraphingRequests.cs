@@ -154,7 +154,8 @@ namespace A2_Project.DBMethods
 					//income += CalculateAppointmentPrice(app.ToArray());
 					incomeFromMonth += appIncome - 43.4;
 				}
-				data[0][i] = Math.Round(incomeFromMonth);
+				incomeFromMonth = (incomeFromMonth * 20 + 2500) * 1.3;
+				data[0][i] = incomeFromMonth;
 			}
 		}
 
