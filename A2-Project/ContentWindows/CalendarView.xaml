@@ -39,7 +39,7 @@
 							<Label Content="Dog ID: &#x9;"/>
 						</StackPanel>
 						<StackPanel x:Name="stpBookStaffID" Orientation="Horizontal">
-							<Label Content="Staff Member: &#x9;"/>
+							<Label Content="Staff Member:  "/>
 						</StackPanel>
 						<StackPanel x:Name="stpBookingManager" Orientation="Vertical">
 						</StackPanel>

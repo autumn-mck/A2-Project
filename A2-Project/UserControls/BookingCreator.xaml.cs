@@ -78,6 +78,7 @@ namespace A2_Project.UserControls
 				};
 				r.MouseDown += Rct_MouseDown;
 				stpContent.Children.Add(r);
+				ChangeRectColour(container.GetCurrentStaffColour());
 			}
 			// Recurring Appointment
 			else if (cbxNewBookType.SelectedIndex == 1)
@@ -468,6 +469,14 @@ namespace A2_Project.UserControls
 		private void Tbx_OnlyAllowNumbers(object sender, System.Windows.Input.TextCompositionEventArgs e)
 		{
 			if (!int.TryParse(e.Text, out _)) e.Handled = true;
+		}
+
+		internal void ChangeRectColour(Color colour)
+		{
+			if (cbxNewBookType.SelectedIndex == 0)
+			{
+				stpContent.Children.OfType<Rectangle>().First().Fill = new SolidColorBrush(colour);
+			}
 		}
 	}
 }

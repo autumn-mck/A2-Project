@@ -101,6 +101,7 @@ namespace A2_Project.ContentWindows
 			stpBookDogID.Children.Add(UIMethods.GenAppropriateElement(columns[1], out _, false, true));
 			ComboBox cmbBkStaff = (ComboBox)UIMethods.GenAppropriateElement(columns[3], out _, false, true);
 			cmbBkStaff.LayoutTransform = new ScaleTransform(2, 2);
+			cmbBkStaff.SelectionChanged += CmbBkStaff_SelectionChanged;
 			stpBookStaffID.Children.Add(cmbBkStaff);
 
 			// Start the thread for moving the selected element to the mouse when needed
@@ -1211,6 +1212,22 @@ namespace A2_Project.ContentWindows
 			{
 				Rectangle r = GenRectFromData(appData[i], "r" + i.ToString(), true);
 				r.Tag = sender;
+			}
+		}
+
+		public Color GetCurrentStaffColour()
+		{
+			return colours[stpBookStaffID.Children.OfType<ComboBox>().First().SelectedIndex];
+		}
+
+		private void CmbBkStaff_SelectionChanged(object sender, SelectionChangedEventArgs e)
+		{
+			foreach (BookingCreator b in BookingParts)
+			{
+				if (!b.IsAdded)
+				{
+					b.ChangeRectColour(GetCurrentStaffColour());
+				}
 			}
 		}
 	}
