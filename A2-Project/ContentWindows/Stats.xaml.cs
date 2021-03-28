@@ -32,7 +32,7 @@ namespace A2_Project.ContentWindows
 			grdAppTypes.Children.Clear();
 			grdDaysOfWeek.Children.Clear();
 			grdGrowth.Children.Clear();
-			grdIncome.Children.Clear();
+			grdGrossProfit.Children.Clear();
 			grdRepeatCustomers.Children.Clear();
 			grdStaffBusiness.Children.Clear();
 		}
@@ -46,7 +46,7 @@ namespace A2_Project.ContentWindows
 			GraphAppByMonth();
 			GraphAppCancelRate();
 			GraphCustReturn();
-			GraphIncome();
+			GraphGrossProfit();
 			ShowMiscStats();
 		}
 
@@ -54,7 +54,7 @@ namespace A2_Project.ContentWindows
 		{
 			// TODO: Any other misc stats?
 			DrawFullArea(grdMiscStats);
-			string timePeriod = cmbTimescale.SelectedItem.ToString().ToLower();
+			string timePeriod = cmbTimescale.SelectedItem.ToString();
 
 			StackPanel stpMisc = new StackPanel()
 			{
@@ -64,33 +64,21 @@ namespace A2_Project.ContentWindows
 				Margin = new Thickness(40, 30, 0, 0)
 			};
 
-			double sales = DBMethods.GraphingRequests.GetIncomeSinceDate(minDate, DateTime.Now);
+			double sales = DBMethods.GraphingRequests.GetIncomeSince(minDate, DateTime.Now);
 			Label lblSalesLast = new Label()
 			{
-				Content = $"Sales {timePeriod}: £{sales}"
+				Content = $"SALES\n{timePeriod}: £{sales}",
+				FontSize = 20
 			};
 			stpMisc.Children.Add(lblSalesLast);
-
-			string gpp = "";
-			Label lblGPP = new Label()
-			{
-				Content = $"Gross profit % {timePeriod}: {gpp}%"
-			};
-			//stpMisc.Children.Add(lblGPP);
 
 			string newCustCount = DBMethods.GraphingRequests.GetNewCusts(minDate);
 			Label lblNewCliCount = new Label()
 			{
-				Content = $"No. new customers over {timePeriod}: {newCustCount}"
+				Content = $"NEW CUSTOMERS\n{timePeriod}: {newCustCount}",
+				FontSize = 20
 			};
 			stpMisc.Children.Add(lblNewCliCount);
-
-			string percCap = "";
-			Label lblPercCap = new Label()
-			{
-				Content = $"% capacity over {timePeriod}: {percCap}%"
-			};
-			//stpMisc.Children.Add(lblPercCap);
 
 			grdMiscStats.Children.Add(stpMisc);
 		}
@@ -637,7 +625,7 @@ namespace A2_Project.ContentWindows
 		private void GraphAppByMonth()
 		{
 			GetData getData = new GetData(DBMethods.GraphingRequests.GetBookingsInMonths);
-			GenerateBarGraph(getData, grdAppByMonth, "Appointments By Month (Last Year)");
+			GenerateBarGraph(getData, grdAppByMonth, "Appointments By Month (Last Fin. Year)");
 		}
 
 		private void GraphGrowth()
@@ -658,10 +646,10 @@ namespace A2_Project.ContentWindows
 			GenerateLineGraph(getData, grdRepeatCustomers, "Dog Last Appointment Date");
 		}
 
-		private void GraphIncome()
+		private void GraphGrossProfit()
 		{
-			GetData getData = new GetData(DBMethods.GraphingRequests.GetIncomeLastYear);
-			GenerateBarGraph(getData, grdIncome, "Income (Last Year)", "£");
+			GetData getData = new GetData(DBMethods.GraphingRequests.GetGrossProfitLastYear);
+			GenerateBarGraph(getData, grdGrossProfit, "Gross Profit (Rolling 12 Months)", "£");
 		}
 
 		private void CmbTimescale_SelectionChanged(object sender, SelectionChangedEventArgs e)

@@ -27,7 +27,7 @@
 			</Grid.Resources>
 		</Grid>
 		<Grid x:Name="grdAppCancelRate" HorizontalAlignment="Center" Margin="0,750,0,0"/>
-		<Grid x:Name="grdIncome" HorizontalAlignment="Right"		Margin="0,100,150,0"/>
+		<Grid x:Name="grdGrossProfit" HorizontalAlignment="Right"		Margin="0,100,150,0"/>
 		<Grid x:Name="grdAppByMonth" HorizontalAlignment="Right"	Margin="0,425,150,0"/>
 		<Grid x:Name="grdRepeatCustomers" HorizontalAlignment="Right" Margin="0,750,150,0"/>
 		<ComboBox x:Name="cmbTimescale" HorizontalAlignment="Center" Margin="0,40,0,0" VerticalAlignment="Top" Width="120" RenderTransformOrigin="0.5,0.5">

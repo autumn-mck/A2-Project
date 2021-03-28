@@ -59,6 +59,7 @@ namespace A2_Project.ContentWindows
 
 			rctBase.Width = dayWidth;
 			rctBase.Height = hourHeight * 7;
+			rctBase.Fill = Brushes.Orange;
 
 			List<List<string>> staffData = MetaRequests.GetAllFromTable("Staff");
 			List<Panel> staffPanels = new List<Panel>();
@@ -442,7 +443,9 @@ namespace A2_Project.ContentWindows
 			TimeSpan start = TimeSpan.FromHours(dayStart);
 			Panel grdShift = GenShiftWithData(new string[] { "", "0", "0", start.ToString("hh\\:mm"), start.Add(TimeSpan.FromHours(8)).ToString("hh\\:mm") });
 			diffMouseAndElem = new Point(grdShift.Width / 2, grdShift.Height / 2);
-			grdShift.Children.OfType<Rectangle>().Where(r => r.Name == "rctBase").First().IsHitTestVisible = false;
+			Rectangle r = grdShift.Children.OfType<Rectangle>().Where(r => r.Name == "rctBase").First();
+			r.IsHitTestVisible = false;
+			r.Fill = Brushes.Orange;
 			currentlySelected = grdShift;
 			grd.Children.Add(grdShift);
 			mouseDown = true;
@@ -500,7 +503,6 @@ namespace A2_Project.ContentWindows
 
 				if (currentlySelected is Grid grdSel)
 				{
-					rctBase.Fill = Brushes.Orange;
 					Rectangle r = grdSel.Children.OfType<Rectangle>().Where(r => r.Name == "rctBase").First();
 					r.Fill = Brushes.Orange;
 				}
@@ -632,7 +634,12 @@ namespace A2_Project.ContentWindows
 					if (!isInShift || isInShiftExc) count++;
 				}
 			}
-			MessageBox.Show($"Warning: There are {count} appointments that clash with staff schedules");
+			string messageOut;
+
+			if (count == 0) messageOut = "There are currently no appointments that clash with staff schedules.";
+			else messageOut = $"Warning: There are {count} appointments that clash with staff schedules";
+
+			MessageBox.Show(messageOut);
 		}
 	}
 }

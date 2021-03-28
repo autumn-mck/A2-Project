@@ -310,7 +310,7 @@ namespace A2_Project
 					<td>{3}</td>
 					<td>1000</td>
 				</tr>
-			</table>", contactData[0], contactData[1], contactData[2], contactData[3]);
+			</table>", contactData[0], contactData[1], contactData[2], "Cash");
 
 			body += @"
 			<table cellpadding=""0"" cellspacing=""0"">

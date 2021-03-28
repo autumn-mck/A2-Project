@@ -15,8 +15,12 @@
 			</Style>
 		</Grid.Resources>
 		<WrapPanel x:Name="wrpStaff" Width="1250" HorizontalAlignment="Left" Orientation="Horizontal"/>
-		<Button x:Name="btnClashCount" Content="Get how many&#xD;&#xA;appointments clash" VerticalAlignment="Top" HorizontalAlignment="Left" HorizontalContentAlignment="Center" FontSize="20" Click="BtnClashCount_Click" Margin="1500,20,0,0"/>
-		<Rectangle x:Name="rctBase" MouseDown="RctBase_MouseDown" Fill="#B71C1C" Margin="1000, 500, 0, 0" StrokeThickness="1" Stroke="Black" VerticalAlignment="Center" HorizontalAlignment="Left" Height="90" Width="55"/>
+		<Button x:Name="btnClashCount" Content="Get no. of appointments&#xD;&#xA;clashing due to changes" VerticalAlignment="Top" HorizontalAlignment="Left" HorizontalContentAlignment="Center" FontSize="20" Click="BtnClashCount_Click" Margin="886,920,0,0"/>
+		<StackPanel Orientation="Vertical" Margin="910, 560, 0, 0" VerticalAlignment="Top" HorizontalAlignment="Left">
+			<Label Content="Add/Remove Shift" FontSize="20" VerticalAlignment="Top" HorizontalAlignment="Left"/>
+			<Rectangle x:Name="rctBase" MouseDown="RctBase_MouseDown" Fill="#B71C1C" StrokeThickness="1" Stroke="Black" VerticalAlignment="Top" HorizontalAlignment="Center" Height="90" Width="55"/>
+		</StackPanel>
+		<Label Content="Staff Holidays" FontSize="30" VerticalAlignment="Top" HorizontalAlignment="Left" Margin="1200, 50, 0, 0"/>
 		<Grid x:Name="grdHolidays" VerticalAlignment="Top" HorizontalAlignment="Left" Width="660" Height="800" Background="#0B0B0B" Margin="1200, 100, 0, 0">
 			<ScrollViewer x:Name="scvShiftExc" Margin="0, 0, 0, 60" VerticalScrollBarVisibility="Auto">
 				<StackPanel x:Name="stpShiftExc"/>

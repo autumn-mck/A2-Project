@@ -24,7 +24,7 @@
 		<StackPanel x:Name="stpFilters"/>
 		<Grid Height="Auto" Width="Auto" VerticalAlignment="Top" HorizontalAlignment="Left">
 			<Label Content=" + Add a new filter " MouseDown="AddNewFilter_MouseDown" HorizontalAlignment="Left" VerticalAlignment="Top"/>
-			<Label x:Name="lblSave" Content=" Save changes to filters " Margin="550, 0, 0, 0" MouseDown="SaveChanges_MouseDown" HorizontalAlignment="Left" VerticalAlignment="Top"/>
+			<Label x:Name="lblSave" Content=" Apply Filters " Margin="550, 0, 0, 0" MouseDown="SaveChanges_MouseDown" HorizontalAlignment="Left" VerticalAlignment="Top"/>
 		</Grid>
 	</StackPanel>
 </UserControl>
