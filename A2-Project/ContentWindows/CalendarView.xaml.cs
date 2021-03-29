@@ -570,7 +570,7 @@ namespace A2_Project.ContentWindows
 
 				if (doesClash || !isDataValid)
 				{
-					rct.StrokeThickness = 3;
+					rct.StrokeThickness = 4;
 					rct.Stroke = Brushes.White;
 				}
 			}
@@ -963,7 +963,7 @@ namespace A2_Project.ContentWindows
 
 			if (doesClash || !isDataValid)
 			{
-				newRect.StrokeThickness = 3;
+				newRect.StrokeThickness = 4;
 				newRect.Stroke = Brushes.White;
 			}
 

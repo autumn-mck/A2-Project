@@ -76,8 +76,15 @@ namespace A2_Project.ContentWindows
 			// If it is an existing item that needs updates, update the table displayed to the user without requesting all data from the database again
 			if (!isNew)
 			{
-				List<string> oldData = currentData.Where(x => x[0] == data[0]).First();
+				List<string> oldData = currentData.Where(x => x[0] == data[0]).FirstOrDefault();
+				if (oldData is null)
+				{
+					FiltersSaved();
+					oldData = currentData.Where(x => x[0] == data[0]).FirstOrDefault();
+					if (oldData is null) return;
+				}
 				int index = currentData.IndexOf(oldData);
+				dtg.SelectedIndex = index;
 				currentData[index] = data.ToList();
 				// Note: It's probably fine, but this code assumes the data you're changing is in the currently selected row.
 				((DataRowView)dtg.SelectedItem).Row.ItemArray = data;

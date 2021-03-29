@@ -413,7 +413,7 @@ namespace A2_Project.ContentWindows
 			{
 				Content = "",
 				Visibility = Visibility.Collapsed,
-				Foreground = new SolidColorBrush(Color.FromRgb(182, 24, 39))
+				Foreground = new SolidColorBrush(Color.FromRgb(222, 24, 39))
 			};
 			stp.Children.Add(lblErrMessage);
 
