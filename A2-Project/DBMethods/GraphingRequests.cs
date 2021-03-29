@@ -12,7 +12,7 @@ namespace A2_Project.DBMethods
 		public static void GetCountOfAppointmentTypes(ref double[][] data, ref string[] headers, DateTime minDate)
 		{
 			string dataQuery = "SELECT Count([Appointment Type ID]) FROM [Appointment] " +
-			$"WHERE [Appointment Date] BETWEEN '{minDate:yyyy-MM-dd}' AND '{DateTime.Now:yyyy-MM-dd}' " +
+			$"WHERE [Appointment Date] BETWEEN '{minDate:yyyy-MM-dd}' AND '{DateTime.Now:yyyy-MM-dd}' AND [Cancelled] = 0" +
 			"GROUP BY [Appointment Type ID] ORDER BY [Appointment Type ID];";
 			data[0] = DBAccess.GetStringsWithQuery(dataQuery).Select(double.Parse).ToArray();
 			headers = DBAccess.GetStringsWithQuery("SELECT [Description] FROM [Appointment Type] ORDER BY [Appointment Type ID];").ToArray();
@@ -21,7 +21,7 @@ namespace A2_Project.DBMethods
 		public static void GetBusinessOfStaff(ref double[][] data, ref string[] headers, DateTime minDate)
 		{
 			string dataQuery = "SELECT Count([Staff ID]) FROM [Appointment] " +
-			$"WHERE [Appointment Date] BETWEEN '{minDate:yyyy-MM-dd}' AND '{DateTime.Now:yyyy-MM-dd}' " +
+			$"WHERE [Appointment Date] BETWEEN '{minDate:yyyy-MM-dd}' AND '{DateTime.Now:yyyy-MM-dd}' AND [Cancelled] = 0 " +
 			"GROUP BY [Staff ID] ORDER BY [Staff ID];";
 			data[0] = DBAccess.GetStringsWithQuery(dataQuery).Select(double.Parse).ToArray();
 			headers = DBAccess.GetStringsWithQuery("SELECT [Staff Name] FROM [Staff] ORDER BY [Staff ID];").ToArray();
@@ -53,7 +53,7 @@ namespace A2_Project.DBMethods
 		public static void GetAppsByDayOfWeek(ref double[][] data, ref string[] headers, DateTime minDate)
 		{
 			string query = "SET DATEFIRST 1; SELECT Count([Appointment ID]) FROM [Appointment] " +
-			$"WHERE [Appointment Date] BETWEEN '{minDate:yyyy-MM-dd}' AND '{DateTime.Now:yyyy-MM-dd}' " +
+			$"WHERE [Appointment Date] BETWEEN '{minDate:yyyy-MM-dd}' AND '{DateTime.Now:yyyy-MM-dd}' AND [Cancelled] = 0 " +
 			"GROUP BY DatePart(WeekDay, [Appointment Date]) ORDER BY DatePart(WeekDay, [Appointment Date]);";
 			data[0] = DBAccess.GetStringsWithQuery(query).Select(x => Convert.ToDouble(x)).ToArray();
 			headers = new string[] { "Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun" };
@@ -65,7 +65,7 @@ namespace A2_Project.DBMethods
 		public static void GetBookingsInMonths(ref double[][] data, ref string[] headers, DateTime minDate)
 		{
 			string query = "SELECT Count([Appointment ID]) FROM [Appointment] " +
-			$"WHERE [Appointment Date] BETWEEN '{DateTime.Now.AddYears(-1):yyyy-MM-dd}' AND '{DateTime.Now:yyyy-MM-dd}' " +
+			$"WHERE [Appointment Date] BETWEEN '{DateTime.Now.AddYears(-1):yyyy-MM-dd}' AND '{DateTime.Now:yyyy-MM-dd}' AND [Cancelled] = 0 " +
 			"GROUP BY DatePart(Month, [Appointment Date]) ORDER BY DatePart(Month, [Appointment Date]);";
 			data[0] = DBAccess.GetStringsWithQuery(query).Select(x => Convert.ToDouble(x)).ToArray();
 			headers = months;
@@ -245,7 +245,7 @@ namespace A2_Project.DBMethods
 				"WHEN [Nails And Teeth] = 'True' THEN 10 " +
 				"ELSE 0 " +
 			"END " +
-			$"FROM [Appointment] WHERE [Paid] = 1 AND [Appointment Date] BETWEEN '{minDate:yyyy-MM-dd}' AND '{maxDate:yyyy-MM-dd}';";
+			$"FROM [Appointment] WHERE [Paid] = 1 AND [Cancelled] = 0 AND [Appointment Date] BETWEEN '{minDate:yyyy-MM-dd}' AND '{maxDate:yyyy-MM-dd}';";
 			List<List<string>> allPriceData = DBAccess.GetListStringsWithQuery(query);
 			double income = 0;
 			foreach (List<string> appData in allPriceData)
