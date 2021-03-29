@@ -212,6 +212,16 @@ namespace A2_Project.DBMethods
 			return false;
 		}
 
+		public static bool IsAppInShift(string[] data, List<BookingCreator> booking)
+		{
+			if (data[9] == "" || data[10] == "") return true;
+			DateTime appDate = DateTime.Parse(data[9]);
+			int dow = ((int)appDate.DayOfWeek + 6) % 7;
+			TimeSpan appStart = TimeSpan.Parse(data[10]);
+			int len = GetAppLength(data, booking);
+			return IsAppInShift(dow, data[3], appStart, appStart.Add(TimeSpan.FromMinutes(len)), appDate);
+		}
+
 		public static bool IsAppInShift(int dow, string staffID, TimeSpan appStart, TimeSpan appEnd, DateTime appDate)
 		{
 			bool isInShift = false;

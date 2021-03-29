@@ -260,6 +260,7 @@ namespace A2_Project.ContentWindows
 
 			CheckIsInitialApp();
 			CheckIsNewApp();
+			CheckIsInShift();
 		}
 
 		#region Programmatic UI Generation
@@ -597,6 +598,14 @@ namespace A2_Project.ContentWindows
 				lblIsNewBooking.Visibility = Visibility.Visible;
 			}
 			else lblIsNewBooking.Visibility = Visibility.Collapsed;
+		}
+
+		private void CheckIsInShift()
+		{
+			if (tableName == "Appointment" && container is CalandarView calView && !DBMethods.MiscRequests.IsAppInShift(selectedData, calView.BookingParts))
+			{
+				DisplayError("This appointment does not fit into staff schedules!");
+			}
 		}
 
 		private void TbxDogId_TextChanged(object sender, TextChangedEventArgs e)

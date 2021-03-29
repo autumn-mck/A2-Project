@@ -613,7 +613,7 @@ namespace A2_Project.ContentWindows
 					DateTime appDate = DateTime.Parse(app[9]);
 					foreach (List<string> shift in staffShiftData)
 					{
-						if (shift[2] != app[11]) continue;
+						if (shift[2] != app[^1]) continue;
 
 						TimeSpan shiftStart = TimeSpan.Parse(shift[3]);
 						TimeSpan shiftEnd = TimeSpan.Parse(shift[4]);
