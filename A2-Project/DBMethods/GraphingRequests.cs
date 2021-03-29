@@ -7,7 +7,6 @@ namespace A2_Project.DBMethods
 	public static class GraphingRequests
 	{
 		private static readonly string[] months = new string[] { "Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec" };
-		private static readonly List<List<string>> appTypeData = MetaRequests.GetAllFromTable("Appointment Type");
 
 		public static void GetCountOfAppointmentTypes(ref double[][] data, ref string[] headers, DateTime minDate)
 		{
@@ -133,7 +132,8 @@ namespace A2_Project.DBMethods
 			DateTime startDate = endDate.AddMonths(-12);
 			for (int i = 0; i < 12; i++)
 			{
-				headers[i] = months[startDate.AddMonths(i).Month - 1];
+				DateTime curDate = startDate.AddMonths(i);
+				headers[i] = months[curDate.Month - 1];
 				// Note: Does not consider if is first booking and booking discount
 				string query = "SELECT " +
 				"CASE " +
@@ -146,7 +146,7 @@ namespace A2_Project.DBMethods
 					"WHEN [Nails And Teeth] = 'True' THEN 10 " +
 					"ELSE 0 " +
 				"END " +
-				$"FROM [Appointment] WHERE [Paid] = 1 AND [Cancelled] = 0 AND [Appointment Date] BETWEEN '{startDate.AddMonths(i):yyyy-MM-dd}' AND '{startDate.AddMonths(i + 1):yyyy-MM-dd}';";
+				$"FROM [Appointment] WHERE [Paid] = 1 AND [Cancelled] = 0 AND DatePart(month, [Appointment Date]) = {curDate.Month} AND DatePart(year, [Appointment Date]) = {curDate.Year};";
 				List<List<string>> dataFromMonth = DBAccess.GetListStringsWithQuery(query);
 				double incomeFromMonth = 0;
 				foreach (List<string> appData in dataFromMonth)
@@ -171,7 +171,8 @@ namespace A2_Project.DBMethods
 			DateTime startDate = endDate.AddMonths(-12);
 			for (int i = 0; i < 12; i++)
 			{
-				headers[i] = months[startDate.AddMonths(i).Month - 1];
+				DateTime curDate = startDate.AddMonths(i);
+				headers[i] = months[curDate.Month - 1];
 				// Note: Does not consider if is first booking and booking discount
 				string query = "SELECT " +
 				"CASE " +
@@ -184,7 +185,7 @@ namespace A2_Project.DBMethods
 					"WHEN [Nails And Teeth] = 'True' THEN 10 " +
 					"ELSE 0 " +
 				"END " +
-				$"FROM [Appointment] WHERE [Paid] = 1 AND [Cancelled] = 0 AND [Appointment Date] BETWEEN '{startDate.AddMonths(i):yyyy-MM-dd}' AND '{startDate.AddMonths(i + 1):yyyy-MM-dd}';";
+				$"FROM [Appointment] WHERE [Paid] = 1 AND [Cancelled] = 0 AND DatePart(month, [Appointment Date]) = {curDate.Month} AND DatePart(year, [Appointment Date]) = {curDate.Year};";
 				List<List<string>> dataFromMonth = DBAccess.GetListStringsWithQuery(query);
 				double incomeFromMonth = 0;
 				foreach (List<string> appData in dataFromMonth)
