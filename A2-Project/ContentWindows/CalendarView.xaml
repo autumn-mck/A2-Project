@@ -32,24 +32,26 @@
 			</Grid>
 			<Grid x:Name="grdBookingSidebar" Visibility="Collapsed" VerticalAlignment="Top" HorizontalAlignment="Left" Margin="0, 0, 0, 0">
 				<Rectangle Fill="#0B0B0B" Height="880" Width="660"/>
-				<StackPanel Orientation="Vertical" VerticalAlignment="Top">
-					<StackPanel Orientation="Vertical" Margin="5">
-						<Label x:Name="lblNewBookingID" Content="Booking ID: "/>
-						<StackPanel x:Name="stpBookDogID" Orientation="Horizontal">
-							<Label Content="Dog ID: &#x9;"/>
+				<ScrollViewer VerticalScrollBarVisibility="Auto" VerticalAlignment="Top" HorizontalAlignment="Center" Height="880">
+					<StackPanel Orientation="Vertical" VerticalAlignment="Top">
+						<StackPanel Orientation="Vertical" Margin="5">
+							<Label x:Name="lblNewBookingID" Content="Booking ID: "/>
+							<StackPanel x:Name="stpBookDogID" Orientation="Horizontal">
+								<Label Content="Dog ID: &#x9;"/>
+							</StackPanel>
+							<StackPanel x:Name="stpBookStaffID" Orientation="Horizontal">
+								<Label Content="Staff Member:  "/>
+							</StackPanel>
+							<StackPanel x:Name="stpBookingManager" Orientation="Vertical">
+							</StackPanel>
 						</StackPanel>
-						<StackPanel x:Name="stpBookStaffID" Orientation="Horizontal">
-							<Label Content="Staff Member:  "/>
-						</StackPanel>
-						<StackPanel x:Name="stpBookingManager" Orientation="Vertical">
-						</StackPanel>
+						<Label Margin="5, -10, 5, 10" Content="+ Add new part to booking" MouseDown="LblAddBookingPart_MouseDown"/>
+						<Label x:Name="lblBookingErr" Visibility="Collapsed" Margin="5" Foreground="#B61827"/>
+						<Grid VerticalAlignment="Bottom" Margin="0, 0, 0, 20">
+							<Button x:Name="btnConfirmBooking" Content="Confirm Booking" VerticalAlignment="Top" HorizontalAlignment="Center" FontSize="24" Click="BtnConfirmBooking_Click"/>
+						</Grid>
 					</StackPanel>
-					<Label Margin="5, -10, 5, 10" Content="+ Add new part to booking" MouseDown="LblAddBookingPart_MouseDown"/>
-					<Label x:Name="lblBookingErr" Visibility="Collapsed" Margin="5" Foreground="#B61827"/>
-				<Grid VerticalAlignment="Bottom" Margin="0, 0, 0, 20">
-					<Button x:Name="btnConfirmBooking" Content="Confirm Booking" VerticalAlignment="Top" HorizontalAlignment="Center" FontSize="24" Click="BtnConfirmBooking_Click"/>
-				</Grid>
-				</StackPanel>
+				</ScrollViewer>
 			</Grid>
 		</StackPanel>
 	</Grid>
