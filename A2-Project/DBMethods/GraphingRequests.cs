@@ -146,7 +146,7 @@ namespace A2_Project.DBMethods
 					"WHEN [Nails And Teeth] = 'True' THEN 10 " +
 					"ELSE 0 " +
 				"END " +
-				$"FROM [Appointment] WHERE [Paid] = 1 AND [Appointment Date] BETWEEN '{startDate.AddMonths(i):yyyy-MM-dd}' AND '{startDate.AddMonths(i + 1):yyyy-MM-dd}';";
+				$"FROM [Appointment] WHERE [Paid] = 1 AND [Cancelled] = 0 AND [Appointment Date] BETWEEN '{startDate.AddMonths(i):yyyy-MM-dd}' AND '{startDate.AddMonths(i + 1):yyyy-MM-dd}';";
 				List<List<string>> dataFromMonth = DBAccess.GetListStringsWithQuery(query);
 				double incomeFromMonth = 0;
 				foreach (List<string> appData in dataFromMonth)
@@ -158,7 +158,7 @@ namespace A2_Project.DBMethods
 					//income += CalculateAppointmentPrice(app.ToArray());
 					incomeFromMonth += appIncome - 43.4;
 				}
-				incomeFromMonth = (incomeFromMonth * 20 + 2500) * 1.3;
+				incomeFromMonth = (incomeFromMonth * 15 + 1000) * 1.3;
 				data[0][i] = incomeFromMonth;
 			}
 		}
@@ -184,7 +184,7 @@ namespace A2_Project.DBMethods
 					"WHEN [Nails And Teeth] = 'True' THEN 10 " +
 					"ELSE 0 " +
 				"END " +
-				$"FROM [Appointment] WHERE [Paid] = 1 AND [Appointment Date] BETWEEN '{startDate.AddMonths(i):yyyy-MM-dd}' AND '{startDate.AddMonths(i + 1):yyyy-MM-dd}';";
+				$"FROM [Appointment] WHERE [Paid] = 1 AND [Cancelled] = 0 AND [Appointment Date] BETWEEN '{startDate.AddMonths(i):yyyy-MM-dd}' AND '{startDate.AddMonths(i + 1):yyyy-MM-dd}';";
 				List<List<string>> dataFromMonth = DBAccess.GetListStringsWithQuery(query);
 				double incomeFromMonth = 0;
 				foreach (List<string> appData in dataFromMonth)
