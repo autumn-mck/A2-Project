@@ -75,6 +75,7 @@ namespace A2_Project.ContentWindows
 			if (container is AllTableManger contactManagement)
 			{
 				contactManagement.DeleteItem();
+				EmptySidebar();
 			}
 			else if (container is CalandarView calanderView)
 			{
@@ -83,6 +84,7 @@ namespace A2_Project.ContentWindows
 			else if (container is ClientManagement cliMan)
 			{
 				cliMan.DeleteItem();
+				EmptySidebar();
 			}
 			else throw new NotImplementedException();
 		}
@@ -96,6 +98,8 @@ namespace A2_Project.ContentWindows
 
 			for (int i = 0; i < columns.Length; i++)
 			{
+				if (displayElements[i] is Label lbl) isAllValid = isAllValid && int.TryParse(lbl.Content.ToString(), out _);
+
 				if (displayElements[i] is ValidatedItem item)
 				{
 					bool isItemValid = item.IsValid;
@@ -248,6 +252,8 @@ namespace A2_Project.ContentWindows
 		{
 			if (data != null)
 				selectedData = data;
+
+			if (data[0] == "No Results!") EmptySidebar();
 
 			for (int i = 0; i < selectedData.Length; i++)
 			{
@@ -515,7 +521,6 @@ namespace A2_Project.ContentWindows
 			// Checks if the entered data is valid before allowing the user to make changes
 			if (IsValid(out _))
 			{
-
 				// Moves the data entered into the text boxes to an array
 				for (int i = 0; i < selectedData.Length; i++)
 				{
