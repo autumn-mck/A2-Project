@@ -156,7 +156,7 @@ namespace A2_Project.ContentWindows
 
 			if (mode == "") return;
 			
-			double notSelMax = 150;
+			double notSelMax = 200;
 			double selMax = 650;
 
 			lblEditBtn.Content = $"Editing {mode}";
@@ -199,7 +199,7 @@ namespace A2_Project.ContentWindows
 
 			if (mode != contactString) dtgContacts.SetMaxHeight(notSelMax);
 			if (mode != dogString) dtgDogs.SetMaxHeight(notSelMax);
-			if (mode != clientString) dtgClients.SetMaxHeight(notSelMax);
+			if (mode != clientString) dtgClients.SetMaxHeight(100);
 		}
 
 		private void UpdateEditingSidebar(string[] newData)
