@@ -33,7 +33,7 @@ namespace A2_Project
 				Conn.Open();
 				return true;
 			}
-			catch
+			catch (Exception ex)
 			{
 				return false;
 			}

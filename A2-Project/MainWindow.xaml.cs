@@ -48,8 +48,6 @@ namespace A2_Project
 		{
 			InitializeComponent();
 
-			//Thread initDBThread = new Thread(InitialiseDBConnection);
-			//initDBThread.Start();
 			InitialiseDBConnection();
 
 			grdButtons = grdMenuButtons.Children.OfType<Grid>().ToArray();

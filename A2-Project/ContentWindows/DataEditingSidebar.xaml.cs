@@ -253,7 +253,7 @@ namespace A2_Project.ContentWindows
 			if (data != null)
 				selectedData = data;
 
-			if (data[0] == "No Results!") EmptySidebar();
+			if (selectedData is not null && selectedData[0] == "No Results!") EmptySidebar();
 
 			for (int i = 0; i < selectedData.Length; i++)
 			{
