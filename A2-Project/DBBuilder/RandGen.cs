@@ -243,9 +243,10 @@ namespace A2_Project.DBBuilder
 		public static int GetRandAppTypeID()
 		{
 			double rand = random.NextDouble();
-			if (rand < 0.5) return 0;
-			else if (rand < 0.8) return 1;
-			else return 2;
+			if (rand < 0.45) return 0;
+			else if (rand < 0.7) return 1;
+			else if (rand < 0.99) return 2;
+			else return 3;
 		}
 
 		public static int GetRandStaffID()

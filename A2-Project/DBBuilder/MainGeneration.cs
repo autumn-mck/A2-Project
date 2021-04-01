@@ -14,7 +14,7 @@ namespace A2_Project.DBBuilder
 		private readonly DateTime startTime = DateTime.Now.AddYears(-5);
 		private DateTime currentSimDate;
 
-		private double[] appLengths = new double[] { 1, 1.5, 2 };
+		private double[] appLengths = new double[] { 1, 1.5, 2 , 1.5};
 		private int[] roomIDs = new int[] { 0, 1, 2 };
 
 		public MainGeneration()
@@ -134,20 +134,36 @@ namespace A2_Project.DBBuilder
 				int prevDiff = 0;
 				for (int i = 0; i < appToMake; i++)
 				{
-					Appointment app = BookAppointment(d, booking.BookingID, prevDiff);
-					booking.Appointments.Add(app);
-					prevDiff = (int)(currentSimDate - app.AppointmentDate).TotalDays;
+					int appTypeID = RandGen.GetRandAppTypeID();
+					if (appTypeID == 3)
+					{
+						int count = random.Next(4, 6);
+						List<Appointment> appts = new List<Appointment>();
+						for (int j = 0; j < count; j++)
+						{
+							int diff = random.Next(15, 30);
+							Appointment app = BookAppointment(d, booking.BookingID, prevDiff + j * diff, appTypeID);
+							appts.Add(app);
+							booking.Appointments.Add(app);
+						}
+						prevDiff = (int)(currentSimDate - appts[0].AppointmentDate).TotalDays;
+					}
+					else
+					{
+						Appointment app = BookAppointment(d, booking.BookingID, prevDiff, appTypeID);
+						booking.Appointments.Add(app);
+						prevDiff = (int)(currentSimDate - app.AppointmentDate).TotalDays;
+					}
 				}
 			}
 			AllData.Bookings.Add(booking);
 		}
 
-		private Appointment BookAppointment(Dog d, int bookingID, int aOffset)
+		private Appointment BookAppointment(Dog d, int bookingID, int aOffset, int appTypeID)
 		{
 			bool isCancelled = random.NextDouble() < 0.1;
 			bool isPaidFor = false;
 
-			int appTypeID = RandGen.GetRandAppTypeID();
 			bool includesNailAndTeeth = random.NextDouble() > 0.6;
 			GetNextAvailableAppointment(d.DogID, WhenTryNextBookOffset(aOffset), appTypeID, includesNailAndTeeth, out bool isInitial, out DateTime date, out TimeSpan time, out int roomID, out int staffID);
 			Appointment a = new Appointment(AllData.Appointments.Count, d.DogID, appTypeID, staffID,
