@@ -306,7 +306,6 @@ namespace A2_Project.DBObjects
 					for (int i = 0; i < textBoxes.Length; i++)
 					{
 						string str = textBoxes[i].Text;
-						// TODO: Decimal etc?
 						values[i] = type switch
 						{
 							"int" => $"{int.Parse(str)}",
