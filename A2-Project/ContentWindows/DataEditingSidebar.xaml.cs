@@ -573,7 +573,7 @@ namespace A2_Project.ContentWindows
 		/// </summary>
 		private void BtnRevert_Click(object sender, RoutedEventArgs e)
 		{
-			// TODO: Does not work after the "save changes" button is clicked.
+			// Note: Does not work after the "save changes" button is clicked.
 			ChangeSelectedData();
 		}
 
