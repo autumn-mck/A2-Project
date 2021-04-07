@@ -52,7 +52,7 @@ namespace A2_Project
 
 			grdButtons = grdMenuButtons.Children.OfType<Grid>().ToArray();
 			// DEBUG: Allows easy access to the content windows. Currently in place to make testing easier
-			// TODO: Remove these
+			// TODO: Remove
 			grdAllTables.MouseDown += GrdAllTables_MouseDown;
 			grdCalander.MouseDown += GrdCalander_MouseDown;
 			grdClientManagement.MouseDown += GrdClientManagement_MouseDown;
