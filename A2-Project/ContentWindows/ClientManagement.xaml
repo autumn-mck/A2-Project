@@ -48,11 +48,13 @@
 				</Style.Resources>
 			</Style>
 		</Grid.Resources>
-		<StackPanel x:Name="stpSelections" Orientation="Vertical" Margin="20, -20, 0, 0" VerticalAlignment="Center">
-			<Label Name="lblClients"/>
-			<Label Name="lblContacts"/>
-			<Label Name="lblDogs"/>
-		</StackPanel>
+		<ScrollViewer HorizontalAlignment="Left" VerticalScrollBarVisibility="Auto">
+			<StackPanel x:Name="stpSelections" Orientation="Vertical" Margin="20, -20, 0, 0" VerticalAlignment="Center">
+				<Label Name="lblClients"/>
+				<Label Name="lblContacts"/>
+				<Label Name="lblDogs"/>
+			</StackPanel>
+		</ScrollViewer>
 		<StackPanel Orientation="Vertical" VerticalAlignment="Center" HorizontalAlignment="Center" Margin="1000, 0, 0, 0" Background="#0B0B0B">
 			<StackPanel Orientation="Horizontal" Panel.ZIndex="1" HorizontalAlignment="Left" VerticalAlignment="Top">
 				<Label x:Name="lblEditBtn" Content="Editing" Background="#404040" Foreground="#F1F1F1" Margin="5" Width="420" HorizontalContentAlignment="Center" MouseDown="LblEditBtn_MouseDown" FontSize="30"/>

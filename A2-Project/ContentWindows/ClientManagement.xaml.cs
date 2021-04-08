@@ -199,7 +199,7 @@ namespace A2_Project.ContentWindows
 
 			if (mode != contactString) dtgContacts.SetMaxHeight(notSelMax);
 			if (mode != dogString) dtgDogs.SetMaxHeight(notSelMax);
-			if (mode != clientString) dtgClients.SetMaxHeight(100);
+			if (mode != clientString) dtgClients.SetMaxHeight(double.NaN);
 		}
 
 		private void UpdateEditingSidebar(string[] newData)
