@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
+using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Input;
@@ -103,7 +104,7 @@ namespace A2_Project.ContentWindows
 
 			Button btnConfirmNewEx = new Button()
 			{
-				Content = " Confirm ",
+				Content = " Submit ",
 				FontSize = 20,
 				HorizontalAlignment  = HorizontalAlignment.Right
 			};
@@ -127,13 +128,15 @@ namespace A2_Project.ContentWindows
 			shiftException = null;
 		}
 
-		private void BtnConfirmNewEx_Click(object sender, RoutedEventArgs e)
+		private async void BtnConfirmNewEx_Click(object sender, RoutedEventArgs e)
 		{
+			Button btnConfirmNewEx = (Button)sender;
 			ComboBox cbxNewExStaff = stpNewExc.Children.OfType<ComboBox>().First();
 			ValidatedDatePicker[] dates = stpNewExc.Children.OfType<ValidatedDatePicker>().ToArray();
 
 			if (dates[0].IsValid && dates[1].IsValid && dates[0].SelectedDate <= dates[1].SelectedDate)
 			{
+				btnConfirmNewEx.Content = " Submitted! ";
 				string[] newData = new string[4];
 				newData[0] = MiscRequests.GetMinKeyNotUsed("Shift Exception", "Shift Exception ID");
 				newData[1] = cbxNewExStaff.SelectedIndex.ToString();
@@ -143,6 +146,8 @@ namespace A2_Project.ContentWindows
 				DBAccess.UpdateTable("Shift Exception", shiftExcColumns.Select(c => c.Name).ToArray(), newData, true);
 
 				UpdateShiftExcs();
+				await Task.Delay(2000);
+				btnConfirmNewEx.Content = " Submit ";
 			}
 		}
 
