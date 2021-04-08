@@ -120,8 +120,6 @@ namespace A2_Project.ContentWindows
 			
 				string sql = ConstructSQL(filterText, tablesReferenced);
 
-				//MessageBox.Show(sql);
-
 				currentData = DBMethods.DBAccess.GetListStringsWithQuery(sql);
 
 				DtgMethods.CreateTable(currentData, tableName, ref dtg, columns, ref dataTable, true);

@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
+using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Input;
@@ -1112,7 +1113,7 @@ namespace A2_Project.ContentWindows
 			SwitchToEditing();
 		}
 
-		private void BtnConfirmBooking_Click(object sender, RoutedEventArgs e)
+		private async void BtnConfirmBooking_Click(object sender, RoutedEventArgs e)
 		{
 			string[] bookingColumns = DBObjects.DB.Tables.Where(t => t.Name == "Booking").First().Columns.Select(x => x.Name).ToArray();
 			string[] bookingData = new string[] { GetNewBookingID(), DateTime.Now.Date.ToString("yyyy-MM-dd") };
@@ -1170,6 +1171,12 @@ namespace A2_Project.ContentWindows
 			lblNewBookingID.Content = $"Booking ID: {DBMethods.MiscRequests.GetMinKeyNotUsed("Booking", "Booking ID")}";
 			stpBookingManager.Children.Clear();
 			BookingParts = new List<BookingCreator>();
+
+			// TODO: Invalid parts are just skipped over???
+
+			btnConfirmBooking.Content = "Booking Made!";
+			await Task.Delay(2000);
+			btnConfirmBooking.Content = "Confirm Booking";
 		}
 
 		public string GetNewBookingID()
