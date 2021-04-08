@@ -98,11 +98,18 @@ namespace A2_Project.ContentWindows
 
 			for (int i = 0; i < columns.Length; i++)
 			{
-				if (displayElements[i] is Label lbl) isAllValid = isAllValid && int.TryParse(lbl.Content.ToString(), out _);
+				bool isItemValid;
+
+				if (displayElements[i] is Label lbl)
+				{
+					isItemValid = int.TryParse(lbl.Content.ToString(), out _);
+					isAllValid = isAllValid && isItemValid;
+				}
+
 
 				if (displayElements[i] is ValidatedItem item)
 				{
-					bool isItemValid = item.IsValid;
+					isItemValid = item.IsValid;
 
 					try
 					{
@@ -140,6 +147,16 @@ namespace A2_Project.ContentWindows
 			for (int i = 0; i < columns.Length; i++)
 			{
 				string instErr = "";
+
+				if (displayElements[i] is Label lbl)
+				{
+					if (!int.TryParse(lbl.Content.ToString(), out _))
+					{
+						if (container is CalandarView) instErr = "\nError: This appointment does not exist!\nPlease use the \"Booking\" tab to book a new appointment.";
+						else instErr = "\nError: This item does not exist!\nUse the \"Add New\" button to add a new item!";
+					}
+				}
+
 				if (displayElements[i] is ValidatedItem item)
 				{
 					if (item.IsValid) continue;
