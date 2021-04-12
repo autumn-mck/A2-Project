@@ -14,8 +14,8 @@ namespace A2_Project.DBBuilder
 		private readonly DateTime startTime = DateTime.Now.AddYears(-5);
 		private DateTime currentSimDate;
 
-		private double[] appLengths = new double[] { 1, 1.5, 2 , 1.5};
-		private int[] roomIDs = new int[] { 0, 1, 2 };
+		private readonly double[] appLengths = new double[] { 1, 1.5, 2 , 1.5};
+		private readonly int[] roomIDs = new int[] { 0, 1, 2 };
 
 		public MainGeneration()
 		{
@@ -39,12 +39,12 @@ namespace A2_Project.DBBuilder
 
 		}
 
-		public string GetSQL()
+		public static string GetSQL()
 		{
 			return AllData.GetSQL();
 		}
 
-		public void WriteToFile()
+		public static void WriteToFile()
 		{
 			AllData.WriteSQLToFile();
 		}
@@ -190,7 +190,7 @@ namespace A2_Project.DBBuilder
 			return offset;
 		}
 
-		private bool IsWeekend(DateTime date)
+		private static bool IsWeekend(DateTime date)
 		{
 			DayOfWeek d = date.DayOfWeek;
 			if (d == DayOfWeek.Saturday) return true;
@@ -219,11 +219,11 @@ namespace A2_Project.DBBuilder
 				List<Appointment> appOnDate = AllData.Appointments.Where(a => a.AppointmentDate.Date == dateConsid && !a.IsCancelled).ToList();
 				for (int minuteOffset = (int)(startTime * 60); minuteOffset < endTime * 60; minuteOffset += 15)
 				{
-					isInitial = AllData.Appointments.Where(a =>
+					isInitial = !AllData.Appointments.Where(a =>
 						!a.IsCancelled &&
 						a.DogID == dogID &&
 						a.AppointmentDate <= dateConsid
-						).Count() == 0;
+						).Any();
 
 					int appLength = GetAppLength(appTypeID, includesNailAndTeeth, isInitial);
 					if (appLength + minuteOffset > endTime * 60) break;

@@ -16,9 +16,9 @@ namespace A2_Project.ContentWindows
 		private DataTable table;
 		private List<List<string>> data;
 		private string[][] contactData;
-		private string[] columns = { "Booking ID", "ID", "Dog", "App Type", "Staff", "Nails and Teeth", "Date", "Time", "Price" };
+		private readonly string[] columns = { "Booking ID", "ID", "Dog", "App Type", "Staff", "Nails and Teeth", "Date", "Time", "Price" };
 
-		ValidatedTextbox tbxClientID;
+		private readonly ValidatedTextbox tbxClientID;
 
 		public InvoiceManagement()
 		{

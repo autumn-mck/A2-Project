@@ -7,8 +7,8 @@ namespace A2_Project.UserControls
 {
 	public class ValidatedDatePicker : ValidatedItem
 	{
-		private CustomizableDatePicker datePicker;
-		private double scale = 1.5;
+		private readonly CustomizableDatePicker datePicker;
+		private readonly double scale = 1.5;
 
 		public override string Text 
 		{

@@ -8,7 +8,7 @@ namespace A2_Project.DBMethods
 {
 	public static class MiscRequests
 	{
-		public static List<List<string>> AppTypes;
+		public static List<List<string>> AppTypes { get; set; }
 
 		public static void UpdateColumn(string table, string newData, string columnToUpdate, string idColumn, string id)
 		{

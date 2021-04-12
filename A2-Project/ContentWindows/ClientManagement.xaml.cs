@@ -13,18 +13,18 @@ namespace A2_Project.ContentWindows
 	{
 		private bool shouldUpdate = true;
 
-		private FilterableDataGrid dtgContacts;
-		private DBObjects.Column[] contactsColumns;
+		private readonly FilterableDataGrid dtgContacts;
+		private readonly DBObjects.Column[] contactsColumns;
 		private DataEditingSidebar contactEditing;
 		private DataEditingSidebar contactAdding;
 
-		private FilterableDataGrid dtgDogs;
-		private DBObjects.Column[] dogsColumns;
+		private readonly FilterableDataGrid dtgDogs;
+		private readonly DBObjects.Column[] dogsColumns;
 		private DataEditingSidebar dogsEditing;
 		private DataEditingSidebar dogsAdding;
 
-		private FilterableDataGrid dtgClients;
-		private DBObjects.Column[] clientsColumns;
+		private readonly FilterableDataGrid dtgClients;
+		private readonly DBObjects.Column[] clientsColumns;
 		private DataEditingSidebar clientsEditing;
 		private DataEditingSidebar clientsAdding;
 

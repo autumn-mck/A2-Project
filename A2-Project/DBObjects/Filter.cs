@@ -13,19 +13,19 @@ namespace A2_Project.DBObjects
 		public Panel Panel { get; set; }
 		public StackPanel stpFilter;
 
-		private FilterManager parent;
+		private readonly FilterManager parent;
 
-		private Column[] columns;
+		private readonly Column[] columns;
 		private Column currentColumn;
 
-		private ComboBox cbxFilterType;
+		private readonly ComboBox cbxFilterType;
 
 		private Panel filterPanel;
 		private StackPanel textEntry;
 
 		private TextBox[] textBoxes;
 
-		private int layerLevel;
+		private readonly int layerLevel;
 
 		private bool shouldUpdate = true;
 

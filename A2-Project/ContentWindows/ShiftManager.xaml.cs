@@ -20,14 +20,14 @@ namespace A2_Project.ContentWindows
 	{
 		private bool toExit = false;
 
-		private double dayStart = 8;
-		private double dayEnd = 19;
-		private double dayWidth = 45;
-		private double hourHeight = 38;
+		private readonly double dayStart = 8;
+		private readonly double dayEnd = 19;
+		private readonly double dayWidth = 45;
+		private readonly double hourHeight = 38;
 
-		private Color[] colours;
+		private readonly Color[] colours;
 
-		private double resizeHeight = 20;
+		private readonly double resizeHeight = 20;
 
 		private int resizeDir = 0;
 
@@ -38,8 +38,8 @@ namespace A2_Project.ContentWindows
 		private Point diffMouseAndElem;
 		private Point mousePos;
 
-		private DBObjects.Column[] shiftColumns;
-		private DBObjects.Column[] shiftExcColumns;
+		private readonly DBObjects.Column[] shiftColumns;
+		private readonly DBObjects.Column[] shiftExcColumns;
 
 		public ShiftManager()
 		{
@@ -347,7 +347,7 @@ namespace A2_Project.ContentWindows
 		{
 			string[] data = new string[5];
 			data[0] = from.Tag.ToString();
-			data[1] = ((Panel)from.Parent).Name.Substring(6);
+			data[1] = ((Panel)from.Parent).Name[6..];
 			data[2] = ((int)Math.Round(from.Margin.Left / dayWidth)).ToString();
 			TimeSpan start = TimeSpan.FromHours((from.Margin.Top + resizeHeight / 2) / hourHeight + dayStart);
 			TimeSpan end = start.Add(TimeSpan.FromHours((from.Height - resizeHeight) / hourHeight));
@@ -437,7 +437,7 @@ namespace A2_Project.ContentWindows
 			return grdResults;
 		}
 
-		private string IntToDOWStr(int index)
+		private static string IntToDOWStr(int index)
 		{
 			string[] dow = new string[] { "Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun" };
 			return dow[index];
@@ -492,7 +492,7 @@ namespace A2_Project.ContentWindows
 				if (currentlySelected is Grid grdSel)
 				{
 					Rectangle r = grdSel.Children.OfType<Rectangle>().Where(r => r.Name == "rctBase").First();
-					r.Fill = new SolidColorBrush(colours[Convert.ToInt32(grdSender.Name.Substring(6))]);
+					r.Fill = new SolidColorBrush(colours[Convert.ToInt32(grdSender.Name[6..])]);
 				}
 
 				grdSender.Children.Add(currentlySelected);

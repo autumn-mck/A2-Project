@@ -11,8 +11,8 @@ namespace A2_Project.UserControls
 	/// </summary>
 	public partial class ShiftException : UserControl
 	{
-		private DBObjects.Column[] columns;
-		private ContentWindows.ShiftManager container;
+		private readonly DBObjects.Column[] columns;
+		private readonly ContentWindows.ShiftManager container;
 
 		private string[] prevData;
 

@@ -7,7 +7,7 @@ namespace A2_Project
 	/// </summary>
 	public static class FileAccess
 	{
-		private static string dataLocation = Directory.GetCurrentDirectory() + "\\Resources\\";
+		private static readonly string dataLocation = Directory.GetCurrentDirectory() + "\\Resources\\";
 
 		/// <param name="file">The name of the file to be opened</param>
 		/// <returns>The contents of the file as a string</returns>

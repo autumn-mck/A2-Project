@@ -65,9 +65,9 @@ namespace A2_Project
 		/// <returns>The key that was generated</returns>
 		public static string Send2FAEmail(string recipient)
 		{
-			// TODO: Body of 2FA email should be proper HTML, and contain more than just the key itself
+			// Note: Ideally, the body of a 2FA email should be proper HTML, and contain more than just the key itself
 			string key = GenerateRandomKey();
-			SendEmail(recipient, "Authentication Email", key);
+			SendEmail(recipient, "Authentication Email", "One time authentication key: " + key);
 			return key;
 		}
 		#endregion 2FA
@@ -242,8 +242,8 @@ namespace A2_Project
 				body += "</tr>";
 			}
 			body += @"<tr class=""item last"">";
-			for (int j = 0; j < tableArr[tableArr.Length - 1].Length; j++)
-				body += String.Format("<td>{0}</td>", tableArr[tableArr.Length - 1][j]);
+			for (int j = 0; j < tableArr[^1].Length; j++)
+				body += String.Format("<td>{0}</td>", tableArr[^1][j]);
 			body += "</tr></table>";
 			body += @"
 		</div>
@@ -326,11 +326,11 @@ namespace A2_Project
 				for (int j = 0; j < tableArr[i].Length; j++)
 					body += String.Format("<td>{0}</td>", tableArr[i][j]);
 				body += "</tr>";
-				total += Convert.ToDouble(tableArr[i][^1].Substring(1));
+				total += Convert.ToDouble(tableArr[i][^1][1..]);
 			}
 			body += @"<tr class=""item last"">";
-			for (int j = 0; j < tableArr[tableArr.Length - 1].Length; j++)
-				body += String.Format("<td>{0}</td>", tableArr[tableArr.Length - 1][j]);
+			for (int j = 0; j < tableArr[^1].Length; j++)
+				body += String.Format("<td>{0}</td>", tableArr[^1][j]);
 			body += "</tr></table>";
 			body += String.Format(@"<table cellpadding=""0"" cellspacing=""0""><tr class=""total""><td></td><td>Total: £{0}</td></tr>", total);
 			body += @"

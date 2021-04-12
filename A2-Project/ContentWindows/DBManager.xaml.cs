@@ -7,7 +7,7 @@ namespace A2_Project.ContentWindows
 	/// </summary>
 	public partial class DBManager : Window
 	{
-		DBBuilder.MainGeneration generator = new DBBuilder.MainGeneration();
+		private readonly DBBuilder.MainGeneration generator = new DBBuilder.MainGeneration();
 
 		public DBManager()
 		{
@@ -404,7 +404,7 @@ INSERT INTO [Shift] VALUES (
 			if (!int.TryParse(tbxSeed.Text, out int seed))
 				seed = 6;
 			generator.Run(seed);
-			string exc = generator.GetSQL();
+			string exc = DBBuilder.MainGeneration.GetSQL();
 			DBMethods.DBAccess.ExecuteNonQuery(exc);
 			MessageBox.Show("Done!");
 		}

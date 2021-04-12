@@ -11,8 +11,8 @@ namespace A2_Project.UserControls
 	/// </summary>
 	public abstract partial class ValidatedItem : UserControl
 	{
-		private static BitmapImage invalidImage = new BitmapImage(new Uri(Directory.GetCurrentDirectory() + "/Resources/circle-invalid.png"));
-		private static BitmapImage validImage = new BitmapImage(new Uri(Directory.GetCurrentDirectory() + "/Resources/circle-valid.png"));
+		private static readonly BitmapImage invalidImage = new BitmapImage(new Uri(Directory.GetCurrentDirectory() + "/Resources/circle-invalid.png"));
+		private static readonly BitmapImage validImage = new BitmapImage(new Uri(Directory.GetCurrentDirectory() + "/Resources/circle-valid.png"));
 
 		public DBObjects.Column Column { get; set; }
 

@@ -98,7 +98,7 @@ namespace A2_Project.ContentWindows
 			}
 		}
 
-		private bool IsNameTaken(string name)
+		private static bool IsNameTaken(string name)
 		{
 			return DBMethods.LogRegRequests.IsNameTaken(name);
 		}

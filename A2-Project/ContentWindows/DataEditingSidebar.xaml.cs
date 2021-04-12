@@ -23,8 +23,8 @@ namespace A2_Project.ContentWindows
 		private Label lblIsNewBooking;
 		private Label lblErrMessage;
 
-		private TextBlock tbcErr1;
-		private TextBlock tbcErr2;
+		private readonly TextBlock tbcErr1;
+		private readonly TextBlock tbcErr2;
 
 		Grid grdEditMode;
 		Grid grdAddMode;

@@ -11,12 +11,12 @@ namespace A2_Project.DBBuilder
 
 		private static Random random = new Random(0);
 
-		private static List<Surname> surnames = new List<Surname>();
+		private static readonly List<Surname> surnames = new List<Surname>();
 		private static List<string> maleForenames = new List<string>();
 		private static List<string> femaleForenames = new List<string>();
 		private static List<string> streetNames = new List<string>();
-		private static List<string> townNames = new List<string>();
-		private static List<string> countyNames = new List<string>();
+		private static readonly List<string> townNames = new List<string>();
+		private static readonly List<string> countyNames = new List<string>();
 
 		private static List<string> femaleDogNames = new List<string>();
 		private static List<string> maleDogNames = new List<string>();
@@ -167,8 +167,7 @@ namespace A2_Project.DBBuilder
 
 		public static string GenPostcode()
 		{
-			string pattern = @"^(([A-Z]{1,2}\d[A-Z\d]?|ASCN|STHL|TDCU|BBND|[BFS]IQQ|PCRN|TKCA) ?\d[A-Z]{2}|BFPO ?\d{1,4}|(KY\d|MSR|VG|AI)[ -]?\d{4}|[A-Z]{2} ?\d{2}|GE ?CX|GIR ?0A{2}|SAN ?TA1)$";
-			pattern = @"(GIR 0AA)|((([A-Z-[QVX]][0-9][0-9]?)|(([A-Z-[QVX]][A-Z-[IJZ]][0-9][0-9]?)|(([A-Z-[QVX]][0-9][A-HJKSTUW])|([A-Z-[QVX]][A-Z-[IJZ]][0-9][ABEHMNPRVWXY])))) [0-9][A-Z-[CIKMOV]]{2})";
+			string pattern = @"(GIR 0AA)|((([A-Z-[QVX]][0-9][0-9]?)|(([A-Z-[QVX]][A-Z-[IJZ]][0-9][0-9]?)|(([A-Z-[QVX]][0-9][A-HJKSTUW])|([A-Z-[QVX]][A-Z-[IJZ]][0-9][ABEHMNPRVWXY])))) [0-9][A-Z-[CIKMOV]]{2})";
 			Regex rg = new Regex(pattern);
 			string toConsider;
 			do

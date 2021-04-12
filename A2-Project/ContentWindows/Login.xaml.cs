@@ -65,7 +65,7 @@ namespace A2_Project.ContentWindows
 		/// <summary>
 		/// Checks if the name and password passed in are both true.
 		/// </summary>
-		public bool IsLoginDataCorrect(string _name, string _password)
+		private static bool IsLoginDataCorrect(string _name, string _password)
 		{
 			return DBMethods.LogRegRequests.IsLoginDataCorrect(_name, _password);
 		}

@@ -15,11 +15,11 @@ namespace A2_Project.UserControls
 	{
 		private List<Filter> filters = new List<Filter>();
 
-		private Column[] columns;
+		private readonly Column[] columns;
 
-		private int layerLevel;
+		private readonly int layerLevel;
 
-		private object container;
+		private readonly object container;
 
 		public FilterManager(Column[] _columns, object _container, int _layerLevel = 0)
 		{

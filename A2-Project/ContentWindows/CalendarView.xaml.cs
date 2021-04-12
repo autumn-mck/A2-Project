@@ -47,14 +47,14 @@ namespace A2_Project.ContentWindows
 		private bool toExit = false;
 
 		// The date picker used for selecting a week to display
-		private DatePicker datePicker;
+		private readonly DatePicker datePicker;
 		// The name of the appointment table
 		private readonly string tableName = "Appointment";
 		// The columns of the appointment table
-		private DBObjects.Column[] columns;
+		private readonly DBObjects.Column[] columns;
 
 		// The sidebar used for editing the selected appointment
-		private DataEditingSidebar editingSidebar;
+		private readonly DataEditingSidebar editingSidebar;
 
 		// The text of the appointment key labels
 		private string[] keyLabels;
@@ -66,7 +66,7 @@ namespace A2_Project.ContentWindows
 		// Used to store if the user has just moved to the previous/next week
 		private bool hasMoved = false;
 
-		private List<FrameworkElement> labelElements = new List<FrameworkElement>();
+		private readonly List<FrameworkElement> labelElements = new List<FrameworkElement>();
 
 		private ItemSelectionWindow selSpecificAppWindow;
 
@@ -106,8 +106,8 @@ namespace A2_Project.ContentWindows
 			stpBookStaffID.Children.Add(cmbBkStaff);
 
 			// Start the thread for moving the selected element to the mouse when needed
-			Thread loopThread = new Thread(Loop);
-			loopThread.IsBackground = true;
+			Thread loopThread = new Thread(Loop)
+			{ IsBackground = true };
 			loopThread.Start();
 
 			// Create a DatePicker used for selecting a date to display
@@ -530,14 +530,14 @@ namespace A2_Project.ContentWindows
 			newMargin.Top = Math.Min((dayEndTime + 1 - dayStartTime) * hourHeight - elem.Height, newMargin.Top);
 		}
 
-		private string[] GetDataTag(FrameworkElement r)
+		private static string[] GetDataTag(FrameworkElement r)
 		{
 			if (r.Tag is string[] strArr) return strArr;
 			else if (r.Tag is BookingCreator booking)
 			{
 				if (r.Name.Length < 2)
 					throw new NotImplementedException();
-				return booking.GetData()[Convert.ToInt32(r.Name.Substring(1))];
+				return booking.GetData()[Convert.ToInt32(r.Name[1..])];
 			}
 			else if (r.Tag is null) return null;
 			else throw new NotImplementedException();
@@ -687,7 +687,7 @@ namespace A2_Project.ContentWindows
 				data[5] = roomID.ToString();
 				data[9] = appDate.ToString("yyyy-MM-dd");
 				data[10] = t.ToString("hh\\:mm");
-				booking.SetData(data, r.Name.Substring(1));
+				booking.SetData(data, r.Name[1..]);
 				editingSidebar.ChangeSelectedData(data);
 			}
 			else throw new NotImplementedException();
@@ -1141,7 +1141,7 @@ namespace A2_Project.ContentWindows
 						if (doesInstClash || !isInstDataValid) totalErrMessage += $"Appointment {bk[0]}:\n";
 
 						if (doesInstClash) totalErrMessage += errMessage + "\n";
-						if (!isInstDataValid) totalErrMessage += err2Message.Substring(1) + "\n";
+						if (!isInstDataValid) totalErrMessage += err2Message[1..] + "\n";
 					}
 				}
 			}
@@ -1162,7 +1162,7 @@ namespace A2_Project.ContentWindows
 					foreach (string[] bk in bkData)
 					{
 						DBMethods.DBAccess.UpdateTable("Appointment", columns.Select(c => c.Name).ToArray(), bk, true);
-						Rectangle rect = grdResults.Children.OfType<Rectangle>().Where(r => r.Name is not null && r.Name != "" && bkData[Convert.ToInt32(r.Name.Substring(1))] == bk).FirstOrDefault();
+						Rectangle rect = grdResults.Children.OfType<Rectangle>().Where(r => r.Name is not null && r.Name != "" && bkData[Convert.ToInt32(r.Name[1..])] == bk).FirstOrDefault();
 						if (rect is not null) rect.Tag = bk;
 					}
 				}
@@ -1172,8 +1172,6 @@ namespace A2_Project.ContentWindows
 			stpBookingManager.Children.Clear();
 			BookingParts = new List<BookingCreator>();
 
-			// TODO: Invalid parts are just skipped over???
-
 			btnConfirmBooking.Content = "Booking Made!";
 			await Task.Delay(2000);
 			btnConfirmBooking.Content = "Confirm Booking";
@@ -1181,7 +1179,7 @@ namespace A2_Project.ContentWindows
 
 		public string GetNewBookingID()
 		{
-			return lblNewBookingID.Content.ToString().Substring(11);
+			return lblNewBookingID.Content.ToString()[11..];
 		}
 
 		public string GetBookingDogID()

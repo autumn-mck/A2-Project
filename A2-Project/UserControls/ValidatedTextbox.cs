@@ -7,7 +7,7 @@ namespace A2_Project.UserControls
 {
 	public class ValidatedTextbox : ValidatedItem
 	{
-		private TextBox tbx;
+		private readonly TextBox tbx;
 		public override string Text
 		{
 			get
@@ -23,7 +23,7 @@ namespace A2_Project.UserControls
 			}
 		}
 
-		private bool isFKey;
+		private readonly bool isFKey;
 
 		public ValidatedTextbox(DBObjects.Column column) : base (column)
 		{
