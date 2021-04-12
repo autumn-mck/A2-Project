@@ -23,9 +23,9 @@ namespace A2_Project
 			SqlConnectionStringBuilder scStrBuild = new SqlConnectionStringBuilder
 			{
 				DataSource = "(LocalDB)\\MSSQLLocalDB",
-				IntegratedSecurity = true
+				IntegratedSecurity = true,
+				AttachDBFilename = Directory.GetCurrentDirectory() + "\\DogCareDB.mdf"
 			};
-			scStrBuild.AttachDBFilename = Directory.GetCurrentDirectory() + "\\DogCareDB.mdf";
 			string scStr = scStrBuild.ToString();
 			Conn = new SqlConnection(scStr);
 			// Try to connect to the database. If a connection cannot be made, something has probably gone badly wrong

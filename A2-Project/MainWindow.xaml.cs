@@ -52,11 +52,11 @@ namespace A2_Project
 		private DBManager dbManager;
 		private readonly Login loginWindow;
 
-		private SolidColorBrush notHighlighted = new SolidColorBrush(Color.FromRgb(161, 161, 161));
-		private SolidColorBrush highlighted = new SolidColorBrush(Color.FromRgb(250, 250, 250));
-		private SolidColorBrush selected = new SolidColorBrush(Color.FromRgb(33, 150, 243));
+		private readonly SolidColorBrush notHighlighted = new SolidColorBrush(Color.FromRgb(161, 161, 161));
+		private readonly SolidColorBrush highlighted = new SolidColorBrush(Color.FromRgb(250, 250, 250));
+		private readonly SolidColorBrush selected = new SolidColorBrush(Color.FromRgb(33, 150, 243));
 
-		private Grid[] grdButtons;
+		private readonly Grid[] grdButtons;
 
 		public MainWindow()
 		{
@@ -288,8 +288,8 @@ namespace A2_Project
 		#region MouseDown Events
 		private void GrdToggleMenu_MouseDown(object sender, MouseButtonEventArgs e)
 		{
-			Thread thread = new Thread(MenuTransition);
-			thread.IsBackground = true;
+			Thread thread = new Thread(MenuTransition)
+			{ IsBackground = true };
 			thread.Start();
 		}
 
