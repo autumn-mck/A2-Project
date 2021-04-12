@@ -5,7 +5,7 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:A2_Project"
         mc:Ignorable="d"
-        Title="MainWindow" Height="1096" Width="1936" Background="#151515" Closing="Window_Closing" WindowStartupLocation="CenterScreen" ContentRendered="Window_ContentRendered">
+        Title="Log-in Window" Height="1096" Width="1936" Background="#151515" Closing="Window_Closing" WindowStartupLocation="CenterScreen" ContentRendered="Window_ContentRendered" WindowState="Maximized">
 	<Viewbox Stretch="UniformToFill" HorizontalAlignment="Left">
 		<Grid HorizontalAlignment="Left" Width="1936" Height="1080">
 			<Grid Width="1876" Margin="60,0,0,0">

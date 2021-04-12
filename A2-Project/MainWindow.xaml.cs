@@ -97,6 +97,7 @@ namespace A2_Project
 			this.SourceInitialized += Window_SourceInitialized;
 		}
 
+		#region Resizing
 		[StructLayout(LayoutKind.Sequential)]
 		internal struct WINDOWPOS
 		{
@@ -178,6 +179,7 @@ namespace A2_Project
 
 			return IntPtr.Zero;
 		}
+		#endregion Resizing
 
 		private void InitialiseDBConnection()
 		{
@@ -188,7 +190,11 @@ namespace A2_Project
 				DBMethods.DBAccess.Db = db;
 			}
 			// Lets the user know if there is an error connecting to the database
-			else MessageBox.Show("Database Connection Unsuccessful.", "Error");
+			else
+			{
+				MessageBox.Show("Database Connection Unsuccessful.", "Error");
+				Application.Current.Shutdown();
+			}
 
 			DBObjects.DB.Initialise();
 		}
@@ -250,6 +256,11 @@ namespace A2_Project
 			grdClientManagement.MouseDown += GrdClientManagement_MouseDown;
 			grdAddStaff.MouseDown += GrdAddStaff_MouseDown;
 			grdViewStats.MouseDown += GrdViewStats_MouseDown;
+			grdInvoiceManagement.MouseDown += GrdInvoiceManagement_MouseDown;
+			grdShift.MouseDown += GrdShift_MouseDown;
+			grdDBManagement.MouseDown += GrdDBManagement_MouseDown;
+
+			GrdCalander_MouseDown(null, null);
 		}
 
 		#region Events
@@ -287,6 +298,7 @@ namespace A2_Project
 			if (calWindow is null)
 				calWindow = new CalandarView() { Owner = this };
 			lblContents.Content = calWindow.Content;
+			Title = "Calendar Window";
 		}
 
 		private void GrdAllTables_MouseDown(object sender, MouseButtonEventArgs e)
@@ -294,6 +306,7 @@ namespace A2_Project
 			if (allTableManager is null)
 				allTableManager = new AllTableManger() { Owner = this };
 			lblContents.Content = allTableManager.Content;
+			Title = "Manage All Tables Window";
 		}
 
 		private void GrdClientManagement_MouseDown(object sender, MouseButtonEventArgs e)
@@ -301,6 +314,7 @@ namespace A2_Project
 			if (cliWindow is null)
 				cliWindow = new ClientManagement() { Owner = this };
 			lblContents.Content = cliWindow.Content;
+			Title = "Client Management Window";
 		}
 
 		private void GrdAddStaff_MouseDown(object sender, MouseButtonEventArgs e)
@@ -308,6 +322,7 @@ namespace A2_Project
 			if (regWindow is null)
 				regWindow = new RegStaff() { Owner = this };
 			lblContents.Content = regWindow.Content;
+			Title = "Staff Registration Window";
 		}
 
 		private void GrdViewStats_MouseDown(object sender, MouseButtonEventArgs e)
@@ -315,6 +330,7 @@ namespace A2_Project
 			if (statsWindow is null)
 				statsWindow = new Stats() { Owner = this };
 			lblContents.Content = statsWindow.Content;
+			Title = "Statistics Window";
 		}
 
 		private void GrdInvoiceManagement_MouseDown(object sender, MouseButtonEventArgs e)
@@ -322,6 +338,7 @@ namespace A2_Project
 			if (invoiceWindow is null)
 				invoiceWindow = new InvoiceManagement() { Owner = this };
 			lblContents.Content = invoiceWindow.Content;
+			Title = "Invoice Management Window";
 		}
 
 		private void GrdShift_MouseDown(object sender, MouseButtonEventArgs e)
@@ -329,6 +346,7 @@ namespace A2_Project
 			if (shiftWindow is null)
 				shiftWindow = new ShiftManager() { Owner = this };
 			lblContents.Content = shiftWindow.Content;
+			Title = "Shift Management Window";
 		}
 
 		private void GrdDBManagement_MouseDown(object sender, MouseButtonEventArgs e)
@@ -336,6 +354,7 @@ namespace A2_Project
 			if (dbManager is null)
 				dbManager = new DBManager() { Owner = this };
 			lblContents.Content = dbManager.Content;
+			Title = "Database Management Window";
 		}
 		#endregion MouseDown Events
 		#endregion Events

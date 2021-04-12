@@ -5,7 +5,7 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:A2_Project.ContentWindows"
         mc:Ignorable="d"
-        Title="ItemSelectionWindow" Background="#151515" SizeToContent="WidthAndHeight" MinWidth="500" Closing="Window_Closing">
+        Title="Item Selection Window" Background="#151515" SizeToContent="WidthAndHeight" MinWidth="500" Closing="Window_Closing" ResizeMode="CanMinimize">
 	<StackPanel x:Name="stp" Orientation="Vertical" HorizontalAlignment="Left" VerticalAlignment="Top">
 		<Label Name="lblDtg" VerticalAlignment="Top" HorizontalAlignment="Left"/>
 	</StackPanel>

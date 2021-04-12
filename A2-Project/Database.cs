@@ -2,6 +2,7 @@
 using System.Data.SqlClient;
 using System.IO;
 using System.Threading.Tasks;
+using System.Windows;
 
 namespace A2_Project
 {
@@ -35,6 +36,7 @@ namespace A2_Project
 			}
 			catch (Exception ex)
 			{
+				MessageBox.Show(ex.ToString());
 				return false;
 			}
 		}
