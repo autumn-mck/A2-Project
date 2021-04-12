@@ -320,7 +320,7 @@ namespace A2_Project.UserControls
 				{
 					Name = "lblErr",
 					Visibility = Visibility.Collapsed,
-					Foreground = new SolidColorBrush(Color.FromRgb(100, 62, 66))
+					Foreground = new SolidColorBrush(Color.FromRgb(220, 62, 66))
 				};
 				stpContent.Children.Add(lblErr);
 

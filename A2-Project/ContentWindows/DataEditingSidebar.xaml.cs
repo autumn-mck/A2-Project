@@ -272,6 +272,12 @@ namespace A2_Project.ContentWindows
 
 			if (selectedData is not null && selectedData[0] == "No Results!") EmptySidebar();
 
+			if (data[0] == "")
+			{
+				EmptySidebar();
+				return;
+			}
+
 			for (int i = 0; i < selectedData.Length; i++)
 			{
 				if (displayElements[i] is Label l) l.Content = selectedData[i];
