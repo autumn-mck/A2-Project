@@ -624,9 +624,12 @@ namespace A2_Project.ContentWindows
 
 		private void CheckIsInShift()
 		{
-			if (tableName == "Appointment" && container is CalandarView calView && !DBMethods.MiscRequests.IsAppInShift(selectedData, calView.BookingParts))
+			if (tableName == "Appointment" && container is CalandarView calView)
 			{
-				DisplayError("This appointment does not fit into staff schedules!");
+				if (!DBMethods.MiscRequests.IsAppInShift(selectedData, calView.BookingParts))
+					DisplayError("This appointment does not fit into staff schedules!");
+				else if (DBMethods.MiscRequests.DoesAppointmentClash(selectedData, calView.BookingParts, out string err))
+					DisplayError(err);
 			}
 		}
 
