@@ -13,7 +13,7 @@ namespace A2_Project.ContentWindows
 	public partial class Stats : Window
 	{
 		// Used for generating random colours for some graphs
-		private static Random random = new Random();
+		private static readonly Random random = new Random();
 		private static DateTime minDate = DateTime.Parse("01/01/1753");
 
 		public Stats()

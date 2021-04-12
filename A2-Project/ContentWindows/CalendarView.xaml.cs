@@ -692,7 +692,9 @@ namespace A2_Project.ContentWindows
 			}
 			else throw new NotImplementedException();
 
-			grdResults.Children.Remove(r);
+			Rectangle[] toRemove = grdResults.Children.OfType<Rectangle>().Where(rct => rct.Tag is not null && GetDataTag(rct).SequenceEqual(GetDataTag(r))).ToArray();
+			foreach (Rectangle rct in toRemove) grdResults.Children.Remove(rct);
+
 			Rectangle newRect = GenRectFromData(GetDataTag(r), r.Name, true);
 			if (r.Tag is BookingCreator bkPart) newRect.Tag = bkPart;
 		}
