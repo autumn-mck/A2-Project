@@ -115,6 +115,8 @@ namespace A2_Project.DBMethods
 
 		internal static bool DoesAppointmentClash(string[] data, List<BookingCreator> bookings, out string errMessage)
 		{
+			errMessage = "";
+			if (data[9] == "" || data[10] == "") return false;
 			return DoesAppointmentClash(data, Convert.ToInt32(data[5]), DateTime.Parse(data[9]), TimeSpan.Parse(data[10]), bookings, out errMessage);
 		}
 

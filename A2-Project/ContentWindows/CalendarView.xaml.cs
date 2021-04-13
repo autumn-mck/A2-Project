@@ -462,6 +462,7 @@ namespace A2_Project.ContentWindows
 
 		internal void CancelBooking(string[] vs)
 		{
+			if (currentlySelected is null) return;
 			if (currentlySelected.Tag is BookingCreator)
 			{
 				BookingCreator[] bookings = BookingParts.ToArray();
@@ -532,7 +533,8 @@ namespace A2_Project.ContentWindows
 
 		private static string[] GetDataTag(FrameworkElement r)
 		{
-			if (r.Tag is string[] strArr) return strArr;
+			if (r is null) return null;
+			else if (r.Tag is string[] strArr) return strArr;
 			else if (r.Tag is BookingCreator booking)
 			{
 				if (r.Name.Length < 2)
@@ -849,6 +851,12 @@ namespace A2_Project.ContentWindows
 
 			string[] prevData = GetDataTag(currentlySelected);
 
+			if (prevData is null)
+			{
+				editingSidebar.DisplayError("Error: This appointment does not exist!");
+				return false;
+			}
+
 			if ((prevData[2] == "3" && data[2] != "3") || (prevData[2] != "3" && data[2] == "3"))
 			{
 				editingSidebar.DisplayError("Error: You cannot change an appointment\nto/from allergy therapy!");
@@ -887,6 +895,7 @@ namespace A2_Project.ContentWindows
 
 		internal bool CancelApp()
 		{
+			if (currentlySelected is null) return false;
 			if (currentlySelected.Tag is BookingCreator booking)
 			{
 				DeleteBookingPart(booking);
