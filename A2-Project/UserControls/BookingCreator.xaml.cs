@@ -227,7 +227,7 @@ namespace A2_Project.UserControls
 					CaretBrush = new SolidColorBrush(Color.FromRgb(241, 241, 241)),
 					HorizontalContentAlignment = HorizontalAlignment.Center,
 					VerticalContentAlignment = VerticalAlignment.Center,
-					Text = "4"
+					Text = "7"
 				};
 				tbxTimePeriod.PreviewTextInput += Tbx_OnlyAllowNumbers;
 				stpTime.Children.Add(tbxTimePeriod);
@@ -324,7 +324,7 @@ namespace A2_Project.UserControls
 				};
 				stpContent.Children.Add(lblErr);
 
-				cbxTimeType.SelectedIndex = 1;
+				cbxTimeType.SelectedIndex = 0;
 			}
 			else throw new NotImplementedException();
 		}
@@ -359,10 +359,10 @@ namespace A2_Project.UserControls
 				else if (cbxTimeType.SelectedIndex == 2) betweenPeriod = new TimeSpan(timeGap * 28, 0, 0, 0);
 				else throw new NotImplementedException();
 
-				if (cbxNewBookType.SelectedIndex == 2 && betweenPeriod.TotalDays < 14)
+				if (cbxNewBookType.SelectedIndex == 2 && betweenPeriod.TotalDays * count > 7 * 6)
 				{
 					IsAdded = wasPrevAdded;
-					lblErr.Content = "Error: allergy appointments must be at least 2 weeks apart!";
+					lblErr.Content = "Error: allergy appointments must over within 6 weeks!";
 					lblErr.Visibility = Visibility.Visible;
 					return;
 				}
