@@ -345,6 +345,7 @@ namespace A2_Project.ContentWindows
 			// Try to remove the selected row from the database
 			// Note that an exception is thrown if there are other items which reference the item to be deleted
 			// This means this method must be called from within a try/catch block
+			if (drv.Row.ItemArray[0] == "No Results!") return;
 			DBMethods.MiscRequests.DeleteItem(tableName, columns[0].Name, drv.Row.ItemArray[0].ToString(), deleteRef);
 
 			string id = drv.Row.ItemArray[0].ToString();

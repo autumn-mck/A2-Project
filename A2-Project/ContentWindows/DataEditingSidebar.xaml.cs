@@ -420,7 +420,7 @@ namespace A2_Project.ContentWindows
 			btnSave.Click += BtnSave_Click;
 			btnRevert.Click += BtnRevert_Click;
 			btnAddNew.Click += BtnAddNew_Click;
-			btnDeleteItem.Click += BtnDeleteItem_Click; ;
+			btnDeleteItem.Click += BtnDeleteItem_Click;
 			grdEditMode.Children.Add(btnSave);
 			grdEditMode.Children.Add(btnRevert);
 
