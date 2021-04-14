@@ -83,8 +83,6 @@ namespace A2_Project.DBMethods
 			if (dogID == "") return false;
 
 			List<List<string>> results = DBAccess.GetListStringsWithQuery($"SELECT TOP 1 [Appointment].[Appointment ID], [Appointment].[Appointment Date], [Appointment].[Appointment Time] FROM [Appointment] INNER JOIN [Dog] ON [Dog].[Dog ID] = [Appointment].[Dog ID] WHERE [Dog].[Dog ID] = {dogID} AND [Appointment].[Cancelled] = 'False' ORDER BY [Appointment].[Appointment Date], [Appointment].[Appointment Time];");
-			if (results.Count == 0) return true;
-
 
 			if (data[9] == "" || data[10] == "") return false;
 
@@ -112,6 +110,7 @@ namespace A2_Project.DBMethods
 					}
 				}
 			}
+			if (results.Count == 0) return true;
 
 			if (data[0] == results[0][0]) return true;
 
