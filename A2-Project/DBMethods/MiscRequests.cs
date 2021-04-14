@@ -99,6 +99,7 @@ namespace A2_Project.DBMethods
 			{
 				foreach (BookingCreator b in booking)
 				{
+					if (!b.IsAdded) continue;
 					List<string[]> bkData = b.GetData();
 					foreach (string[] bk in bkData)
 					{
