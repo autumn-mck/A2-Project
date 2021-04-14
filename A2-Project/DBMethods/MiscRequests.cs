@@ -87,7 +87,13 @@ namespace A2_Project.DBMethods
 
 
 			if (data[9] == "" || data[10] == "") return false;
-			DateTime compDateTime = DateTime.Parse(data[9]).Add(TimeSpan.Parse(data[10]));
+
+			bool isValidDate = DateTime.TryParse(data[9], out DateTime date);
+			bool isValidTime = TimeSpan.TryParse(data[10], out TimeSpan time);
+
+			if (!isValidDate || !isValidTime) return false;
+
+			DateTime compDateTime = date.Add(time);
 
 			if (booking is not null)
 			{

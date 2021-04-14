@@ -25,9 +25,10 @@ namespace A2_Project.ContentWindows
 			InitializeComponent();
 
 			Column staffIDCol = DB.Tables.Where(t => t.Name == "Dog").First().Columns[1];
-			tbxClientID = (ValidatedTextbox)UIMethods.GenAppropriateElement(staffIDCol, out _, false, true);
-			tbxClientID.Margin = new Thickness(110, 5, 0, 0);
+			tbxClientID = (ValidatedTextbox)UIMethods.GenAppropriateElement(staffIDCol, out _);
 			tbxClientID.AddTextChangedEvent(TbxClientID_TextChanged);
+			tbxClientID.Text = "0";
+			tbxClientID.Margin = new Thickness(110, 5, 0, 0);
 			grd.Children.Add(tbxClientID);
 		}
 

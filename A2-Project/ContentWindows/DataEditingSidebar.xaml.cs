@@ -612,7 +612,7 @@ namespace A2_Project.ContentWindows
 
 		private void CheckIsInitialApp()
 		{
-			if (tableName == "Appointment" && container is CalandarView calView && DBMethods.MiscRequests.IsAppointmentInitial(GetData(), calView.BookingParts))
+			if (tableName == "Appointment" && container is CalandarView calView && IsValid(out _) && DBMethods.MiscRequests.IsAppointmentInitial(GetData(), calView.BookingParts))
 			{
 				lblIsAppInitial.Visibility = Visibility.Visible;
 			}
@@ -621,7 +621,7 @@ namespace A2_Project.ContentWindows
 
 		private void CheckIsNewApp()
 		{
-			if (tableName == "Appointment" && container is CalandarView && DBMethods.MiscRequests.IsPKeyFree("Appointment", "Appointment ID", GetData()[0]))
+			if (tableName == "Appointment" && container is CalandarView && IsValid(out _) && DBMethods.MiscRequests.IsPKeyFree("Appointment", "Appointment ID", GetData()[0]))
 			{
 				lblIsNewBooking.Visibility = Visibility.Visible;
 			}
@@ -630,7 +630,7 @@ namespace A2_Project.ContentWindows
 
 		private void CheckIsInShift()
 		{
-			if (tableName == "Appointment" && container is CalandarView calView)
+			if (tableName == "Appointment" && container is CalandarView calView && IsValid(out _))
 			{
 				if (!DBMethods.MiscRequests.IsAppInShift(selectedData, calView.BookingParts))
 					DisplayError("This appointment does not fit into staff schedules!");
