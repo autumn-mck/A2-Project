@@ -1173,7 +1173,8 @@ namespace A2_Project.ContentWindows
 					foreach (string[] bk in bkData)
 					{
 						DBMethods.DBAccess.UpdateTable("Appointment", columns.Select(c => c.Name).ToArray(), bk, true);
-						Rectangle rect = grdResults.Children.OfType<Rectangle>().Where(r => r.Name is not null && r.Name != "" && bkData[Convert.ToInt32(r.Name[1..])] == bk).FirstOrDefault();
+						Rectangle rect = grdResults.Children.OfType<Rectangle>().Where(r => r.Name is not null && r.Name != "" && r.Tag == booking && bkData[Convert.ToInt32(r.Name[1..])] == bk).FirstOrDefault();
+
 						if (rect is not null) rect.Tag = bk;
 					}
 				}
