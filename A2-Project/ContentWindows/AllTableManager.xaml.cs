@@ -44,6 +44,7 @@ namespace A2_Project.ContentWindows
 			try
 			{
 				filterableDataGrid.TryDeleteSelected(deleteRef);
+				editingSidebar.EmptySidebar();
 			}
 			// An exception is thrown if there are other items which reference the item to be deleted
 			catch (Exception ex)

@@ -75,7 +75,6 @@ namespace A2_Project.ContentWindows
 			if (container is AllTableManger contactManagement)
 			{
 				contactManagement.DeleteItem();
-				EmptySidebar();
 			}
 			else if (container is CalandarView calanderView)
 			{
@@ -84,7 +83,6 @@ namespace A2_Project.ContentWindows
 			else if (container is ClientManagement cliMan)
 			{
 				cliMan.DeleteItem();
-				EmptySidebar();
 			}
 			else throw new NotImplementedException();
 		}

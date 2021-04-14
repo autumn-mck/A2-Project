@@ -80,9 +80,9 @@ namespace A2_Project.ContentWindows
 			{
 				switch (mode)
 				{
-					case contactString: dtgContacts.TryDeleteSelected(deleteRef); break;
-					case dogString: dtgDogs.TryDeleteSelected(deleteRef); break;
-					case clientString: dtgClients.TryDeleteSelected(deleteRef); break;
+					case contactString: dtgContacts.TryDeleteSelected(deleteRef); contactEditing.EmptySidebar(); break;
+					case dogString: dtgDogs.TryDeleteSelected(deleteRef); dogsEditing.EmptySidebar(); break;
+					case clientString: dtgClients.TryDeleteSelected(deleteRef); clientsEditing.EmptySidebar(); break;
 				}
 			}
 			// An exception is thrown if there are other items which reference the item to be deleted
