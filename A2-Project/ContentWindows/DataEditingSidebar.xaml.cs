@@ -562,6 +562,8 @@ namespace A2_Project.ContentWindows
 					if (succeeded)
 					{
 						// Tell the user their changes have been saved without displaying an intrusive message
+						if (container is ClientManagement cliMan) cliMan.AddToEdit();
+
 						b.Content = "Changes saved!";
 						await Task.Delay(2000);
 						b.Content = "Save Changes";

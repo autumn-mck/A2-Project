@@ -307,5 +307,10 @@ namespace A2_Project.ContentWindows
 			l.Background = new SolidColorBrush(Color.FromRgb(37, 37, 37));
 			l.Foreground = new SolidColorBrush(Color.FromRgb(213, 213, 213));
 		}
+
+		internal void AddToEdit()
+		{
+			LblEditBtn_MouseDown(null, null);
+		}
 	}
 }
