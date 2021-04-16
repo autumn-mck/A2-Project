@@ -288,7 +288,7 @@ namespace A2_Project.DBMethods
 				ls.Remove(ls[^1]);
 				double price = basePrices[appTypeID];
 				if (ls[5] == "True") price += 10;
-				if (IsAppointmentInitial(ls.ToArray(), null)) price += 5;
+				//if (IsAppointmentInitial(ls.ToArray(), null)) price += 5;
 				price = price * (100.0 - GraphingRequests.GetBookingDiscount(ls[0])) / 100.0;
 				ls.Add('£' + Math.Round(price, 2).ToString());
 			}
