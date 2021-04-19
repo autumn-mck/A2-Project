@@ -13,7 +13,7 @@ Also semi-completed is the ability to generate then email or print customer invo
 
 ### Other
 
-Attached is my 40 page report on the project. The writeup is shorter than it would normally be, as it was cut short with time contstraints due to Covid-19. It has also had some information redacted to allow me to display it on GitHub. 
+Attached is my 40 page report on the project. The writeup is shorter than it would normally be, as it was cut short with time contstraints due to Covid-19. It has also had some information redacted to allow me to display it on GitHub.
 
 Some icons from https://iconify.design/icon-sets/mdi/
 
@@ -21,10 +21,10 @@ Some icons from https://iconify.design/icon-sets/mdi/
 
 Below are some images of the project. More information is available in the 40 page report.
 
-![alt text](imgs_md/Calendar-Window.png "Calendar Window")
+![Calendar Window](imgs_md/Calendar-Window.png "Calendar Window")
 
-![alt text](imgs_md/Statistics-Window.png "Statistics Window")
+![Statistics Window](imgs_md/Statistics-Window.png "Statistics Window")
 
-![alt text](imgs_md/Shift-Window.png "Shift Window")
+![Shift Window](imgs_md/Shift-Window.png "Shift Window")
 
-![alt text](imgs_md/Contact-Window.png "Contact Window")
+![Contact Window](imgs_md/Contact-Window.png "Contact Window")
