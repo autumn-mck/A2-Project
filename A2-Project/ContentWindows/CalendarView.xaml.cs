@@ -188,6 +188,9 @@ namespace A2_Project.ContentWindows
 			r.Fill = new SolidColorBrush(Color.FromRgb(241, 241, 241));
 		}
 
+		/// <summary>
+		/// Move to the date of and select, if it exists, the appointment with the given data.
+		/// </summary>
 		public void SelectSpecificAppointment(string[] appData)
 		{
 			if (appData is null) return;
@@ -198,11 +201,18 @@ namespace A2_Project.ContentWindows
 			dataToBeSelected = null;
 		}
 
+
+		/// <summary>
+		/// Display the next week
+		/// </summary>
 		private void LblNextWeek_MouseDown(object sender, MouseButtonEventArgs e)
 		{
 			datePicker.SelectedDate = ((DateTime)datePicker.SelectedDate).AddDays(7);
 		}
 
+		/// <summary>
+		/// Display the previous week
+		/// </summary>
 		private void LblPrevWeek_MouseDown(object sender, MouseButtonEventArgs e)
 		{
 			datePicker.SelectedDate = ((DateTime)datePicker.SelectedDate).AddDays(-7);
@@ -210,6 +220,8 @@ namespace A2_Project.ContentWindows
 
 		private void AddKey(FrameworkElement frPrev = null)
 		{
+			// This method was written before I was aware of stack panels.
+
 			// The base X offset
 			int baseX = 0;
 			// The base Y offset
@@ -326,6 +338,7 @@ namespace A2_Project.ContentWindows
 			grdKey.Children.Clear();
 			AddKey();
 
+			// Recolour every rectangle according to the new key
 			IEnumerable<Rectangle> rects = grdResults.Children.OfType<Rectangle>();
 			foreach (Rectangle r in rects)
 			{
@@ -361,6 +374,7 @@ namespace A2_Project.ContentWindows
 			while (!toExit)
 			{
 				Dispatcher.Invoke(() => {
+					// Prevent a MouseUp event from somehow being missed
 					if (mouseDown && Mouse.LeftButton == MouseButtonState.Released)
 					{
 						UpdateAfterMouseUp((Rectangle)currentlySelected);
@@ -370,10 +384,12 @@ namespace A2_Project.ContentWindows
 					{
 						Point mousePos = Mouse.GetPosition(parent);
 
+
 						bool shouldSnapToGrid = false;
 						object tag = elem.Tag;
 						if (tag is BookingCreator booking)
 						{
+							// If the appointment has not yet been dragged onto grdResults, it should not snap to a grid
 							shouldSnapToGrid = parent == grdResults;
 						}
 						else shouldSnapToGrid = true;
@@ -381,6 +397,7 @@ namespace A2_Project.ContentWindows
 
 						if (shouldSnapToGrid)
 						{
+							// Get the position of the rectangle snapped to a grid
 							SnapMarginToGrid(elem, mousePos, out Thickness newMargin, out int roomID, out int dDiff);
 
 							// Allow the selected week to be changed if the currently selected element is moved to either side of the grid
@@ -397,8 +414,11 @@ namespace A2_Project.ContentWindows
 							else if (mousePos.X > 0 && mousePos.X < dayWidth * spaceBetweenDays * 6 + dayWidth) hasMoved = false;
 
 							// If the element should be moved
+							// (No need to move it if the new position is the same as the old one)
 							if (newMargin != elem.Margin)
 							{
+								// See if the new position would clash with other appointments
+
 								DateTime day = GetStartOfWeek().AddDays(dDiff);
 								TimeSpan appStart = TimeSpan.FromHours(dayStartTime - 1 + newMargin.Top / hourHeight);
 
@@ -408,6 +428,8 @@ namespace A2_Project.ContentWindows
 								editingSidebar.DisplayError(errMessage);
 
 								int appLength = DBMethods.MiscRequests.GetAppLength(data, BookingParts);
+
+								// If it does clash, spend a bit of time to see if the appointment should be moved up/down past the item it clashes with.
 
 								if (doesClash)
 								{
@@ -451,6 +473,7 @@ namespace A2_Project.ContentWindows
 						}
 						else
 						{
+							// If it is not being snapped to a grid, just move it to the centre of the mouse.
 							elem.Margin = new Thickness(mousePos.X - elem.Width / 2, mousePos.Y - elem.Height / 2, 0, 0);
 						}
 
@@ -460,11 +483,17 @@ namespace A2_Project.ContentWindows
 			}
 		}
 
-		internal void CancelBooking(string[] vs)
+
+		/// <summary>
+		/// Cancel all appointments that are part of the same booking as the given appointment
+		/// </summary>
+		internal void CancelBooking(string[] appData)
 		{
 			if (currentlySelected is null) return;
+
 			if (currentlySelected.Tag is BookingCreator)
 			{
+				// If the appointment has not yet been confirmed, cancel all appointments that have not yet been confirmed, as they are all part of the same booking
 				BookingCreator[] bookings = BookingParts.ToArray();
 				foreach (BookingCreator b in bookings)
 				{
@@ -474,15 +503,19 @@ namespace A2_Project.ContentWindows
 			}
 			else
 			{
-				string bookingID = vs[4];
+				string bookingID = appData[4];
+
+				// Get the data for all other appointments in that booking
 				string[][] appts = DBMethods.MiscRequests.GetByColumnData("Appointment", "Booking ID", bookingID).Select(x => x.ToArray()).ToArray();
 				foreach (string[] app in appts)
 				{
+					// Hide all cancelled appointments
 					Rectangle rect = grdResults.Children.OfType<Rectangle>().Where(r => r.Tag is string[] appData && appData[0] == app[0]).FirstOrDefault();
 					if (rect is not null)
 					{
 						grdResults.Children.Remove(rect);
 					}
+					// Mark all appointments that are part of the same booking as cancelled
 					DBMethods.MiscRequests.UpdateColumn("Appointment", "True", "Cancelled", "Appointment ID", app[0]);
 				}
 			}
@@ -531,6 +564,9 @@ namespace A2_Project.ContentWindows
 			newMargin.Top = Math.Min((dayEndTime + 1 - dayStartTime) * hourHeight - elem.Height, newMargin.Top);
 		}
 
+		/// <summary>
+		/// Get the appointment data related to the given item as a string[]
+		/// </summary>
 		private static string[] GetDataTag(FrameworkElement r)
 		{
 			if (r is null) return null;
@@ -554,6 +590,9 @@ namespace A2_Project.ContentWindows
 			SelectNewRect((Rectangle)sender);
 		}
 
+		/// <summary>
+		/// Select the given rectangle and deselect the old one.
+		/// </summary>
 		private void SelectNewRect(Rectangle newSel)
 		{
 			if (newSel is null) return;
@@ -631,6 +670,9 @@ namespace A2_Project.ContentWindows
 			}
 		}
 
+		/// <summary>
+		/// Save the user's changes afther a MouseUp event.
+		/// </summary>
 		private void UpdateAfterMouseUp(Rectangle r)
 		{
 			mouseDown = false;
@@ -808,9 +850,13 @@ namespace A2_Project.ContentWindows
 			AddRects();
 		}
 
+		/// <summary>
+		/// Fill grdResults with the relevant appointmnets for the selected week
+		/// </summary>
 		private void AddRects()
 		{
 			DateTime startOfWeek = DateTime.Now.Date;
+			// Note: The following Dispatcher.Invoke is probably no longer needed, however this comment was written after the final deadline.
 			Dispatcher.Invoke(() => startOfWeek = GetStartOfWeek());
 			DateTime endOfWeek = startOfWeek.AddDays(7);
 
@@ -893,6 +939,9 @@ namespace A2_Project.ContentWindows
 			return true;
 		}
 
+		/// <summary>
+		/// Cancels the currently selected appointment. Returns true if the cancellation was successful
+		/// </summary>
 		internal bool CancelApp()
 		{
 			if (currentlySelected is null) return false;
@@ -959,6 +1008,7 @@ namespace A2_Project.ContentWindows
 
 			if (isExpensive)
 			{
+				// If you have the time/computation to calculate if the appointment clashes more accurately, do so.
 				string[] prevSel = editingSidebar.GetData();
 				editingSidebar.ChangeSelectedData(data);
 				isDataValid = editingSidebar.IsValid(out _);
@@ -970,9 +1020,13 @@ namespace A2_Project.ContentWindows
 			{
 				isDataValid = true;
 
+				// Otherwise, only check if it clashes with staff shifts.
+				// This increases the performance of changing the selected date or similar, but at the cost of some accuracy.
+
 				doesClash = !DBMethods.MiscRequests.IsAppInShift(dDiff, data[3], d.TimeOfDay, d.TimeOfDay.Add(TimeSpan.FromMinutes(appLength)), d.Date);
 			}
 
+			// If the appointment clashes, highlight it to the user.
 			if (doesClash || !isDataValid)
 			{
 				newRect.StrokeThickness = 4;
@@ -1112,8 +1166,6 @@ namespace A2_Project.ContentWindows
 		private void GrdResults_MouseEnter(object sender, MouseEventArgs e)
 		{
 			Rectangle r = (Rectangle)currentlySelected;
-			//r.Stroke = Brushes.AliceBlue;
-			//r.StrokeThickness = 2;
 
 			grdResults.MouseEnter -= GrdResults_MouseEnter;
 			r.IsHitTestVisible = true;

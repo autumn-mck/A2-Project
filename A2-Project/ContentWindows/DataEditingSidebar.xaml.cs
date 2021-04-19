@@ -14,11 +14,20 @@ namespace A2_Project.ContentWindows
 	/// </summary>
 	public partial class DataEditingSidebar : Window
 	{
+		// The window that contains the editing sidebar
 		private readonly object container;
+
 		private FrameworkElement[] displayElements;
+
+		// The columns in the table
 		private readonly DBObjects.Column[] columns;
+
 		private string[] selectedData;
+
+		// The name of the table being edited
 		private readonly string tableName;
+
+		// Labels used to display the status of the current item
 		private Label lblIsAppInitial;
 		private Label lblIsNewBooking;
 		private Label lblErrMessage;
@@ -26,8 +35,8 @@ namespace A2_Project.ContentWindows
 		private readonly TextBlock tbcErr1;
 		private readonly TextBlock tbcErr2;
 
-		Grid grdEditMode;
-		Grid grdAddMode;
+		private Grid grdEditMode;
+		private Grid grdAddMode;
 
 		public DataEditingSidebar(DBObjects.Column[] _columns, string _tableName, object _container, bool canAddOrDelete = true)
 		{

@@ -41,6 +41,7 @@ namespace A2_Project.ContentWindows
 			return issues;
 		}
 
+		// Ensure all info is valid before allowinf the user to register
 		private string IsInputValid()
 		{
 			if (txtName.Text != "")

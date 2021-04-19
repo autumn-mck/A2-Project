@@ -14,6 +14,9 @@ namespace A2_Project.ContentWindows
 			InitializeComponent();
 		}
 
+		/// <summary>
+		/// Reset the database by dropping all tables, then building them back up again with some basic information.
+		/// </summary>
 		private void BtnResetDB_Click(object sender, RoutedEventArgs e)
 		{
 			string exc = @"
@@ -399,11 +402,15 @@ INSERT INTO [Shift] VALUES (
 
 		private void BtnGenNewData_Click(object sender, RoutedEventArgs e)
 		{
+			// If the database already contains some data, reset it
 			if (DBMethods.DBAccess.GetStringsWithQuery("SELECT MIN([Client Join Date]) FROM [Client]")[0] != "") BtnResetDB_Click(null, null);
 
+			// See if the user has entered a custom seed. If not, just use 0
 			if (!int.TryParse(tbxSeed.Text, out int seed))
-				seed = 6;
+				seed = 0;
+
 			generator.Run(seed);
+
 			string exc = DBBuilder.MainGeneration.GetSQL();
 			DBMethods.DBAccess.ExecuteNonQuery(exc);
 			MessageBox.Show("Done!");

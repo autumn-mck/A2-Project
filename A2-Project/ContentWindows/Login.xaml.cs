@@ -21,7 +21,9 @@ namespace A2_Project.ContentWindows
 		{
 			if (attemptsLeft < 1) return;
 
+			// Do not count a log-in attempt if the user does not enter a username/password.
 			if (txtLogUser.Text == "" || pswLogPassword.Password == "") { }
+
 			if (IsLoginDataCorrect(txtLogUser.Text, pswLogPassword.Password))
 			{
 				if (!DBMethods.LogRegRequests.DoesUse2FA(txtLogUser.Text, ref email))

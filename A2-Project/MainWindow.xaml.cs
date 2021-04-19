@@ -18,6 +18,7 @@ namespace A2_Project
 	/// </summary>
 	public partial class MainWindow : Window
 	{
+		// Variables used to maintain a constant aspect ratio when resizing the window
 		private double _aspectRatio;
 		private bool? _adjustingHeight = null;
 		internal enum SWP
@@ -51,10 +52,12 @@ namespace A2_Project
 		private DBManager dbManager;
 		private readonly Login loginWindow;
 
+		// Colours used behind menu icons to show interactions
 		private readonly SolidColorBrush notHighlighted = new SolidColorBrush(Color.FromRgb(161, 161, 161));
 		private readonly SolidColorBrush highlighted = new SolidColorBrush(Color.FromRgb(250, 250, 250));
 		private readonly SolidColorBrush selected = new SolidColorBrush(Color.FromRgb(33, 150, 243));
 
+		// Contains all items in the sidebar menu
 		private readonly Grid[] grdButtons;
 
 		public MainWindow()
@@ -75,6 +78,7 @@ namespace A2_Project
 			grdShift.MouseDown += GrdShift_MouseDown;
 			grdDBManagement.MouseDown += GrdDBManagement_MouseDown;
 
+			// Add events to allow each item to change colour when the user hovers over / clicks on it
 			foreach (Grid g in grdButtons)
 			{
 				Rectangle r = new Rectangle
@@ -96,6 +100,9 @@ namespace A2_Project
 			this.SourceInitialized += Window_SourceInitialized;
 		}
 
+		/// <summary>
+		/// Initialises the database connection
+		/// </summary>
 		private void InitialiseDBConnection()
 		{
 			db = new Database();
@@ -114,30 +121,8 @@ namespace A2_Project
 			DBObjects.DB.Initialise();
 		}
 
-		private void GrdHighlight_MouseDown(object sender, MouseButtonEventArgs e)
-		{
-			Grid grdSender = (Grid)sender;
-			if (grdSender == grdToggleMenu) return;
-			foreach (Grid g in grdButtons) g.Children.OfType<Rectangle>().First().Fill = notHighlighted;
-			grdSender.Children.OfType<Rectangle>().First().Fill = selected;
-		}
-
-		private void GrdHighlight_MouseLeave(object sender, MouseEventArgs e)
-		{
-			Grid g = (Grid)sender;
-			Rectangle r = g.Children.OfType<Rectangle>().First();
-			if (((SolidColorBrush)r.Fill).Color == highlighted.Color) r.Fill = notHighlighted;
-		}
-
-		private void GrdHighlight_MouseEnter(object sender, MouseEventArgs e)
-		{
-			Grid g = (Grid)sender;
-			Rectangle r = g.Children.OfType<Rectangle>().First();
-			if (((SolidColorBrush)r.Fill).Color == notHighlighted.Color) r.Fill = highlighted;
-		}
-
 		/// <summary>
-		/// Widens the menu bar to reveal the hidden text
+		/// Widens the menu bar to reveal the description text
 		/// </summary>
 		private void MenuTransition()
 		{
@@ -200,7 +185,43 @@ namespace A2_Project
 			loginWindow.Owner = this;
 		}
 
-		#region MouseDown Events
+		#region General MouseDown Events
+
+		/// <summary>
+		/// Highlights an item in the sidebar menu whenever the user clicks on it
+		/// </summary>
+		private void GrdHighlight_MouseDown(object sender, MouseButtonEventArgs e)
+		{
+			Grid grdSender = (Grid)sender;
+			if (grdSender == grdToggleMenu) return;
+			foreach (Grid g in grdButtons) g.Children.OfType<Rectangle>().First().Fill = notHighlighted;
+			grdSender.Children.OfType<Rectangle>().First().Fill = selected;
+		}
+
+		/// <summary>
+		/// Returns an item in the sidebar menu to its default colour when the user is no longer hovering over it
+		/// </summary>
+		private void GrdHighlight_MouseLeave(object sender, MouseEventArgs e)
+		{
+			Grid g = (Grid)sender;
+			Rectangle r = g.Children.OfType<Rectangle>().First();
+			if (((SolidColorBrush)r.Fill).Color == highlighted.Color) r.Fill = notHighlighted;
+		}
+
+		/// <summary>
+		/// Highlights an item in the sidebar menu whenever the user hovers over it
+		/// </summary>
+		private void GrdHighlight_MouseEnter(object sender, MouseEventArgs e)
+		{
+			Grid g = (Grid)sender;
+			Rectangle r = g.Children.OfType<Rectangle>().First();
+			if (((SolidColorBrush)r.Fill).Color == notHighlighted.Color) r.Fill = highlighted;
+		}
+
+		#endregion General MouseDown Events
+
+		#region Specific MouseDown Events
+
 		private void GrdToggleMenu_MouseDown(object sender, MouseButtonEventArgs e)
 		{
 			Thread thread = new Thread(MenuTransition)
@@ -271,7 +292,8 @@ namespace A2_Project
 			lblContents.Content = dbManager.Content;
 			Title = "Database Management Window";
 		}
-		#endregion MouseDown Events
+
+		#endregion Specific MouseDown Events
 		#endregion Events
 
 		#region Resizing

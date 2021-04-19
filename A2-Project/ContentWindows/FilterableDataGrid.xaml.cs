@@ -14,7 +14,9 @@ namespace A2_Project.ContentWindows
 	/// </summary>
 	public partial class FilterableDataGrid : Window
 	{
+		// The columns of the selected table
 		private Column[] columns;
+		// The name of the selected table
 		private string tableName;
 
 		private DataTable dataTable;
@@ -24,7 +26,7 @@ namespace A2_Project.ContentWindows
 
 		private UserControls.FilterManager filterManager;
 
-		string[] selItem;
+		private string[] selItem;
 
 		public FilterableDataGrid(string tableName, Window _containingWindow)
 		{
@@ -107,6 +109,9 @@ namespace A2_Project.ContentWindows
 			lblCount.Content = $"Count: {currentData.Count}";
 		}
 
+		/// <summary>
+		/// Called whenever changes to the filters are saved
+		/// </summary>
 		internal void FiltersSaved()
 		{
 			lblManageFilters.Content = $"Manage {tableName} Filters ({filterManager.GetFilterCount()})";
@@ -132,6 +137,9 @@ namespace A2_Project.ContentWindows
 			}
 		}
 
+		/// <summary>
+		/// Construct the SQL statement used to get the filtered data
+		/// </summary>
 		private static string ConstructSQL(string filterText, List<string> tablesReferenced)
 		{
 			List<Table> tables = new List<Table>();
@@ -274,11 +282,6 @@ namespace A2_Project.ContentWindows
 				{
 					if (t.Visited)
 					{
-						//do
-						//{
-						//	queue.Remove(loc);
-						//}
-						//while (queue.Contains(loc));
 						continue;
 					}
 					if (t.DistFromStart == 0 || current.DistFromStart + 1 < t.DistFromStart)
@@ -299,6 +302,9 @@ namespace A2_Project.ContentWindows
 			while (queue.Any());
 		}
 
+		/// <summary>
+		/// Gets which tables reference or are referenced by the given table
+		/// </summary>
 		private static List<Table> GetNeighboursOfTable(Table table)
 		{
 			List<Table> neighbours = new List<Table>();

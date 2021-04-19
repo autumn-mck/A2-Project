@@ -69,6 +69,7 @@ namespace A2_Project.ContentWindows
 		{
 			if (parent is CalandarView && IsVisible)
 			{
+				// To maintain the user's previous selection, hide the window so it can be shown again later instead of closing it.
 				e.Cancel = true;
 				Hide();
 			}

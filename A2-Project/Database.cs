@@ -29,6 +29,7 @@ namespace A2_Project
 			string scStr = scStrBuild.ToString();
 			Conn = new SqlConnection(scStr);
 			// Try to connect to the database. If a connection cannot be made, something has probably gone badly wrong
+			// Note: The connection seems to fail on some machines without visual studio installed. Further testing needed.
 			try
 			{
 				Conn.Open();

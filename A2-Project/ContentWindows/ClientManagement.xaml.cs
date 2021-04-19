@@ -11,18 +11,22 @@ namespace A2_Project.ContentWindows
 	/// </summary>
 	public partial class ClientManagement : Window
 	{
+		// Used to prevent an infinite loop whenever the user changes their selection
 		private bool shouldUpdate = true;
 
+		// Variables for managing contacts
 		private readonly FilterableDataGrid dtgContacts;
 		private readonly DBObjects.Column[] contactsColumns;
 		private DataEditingSidebar contactEditing;
 		private DataEditingSidebar contactAdding;
 
+		// Variables for managing dogs
 		private readonly FilterableDataGrid dtgDogs;
 		private readonly DBObjects.Column[] dogsColumns;
 		private DataEditingSidebar dogsEditing;
 		private DataEditingSidebar dogsAdding;
 
+		// Variables for managing clients
 		private readonly FilterableDataGrid dtgClients;
 		private readonly DBObjects.Column[] clientsColumns;
 		private DataEditingSidebar clientsEditing;
@@ -32,11 +36,15 @@ namespace A2_Project.ContentWindows
 		private const string clientString = "Clients";
 		private const string dogString = "Dogs";
 
+		// Used to represent which table the user is currently editing
+		// If I were to redo this now, I would use an enum instead.
 		private string mode = "";
 
 		public ClientManagement()
 		{
 			InitializeComponent();
+
+			// Initialise each table and set them to all be equal sizes until the user picks one to edit
 
 			contactsColumns = DBMethods.MetaRequests.GetColumnDataFromTable("Contact");
 			dtgContacts = new FilterableDataGrid(contactsColumns, this);
@@ -57,8 +65,12 @@ namespace A2_Project.ContentWindows
 			lblClients.Content = dtgClients.Content;
 		}
 
+		/// <summary>
+		/// Called whenever the user saves their changes in an editing sidebar
+		/// </summary>
 		internal void UpdateFromSidebar(string[] data, bool isNew)
 		{
+			// Update the correct table with the new data
 			switch (mode)
 			{
 				case contactString: dtgContacts.UpdateData(data, isNew); break;
@@ -66,6 +78,7 @@ namespace A2_Project.ContentWindows
 				case clientString: dtgClients.UpdateData(data, isNew); break;
 			}
 
+			// Bring the user back to editing
 			if (isNew)
 			{
 				string prevMode = mode;
@@ -74,6 +87,9 @@ namespace A2_Project.ContentWindows
 			}
 		}
 
+		/// <summary>
+		/// Called by an editing sidebar whenever the user wants to delete an item
+		/// </summary>
 		internal void DeleteItem(bool deleteRef = false)
 		{
 			try
@@ -95,6 +111,9 @@ namespace A2_Project.ContentWindows
 			}
 		}
 
+		/// <summary>
+		/// Called by one of the tables whenever an item it contains is clicked
+		/// </summary>
 		public void TableSelectionChanged(FilterableDataGrid sender, string[] newData)
 		{
 			if (!shouldUpdate) return;
@@ -115,10 +134,15 @@ namespace A2_Project.ContentWindows
 			shouldUpdate = true;
 		}
 
+		/// <summary>
+		/// Move the user to editing whichever table they have selected
+		/// </summary>
 		private void UpdateMode(string newMode)
 		{
+			// Whenever a new item in the same table is selected:
 			if (newMode == mode)
 			{
+				// Display the contacts/dogs/clients related to the selected item
 				if (mode == contactString)
 				{
 					string[] selectedData = dtgContacts.GetSelectedData();
@@ -149,57 +173,61 @@ namespace A2_Project.ContentWindows
 						dtgDogs.ChangeSearch(1, selectedData[0]);
 					}
 				}
-				return;
 			}
-
-			mode = newMode;
-
-			if (mode == "") return;
-			
-			double notSelMax = 200;
-			double selMax = 650;
-
-			lblEditBtn.Content = $"Editing {mode}";
-			lblStartAddingBtn.Content = $"Add New {mode}";
-
-
-			if (mode == contactString)
+			else
 			{
-				string[] selectedData = dtgContacts.GetSelectedData();
-				if (selectedData[0] == "No Results!")
-				{ return; }
-				dtgContacts.ClearSearch();
-				if (selectedData is null) return;
-				dtgDogs.ChangeSearch(1, selectedData[1]);
-				dtgClients.ChangeSearch(0, selectedData[1]);
-				dtgContacts.SetMaxHeight(selMax);
-			}
-			else if (mode == dogString)
-			{
-				string[] selectedData = dtgDogs.GetSelectedData();
-				if (selectedData[0] == "No Results!")
-				{ return; }
-				dtgDogs.ClearSearch();
-				if (selectedData is null) return;
-				dtgContacts.ChangeSearch(1, selectedData[1]);
-				dtgClients.ChangeSearch(0, selectedData[1]);
-				dtgDogs.SetMaxHeight(selMax);
-			}
-			else if (mode == clientString)
-			{
-				string[] selectedData = dtgClients.GetSelectedData();
-				if (selectedData[0] == "No Results!")
-				{ return; }
-				dtgClients.ClearSearch();
-				if (selectedData is null) return;
-				dtgContacts.ChangeSearch(1, selectedData[0]);
-				dtgDogs.ChangeSearch(1, selectedData[0]);
-				dtgClients.SetMaxHeight(selMax);
-			}
+				mode = newMode;
 
-			if (mode != contactString) dtgContacts.SetMaxHeight(notSelMax);
-			if (mode != dogString) dtgDogs.SetMaxHeight(notSelMax);
-			if (mode != clientString) dtgClients.SetMaxHeight(double.NaN);
+				if (mode == "") return;
+
+				double notSelMax = 200;
+				double selMax = 650;
+
+				lblEditBtn.Content = $"Editing {mode}";
+				lblStartAddingBtn.Content = $"Add New {mode}";
+
+				// Display the selected data
+				// Show related items in the other tables
+				// Resize the tables
+
+				if (mode == contactString)
+				{
+					string[] selectedData = dtgContacts.GetSelectedData();
+					if (selectedData[0] == "No Results!")
+					{ return; }
+					dtgContacts.ClearSearch();
+					if (selectedData is null) return;
+					dtgDogs.ChangeSearch(1, selectedData[1]);
+					dtgClients.ChangeSearch(0, selectedData[1]);
+					dtgContacts.SetMaxHeight(selMax);
+				}
+				else if (mode == dogString)
+				{
+					string[] selectedData = dtgDogs.GetSelectedData();
+					if (selectedData[0] == "No Results!")
+					{ return; }
+					dtgDogs.ClearSearch();
+					if (selectedData is null) return;
+					dtgContacts.ChangeSearch(1, selectedData[1]);
+					dtgClients.ChangeSearch(0, selectedData[1]);
+					dtgDogs.SetMaxHeight(selMax);
+				}
+				else if (mode == clientString)
+				{
+					string[] selectedData = dtgClients.GetSelectedData();
+					if (selectedData[0] == "No Results!")
+					{ return; }
+					dtgClients.ClearSearch();
+					if (selectedData is null) return;
+					dtgContacts.ChangeSearch(1, selectedData[0]);
+					dtgDogs.ChangeSearch(1, selectedData[0]);
+					dtgClients.SetMaxHeight(selMax);
+				}
+
+				if (mode != contactString) dtgContacts.SetMaxHeight(notSelMax);
+				if (mode != dogString) dtgDogs.SetMaxHeight(notSelMax);
+				if (mode != clientString) dtgClients.SetMaxHeight(double.NaN);
+			}
 		}
 
 		private void UpdateEditingSidebar(string[] newData)

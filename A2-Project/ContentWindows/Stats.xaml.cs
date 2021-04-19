@@ -63,8 +63,12 @@ namespace A2_Project.ContentWindows
 				Height = 200
 			};
 
+			// Income in time period
 			double sales = DBMethods.GraphingRequests.GetIncomeSince(minDate, DateTime.Now);
+
+			// No. of new customers in time period
 			string newCustCount = DBMethods.GraphingRequests.GetNewCusts(minDate);
+
 			TextBlock tblMisc = new TextBlock()
 			{
 				Text = $"{timePeriod}\nSales: £{sales:N0}\nNew Customers: {newCustCount:N0}",
@@ -78,6 +82,15 @@ namespace A2_Project.ContentWindows
 			grdMiscStats.Children.Add(stpMisc);
 		}
 
+		/// <summary>
+		/// Generate a bar graph with the given data
+		/// </summary>
+		/// <param name="getData">The method to get the data with</param>
+		/// <param name="grid">The grid to put the graph into</param>
+		/// <param name="title">The title of the graph</param>
+		/// <param name="prefix">Prefix for y-axis</param>
+		/// <param name="suffix">Suffix for the y-axis</param>
+		/// <param name="brushes">Any brushes used to colour the bar graph</param>
 		private static void GenerateBarGraph(GetData getData, Grid grid, string title, string prefix = "", string suffix = "", Brush[] brushes = null)
 		{
 			double[][] data = new double[1][];
@@ -93,6 +106,14 @@ namespace A2_Project.ContentWindows
 			GenerateBars(grid, data, max, min, brushes, prefix);
 		}
 
+		/// <summary>
+		/// Generate a line graph with the given data
+		/// </summary>
+		/// <param name="getData">The method to get the data with</param>
+		/// <param name="grid">The grid to put the graph into</param>
+		/// <param name="title">The title of the graph</param>
+		/// <param name="prefix">Prefix for y-axis</param>
+		/// <param name="suffix">Suffix for the y-axis</param>
 		private static void GenerateLineGraph(GetData getData, Grid grid, string title, string prefix = "", string suffix = "")
 		{
 			double[][] data = new double[1][];
@@ -108,6 +129,9 @@ namespace A2_Project.ContentWindows
 			GenerateLines(grid, data, max, data.Length > 1, min);
 		}
 
+		/// <summary>
+		/// Generate a pie chart with the given data
+		/// </summary>
 		private static void GeneratePieChart(GetData getData, Grid grid, string title)
 		{
 			double[][] data = new double[1][];
@@ -118,6 +142,9 @@ namespace A2_Project.ContentWindows
 			GeneratePie(grid, data, headers);
 		}
 
+		/// <summary>
+		/// Label the x and y axes of the graph
+		/// </summary>
 		private static void LabelGraph(Grid grid, int length, string[] xAxisLabels, string title, string prefix, string suffix, double max, double min)
 		{
 			GenerateTitle(grid, title);

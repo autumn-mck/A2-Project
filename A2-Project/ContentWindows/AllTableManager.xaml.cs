@@ -8,7 +8,7 @@ using System.Windows.Controls;
 namespace A2_Project.ContentWindows
 {
 	/// <summary>
-	/// Interaction logic for ContactManagement.xaml
+	/// Window which allows the user to view/edit any table
 	/// </summary>
 	public partial class AllTableManger : Window
 	{
@@ -31,6 +31,9 @@ namespace A2_Project.ContentWindows
 			cmbTable.SelectedIndex = 0;
 		}
 
+		/// <summary>
+		/// Called by the editing sidebar whenever the user wants to save their changes
+		/// </summary>
 		public void UpdateFromSidebar(string[] newData, bool isNew)
 		{
 			filterableDataGrid.UpdateData(newData, isNew);
@@ -82,8 +85,6 @@ namespace A2_Project.ContentWindows
 			lblSearchData.Content = filterableDataGrid.Content;
 		}
 
-		#region Events
-
 		/// <summary>
 		/// Updates the UI and the DataTables whenever the selected  table is changed
 		/// </summary>
@@ -113,7 +114,6 @@ namespace A2_Project.ContentWindows
 		{
 			grdFKeyErrorOuter.Visibility = Visibility.Collapsed;
 		}
-		#endregion Events
 
 		private void Window_Closing(object sender, System.ComponentModel.CancelEventArgs e)
 		{
