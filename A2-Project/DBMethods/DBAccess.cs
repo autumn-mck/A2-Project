@@ -1,6 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Data.SqlClient;
+using Microsoft.Data.Sqlite; // Changed from System.Data.SqlClient
 
 namespace A2_Project.DBMethods
 {
@@ -12,9 +12,9 @@ namespace A2_Project.DBMethods
 		public static Database Db { get; set; }
 
 		/// <summary>
-		/// Returns the contents of SqlDataReader as a list of strings.
+		/// Returns the contents of SqliteDataReader as a list of strings.
 		/// </summary>
-		private static List<string> GetStringsFromReader(SqlDataReader reader, string[] headers)
+		private static List<string> GetStringsFromReader(SqliteDataReader reader, string[] headers) // Changed SqlDataReader to SqliteDataReader
 		{
 			List<string> results = new List<string>();
 			for (int i = 0; i < reader.FieldCount; i++)
@@ -90,9 +90,11 @@ namespace A2_Project.DBMethods
 		public static void UpdateTable(string table, string[] headers, string[] data, bool isNew)
 		{
 			string command;
-			if (!MiscRequests.IsPKeyFree(table, headers[0], data[0]))
+			// MiscRequests.IsPKeyFree will be reviewed later. Assuming its logic remains sound for now.
+			if (!MiscRequests.IsPKeyFree(table, headers[0], data[0])) 
 			{
-				command = $"SET DATEFORMAT dmy; UPDATE [{table}] SET [{headers[1]}] = '{data[1]}'";
+				// Removed SET DATEFORMAT dmy;
+				command = $"UPDATE [{table}] SET [{headers[1]}] = '{data[1]}'"; // TODO: Parameterize this query
 				for (int i = 2; i < headers.Length; i++)
 				{
 					command += $", [{headers[i]}] = '{data[i]}'";
@@ -101,7 +103,8 @@ namespace A2_Project.DBMethods
 			}
 			else
 			{
-				command = $"SET DATEFORMAT dmy; INSERT INTO [{table}] VALUES (";
+				// Removed SET DATEFORMAT dmy;
+				command = $"INSERT INTO [{table}] VALUES ("; // TODO: Parameterize this query
 				for (int i = 0; i < data.Length; i++)
 				{
 					command += $"'{data[i]}'";

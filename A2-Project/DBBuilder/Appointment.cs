@@ -53,6 +53,31 @@ namespace A2_Project.DBBuilder
 			$"'{AppointmentDate:yyyy-MM-dd}', '{AppointmentTime:hh\\:mm}'); ";
 		}
 
+		public Microsoft.Data.Sqlite.SqliteCommand ToSqliteCommand(Microsoft.Data.Sqlite.SqliteConnection connection)
+		{
+			var command = connection.CreateCommand();
+			command.CommandText = @"
+                INSERT INTO Appointment (AppointmentID, DogID, AppointmentTypeID, StaffID, BookingID, GroomingRoomID, IncludesNailAndTeeth, IsCancelled, IsPaid, AppointmentDateTime, IsInitial)
+                VALUES ($appointmentID, $dogID, $appointmentTypeID, $staffID, $bookingID, $groomingRoomID, $includesNailAndTeeth, $isCancelled, $isPaid, $appointmentDateTime, $isInitial);
+            ";
+			command.Parameters.AddWithValue("$appointmentID", AppointmentID);
+			command.Parameters.AddWithValue("$dogID", DogID);
+			command.Parameters.AddWithValue("$appointmentTypeID", AppointmentTypeID);
+			command.Parameters.AddWithValue("$staffID", StaffID);
+			command.Parameters.AddWithValue("$bookingID", BookingID);
+			command.Parameters.AddWithValue("$groomingRoomID", GroomingRoomID);
+			command.Parameters.AddWithValue("$includesNailAndTeeth", IncludesNailAndTeeth ? 1 : 0);
+			command.Parameters.AddWithValue("$isCancelled", IsCancelled ? 1 : 0);
+			command.Parameters.AddWithValue("$isPaid", IsPaid ? 1 : 0);
+			
+			// Combine Date and Time into a single DateTime object for SQLite
+			DateTime appointmentDateTime = AppointmentDate.Date + AppointmentTime;
+			command.Parameters.AddWithValue("$appointmentDateTime", appointmentDateTime.ToString("yyyy-MM-dd HH:mm:ss"));
+			
+			command.Parameters.AddWithValue("$isInitial", IsInitial ? 1 : 0); // Assuming IsInitial is the C# property for IsInitialAppointment
+			return command;
+		}
+
 		private static string BoolAsOneOrZero(bool eval)
 		{
 			if (eval) return "'1'";

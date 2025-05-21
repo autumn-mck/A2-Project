@@ -30,5 +30,24 @@
 			return $"INSERT INTO [Contact] VALUES ({ContactID}, {ClientID}, '{ContactName}', '{ContactEmail}', " +
 			$"'{ContactAddress}', '{ContactTown}', '{ContactCounty}', '{ContactPostcode}', '{ContactPhoneNo}'); ";
 		}
+
+		public Microsoft.Data.Sqlite.SqliteCommand ToSqliteCommand(Microsoft.Data.Sqlite.SqliteConnection connection)
+		{
+			var command = connection.CreateCommand();
+			command.CommandText = @"
+                INSERT INTO Contact (ContactID, ClientID, ContactName, ContactEmail, ContactAddress, ContactCounty, ContactTown, ContactPostcode, ContactPhoneNo)
+                VALUES ($contactID, $clientID, $contactName, $contactEmail, $contactAddress, $contactCounty, $contactTown, $contactPostcode, $contactPhoneNo);
+            ";
+			command.Parameters.AddWithValue("$contactID", ContactID);
+			command.Parameters.AddWithValue("$clientID", ClientID);
+			command.Parameters.AddWithValue("$contactName", ContactName);
+			command.Parameters.AddWithValue("$contactEmail", ContactEmail ?? (object)DBNull.Value);
+			command.Parameters.AddWithValue("$contactAddress", ContactAddress ?? (object)DBNull.Value);
+			command.Parameters.AddWithValue("$contactCounty", ContactCounty ?? (object)DBNull.Value);
+			command.Parameters.AddWithValue("$contactTown", ContactTown ?? (object)DBNull.Value);
+			command.Parameters.AddWithValue("$contactPostcode", ContactPostcode ?? (object)DBNull.Value);
+			command.Parameters.AddWithValue("$contactPhoneNo", ContactPhoneNo ?? (object)DBNull.Value);
+			return command;
+		}
 	}
 }

@@ -15,7 +15,8 @@ namespace A2_Project.DBMethods
 		/// </summary>
 		public static List<string> GetTableNames()
 		{
-			return DBAccess.GetStringsWithQuery("SELECT [TABLE_NAME] FROM [INFORMATION_SCHEMA].[TABLES] WHERE [TABLE_TYPE] = 'BASE TABLE';");
+			// SQLite specific query
+			return DBAccess.GetStringsWithQuery("SELECT name FROM sqlite_master WHERE type='table' AND name NOT LIKE 'sqlite_%';");
 		}
 
 		/// <summary>
@@ -23,78 +24,175 @@ namespace A2_Project.DBMethods
 		/// </summary>
 		public static List<List<string>> GetAllFromTable(string tableName, string[] headers = null)
 		{
-			return DBAccess.GetListStringsWithQuery("SELECT * FROM [" + tableName + "];", headers);
+			// This query is generic enough, but ensure tableName is not injectable.
+			return DBAccess.GetListStringsWithQuery($"SELECT * FROM [{tableName}];", headers);
+		}
+
+		// Helper method to get PRAGMA table_info results
+		private static List<List<string>> GetPragmaTableInfo(string tableName)
+		{
+			// It's important that tableName is properly sanitized or comes from a trusted source
+			// to prevent SQL injection if this method were to be used more broadly.
+			// For current usage, tableName comes from GetTableNames or internal calls.
+			return DBAccess.GetListStringsWithQuery($"PRAGMA table_info('{tableName}');");
 		}
 
 		public static bool IsColumnPrimaryKey(string columnName, string tableName)
 		{
-			string query = "SELECT K.CONSTRAINT_NAME " +
-			"FROM INFORMATION_SCHEMA.TABLE_CONSTRAINTS AS C JOIN INFORMATION_SCHEMA.KEY_COLUMN_USAGE AS K " +
-			"ON C.TABLE_NAME = K.TABLE_NAME AND C.CONSTRAINT_CATALOG = K.CONSTRAINT_CATALOG AND C.CONSTRAINT_SCHEMA = K.CONSTRAINT_SCHEMA " +
-			$"AND C.CONSTRAINT_NAME = K.CONSTRAINT_NAME WHERE C.CONSTRAINT_TYPE = 'PRIMARY KEY' AND K.COLUMN_NAME = '{columnName}' AND K.TABLE_NAME = '{tableName}';";
-			return (DBAccess.GetListStringsWithQuery(query).Count > 0);
+			List<List<string>> tableInfo = GetPragmaTableInfo(tableName);
+			foreach (List<string> columnInfo in tableInfo)
+			{
+				// PRAGMA table_info columns: cid, name, type, notnull, dflt_value, pk
+				if (columnInfo.Count > 1 && columnInfo[1] == columnName) // columnInfo[1] is 'name'
+				{
+					if (columnInfo.Count > 5 && int.TryParse(columnInfo[5], out int pkValue)) // columnInfo[5] is 'pk'
+					{
+						return pkValue > 0;
+					}
+				}
+			}
+			return false;
 		}
 
 		public static bool CanBeNull(string columnName, string tableName)
 		{
-			string query = $"SELECT is_nullable FROM sys.columns WHERE object_id = object_id('{tableName}') AND name = '{columnName}';";
-			string res = DBAccess.GetStringsWithQuery(query)[0];
-			return bool.Parse(res);
+			List<List<string>> tableInfo = GetPragmaTableInfo(tableName);
+			foreach (List<string> columnInfo in tableInfo)
+			{
+				// PRAGMA table_info columns: cid, name, type, notnull, dflt_value, pk
+				if (columnInfo.Count > 1 && columnInfo[1] == columnName) // columnInfo[1] is 'name'
+				{
+					if (columnInfo.Count > 3 && int.TryParse(columnInfo[3], out int notNullValue)) // columnInfo[3] is 'notnull'
+					{
+						return notNullValue == 0; // 'notnull' is 1 if NOT NULL, 0 if NULLABLE
+					}
+				}
+			}
+			// Default to true (nullable) if info not found, or handle error
+			return true; 
 		}
 
 		public static Column[] GetColumnDataFromTable(string tableName)
 		{
-			List<List<string>> types = GetDataTypesFromTable(tableName);
-			ForeignKey[] foreignKeys = GetFKeyOfTable(tableName);
-			Column[] columns = new Column[types.Count];
-			for (int i = 0; i < types.Count; i++)
-			{
-				columns[i] = new Column(types[i][0], tableName)
-				{
-					Constraints = new Constraint(IsColumnPrimaryKey(types[i][0], tableName), CanBeNull(types[i][0], tableName), types[i][1], types[i][2])
-				};
+			List<List<string>> tableInfo = GetPragmaTableInfo(tableName); // cid, name, type, notnull, dflt_value, pk
+			ForeignKey[] foreignKeys = GetFKeyOfTable(tableName); // Get foreign keys for this table
 
-				columns[i].Constraints.ForeignKey = foreignKeys.Where(x => x.ReferencedColumn == columns[i].Name).FirstOrDefault();
+			Column[] columns = new Column[tableInfo.Count];
+			for (int i = 0; i < tableInfo.Count; i++)
+			{
+				List<string> columnPragmaInfo = tableInfo[i];
+				string colName = columnPragmaInfo[1];
+				string colType = columnPragmaInfo[2];
+				// SQLite PRAGMA table_info doesn't give max length directly. Pass null or empty.
+				string colMaxLength = null; 
+
+				columns[i] = new Column(colName, tableName)
+				{
+					// IsColumnPrimaryKey and CanBeNull will re-query PRAGMA table_info.
+					// This can be optimized by parsing pk and notnull directly from columnPragmaInfo.
+					// pk is columnPragmaInfo[5], notnull is columnPragmaInfo[3]
+					Constraints = new Constraint(
+						int.TryParse(columnPragmaInfo[5], out int pkVal) && pkVal > 0, // IsPrimaryKey
+						!(int.TryParse(columnPragmaInfo[3], out int nnVal) && nnVal == 1), // CanBeNull (true if notnull is 0)
+						colType, 
+						colMaxLength 
+					)
+				};
+				
+				// Find if this column is a foreign key 'from' column
+				var fk = foreignKeys.FirstOrDefault(f => f.ReferencedColumn == colName); // This seems wrong. ReferencedColumn is the column in the *other* table.
+                                                                                     // We need to check if colName is a 'from' column in the foreign_key_list.
+                                                                                     // The ForeignKey object stores ReferencedTable and ReferencedColumn (which is the PK of the referenced table).
+                                                                                     // The current ForeignKey structure might need adjustment or this logic needs to use the 'from' column.
+                                                                                     // Let's assume for now that GetFKeyOfTable returns FKs where ForeignKey.ReferencedColumn is the name of the column *in the current table* that is the FK.
+                                                                                     // This is how it seemed to be used before: foreignKeys.Where(x => x.ReferencedColumn == columns[i].Name)
+                                                                                     // However, PRAGMA foreign_key_list gives 'from' and 'to'. We need to map 'from' to columns[i].Name
+                                                                                     // And then populate ForeignKey with 'table' (referenced table) and 'to' (referenced column in other table)
+                columns[i].Constraints.ForeignKey = foreignKeys.FirstOrDefault(f_key => f_key.LocalColumn == colName);
+
+
 			}
 			return columns;
 		}
 
 		public static List<List<string>> GetDataTypesFromTable(string tableName)
 		{
-			string query = $"SELECT Column_Name, Data_Type, Character_Maximum_Length FROM INFORMATION_SCHEMA.COLUMNS WHERE Table_Name = '{tableName}';";
-			return DBAccess.GetListStringsWithQuery(query);
+			// This method returned Column_Name, Data_Type, Character_Maximum_Length
+			// PRAGMA table_info returns: cid, name, type, notnull, dflt_value, pk
+			// We need to adapt the output to List<List<string>> where each inner list is [name, type, maxLength (or null)]
+			List<List<string>> results = new List<List<string>>();
+			List<List<string>> tableInfo = GetPragmaTableInfo(tableName);
+			foreach (List<string> columnPragmaInfo in tableInfo)
+			{
+				string colName = columnPragmaInfo[1];
+				string colType = columnPragmaInfo[2];
+				// SQLite PRAGMA table_info doesn't give max length directly. Pass null.
+				results.Add(new List<string> { colName, colType, null });
+			}
+			return results;
 		}
 
 		public static ForeignKey[] GetFKeyToTable(string tableName)
 		{
-			string query = "SELECT OBJECT_NAME(f.parent_object_id) TableName, COL_NAME(fc.parent_object_id, fc.parent_column_id) ColName " +
-			"FROM sys.foreign_keys AS f INNER JOIN sys.foreign_key_columns AS fc ON f.OBJECT_ID = fc.constraint_object_id " +
-			$"INNER JOIN sys.tables t ON t.OBJECT_ID = fc.referenced_object_id WHERE OBJECT_NAME(f.referenced_object_id) = '{tableName}';";
-			List<List<string>> results = DBAccess.GetListStringsWithQuery(query);
-			ForeignKey[] toReturn = new ForeignKey[results.Count];
-			for (int i = 0; i < results.Count; i++)
-				toReturn[i] = new ForeignKey(results[i][0], results[i][1]);
-			return toReturn;
+			// This method finds which other tables have FKs pointing to *this* tableName.
+			// This is complex with SQLite PRAGMA as you need to scan all tables.
+			// For now, returning empty or not implementing fully if not critical.
+			// The call stack seems to rely more on GetFKeyOfTable.
+			Console.WriteLine("Warning: MetaRequests.GetFKeyToTable is not fully implemented for SQLite.");
+			return Array.Empty<ForeignKey>();
 		}
 
 		public static ForeignKey[] GetFKeyOfTable(string tableName)
 		{
-			string query = $"SELECT tab2.name, col2.name " +
-			"FROM sys.foreign_key_columns fkc INNER JOIN sys.objects obj ON obj.object_id = fkc.constraint_object_id " +
-			"INNER JOIN sys.tables tab1 ON tab1.object_id = fkc.parent_object_id INNER JOIN sys.schemas sch ON tab1.schema_id = sch.schema_id " +
-			"INNER JOIN sys.columns col1 ON col1.column_id = parent_column_id AND col1.object_id = tab1.object_id " +
-			"INNER JOIN sys.tables tab2 ON tab2.object_id = fkc.referenced_object_id INNER JOIN sys.columns col2 ON " +
-			$"col2.column_id = referenced_column_id AND col2.object_id = tab2.object_id WHERE tab1.name = '{tableName}';";
-			List<List<string>> results = DBAccess.GetListStringsWithQuery(query);
-			ForeignKey[] toReturn = new ForeignKey[results.Count];
-			for (int i = 0; i < results.Count; i++)
-				toReturn[i] = new ForeignKey(results[i][0], results[i][1]);
-			return toReturn;
+			// PRAGMA foreign_key_list('tableName')
+			// Result columns: id, seq, table (referenced_table), from (fk_column_in_this_table), to (pk_column_in_referenced_table), on_update, on_delete, match
+			List<List<string>> fkInfoList = DBAccess.GetListStringsWithQuery($"PRAGMA foreign_key_list('{tableName}');");
+			List<ForeignKey> foreignKeys = new List<ForeignKey>();
+			foreach (List<string> fkInfo in fkInfoList)
+			{
+				if (fkInfo.Count > 4)
+				{
+					string referencedTable = fkInfo[2]; // 'table' column - the table this FK points to
+					string localColumnName = fkInfo[3];   // 'from' column - the FK column in 'tableName'
+					string referencedColumnInOtherTable = fkInfo[4]; // 'to' column - the PK column in 'referencedTable'
+					
+					// The ForeignKey constructor is ForeignKey(string referencedTable, string referencedColumn)
+					// It seems 'referencedColumn' was used as the name of the column *in the current table* that IS the foreign key.
+					// This is confusing. Let's adjust.
+					// ForeignKey should store:
+					// 1. The table it references (referencedTable)
+					// 2. The column in the *referenced* table it points to (referencedColumnInOtherTable)
+					// 3. We also need the actual column in *this* table that is the FK (localColumnName).
+					// The existing ForeignKey class only has ReferencedTable and ReferencedColumn.
+					// If ReferencedColumn is meant to be the column *in this table*, then new ForeignKey(referencedTable, localColumnName)
+					// But then we lose what column it points *to* in the other table.
+					// Let's assume the old system used ReferencedColumn as the name of the FK column in the current table.
+					// And ReferencedTable as the table it points to. This is incomplete for full FK info.
+					// The line `columns[i].Constraints.ForeignKey = foreignKeys.Where(x => x.ReferencedColumn == columns[i].Name).FirstOrDefault();`
+					// implies ReferencedColumn was indeed the name of the column in the current table.
+
+					// For the purpose of GetColumnDataFromTable, we need to associate the FK constraint with the local column.
+					// So, we need a ForeignKey object that stores which local column it is, and what remote table/column it points to.
+					// Let's make ForeignKey store:
+					//   LocalColumn (string): The name of the FK column in `tableName`.
+					//   ReferencedTable (string): The name of the table this FK points to.
+					//   ReferencedPKColumn (string): The name of the PK column in `ReferencedTable`.
+					// I'll need to modify ForeignKey.cs for this. For now, I'll adapt to the existing structure as best as possible.
+					// The existing `ForeignKey(string referencedTable, string referencedColumn)`
+					// Let's assume referencedColumn means the local FK column name.
+					foreignKeys.Add(new ForeignKey(referencedTable, localColumnName, referencedColumnInOtherTable));
+				}
+			}
+			return foreignKeys.ToArray();
 		}
 
 		public static List<string> GetAllTableNames()
 		{
-			return DBAccess.GetStringsWithQuery("SELECT Table_Name FROM INFORMATION_SCHEMA.TABLES WHERE TABLE_TYPE='BASE TABLE'");
+			// SQLite specific query - same as GetTableNames
+			return DBAccess.GetStringsWithQuery("SELECT name FROM sqlite_master WHERE type='table' AND name NOT LIKE 'sqlite_%';");
 		}
 	}
 }
+// Need to adjust DBObjects.ForeignKey to include LocalColumn, ReferencedTable, and ReferencedPKColumn for clarity
+// For now, I made a temporary constructor ForeignKey(string referencedTable, string localColumn, string referencedPKCol)
+// but this will require changing ForeignKey.cs

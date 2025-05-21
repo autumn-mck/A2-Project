@@ -66,5 +66,20 @@ namespace A2_Project.DBBuilder
 		{
 			return $"INSERT INTO [Client] VALUES ({ClientID}, '{ClientNotes}', '{JoinDate:yyyy-MM-dd}'); ";
 		}
+
+		public Microsoft.Data.Sqlite.SqliteCommand ToSqliteCommand(Microsoft.Data.Sqlite.SqliteConnection connection)
+		{
+			var command = connection.CreateCommand();
+			command.CommandText = @"
+                INSERT INTO Client (ClientID, ClientNotes, JoinDate, PrefersWeekends, IsReturn)
+                VALUES ($clientID, $clientNotes, $joinDate, $prefersWeekends, $isReturn);
+            ";
+			command.Parameters.AddWithValue("$clientID", ClientID);
+			command.Parameters.AddWithValue("$clientNotes", ClientNotes ?? (object)DBNull.Value); // Assuming ClientNotes can be null
+			command.Parameters.AddWithValue("$joinDate", JoinDate.ToString("yyyy-MM-dd"));
+			command.Parameters.AddWithValue("$prefersWeekends", PrefersWeekends ? 1 : 0);
+			command.Parameters.AddWithValue("$isReturn", IsReturn ? 1 : 0);
+			return command;
+		}
 	}
 }

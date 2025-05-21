@@ -37,17 +37,34 @@ namespace A2_Project.DBBuilder
 			for (int i = 0; i < 365 * 6; i++)
 				SimulateDay();
 
+			// Create Database instance, connect, insert data, and close.
+			Database db = new Database();
+			if (db.Connect())
+			{
+				try
+				{
+					// Create tables if they don't exist
+					db.CreateTablesIfNotExists();
+					AllData.InsertData(db.Conn);
+				}
+				catch (Exception ex)
+				{
+					// Handle or log any exceptions during data insertion
+					Console.WriteLine("Error inserting data: " + ex.ToString());
+				}
+				finally
+				{
+					db.Close();
+				}
+			}
+			else
+			{
+				// Handle or log connection error
+				Console.WriteLine("Failed to connect to the database.");
+			}
 		}
 
-		public static string GetSQL()
-		{
-			return AllData.GetSQL();
-		}
-
-		public static void WriteToFile()
-		{
-			AllData.WriteSQLToFile();
-		}
+		// GetSQL() and WriteToFile() methods are removed as per instructions.
 
 		private void SimulateDay()
 		{

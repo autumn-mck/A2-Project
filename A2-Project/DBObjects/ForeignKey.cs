@@ -1,20 +1,16 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-
-namespace A2_Project.DBObjects
+﻿namespace A2_Project.DBObjects
 {
 	public class ForeignKey
 	{
-		public ForeignKey(string referencedTable, string referencedColumn)
-		{
-			ReferencedTable = referencedTable;
-			ReferencedColumn = referencedColumn;
-		}
+		public string LocalColumn { get; set; } // Name of the FK column in the current table
+		public string ReferencedTable { get; set; } // Name of the table this FK references
+		public string ReferencedPKColumn { get; set; } // Name of the PK column in the ReferencedTable
 
-		public string ReferencedTable { get; set; }
-		public string ReferencedColumn { get; set; }
+		public ForeignKey(string referencedTable, string localColumn, string referencedPKColumn)
+		{
+			LocalColumn = localColumn;
+			ReferencedTable = referencedTable;
+			ReferencedPKColumn = referencedPKColumn;
+		}
 	}
 }
