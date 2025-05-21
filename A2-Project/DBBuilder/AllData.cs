@@ -64,6 +64,29 @@ namespace A2_Project.DBBuilder
 			return id + 1;
 		}
 
+		public static String GetSQL()
+		{
+            StringBuilder builder = new StringBuilder();
+            foreach (Client c in clients)
+            {
+                builder.Append(c.ToSQL());
+                foreach (Contact co in c.Contacts) builder.Append(co.ToSQL());
+                foreach (Dog d in c.Dogs) builder.Append(d.ToSQL());
+            }
+            foreach (Booking b in Bookings)
+            {
+                builder.Append(b.ToSQL());
+                foreach (Appointment a in b.Appointments) builder.Append(a.ToSQL());
+            }
+
+            FileStream s = new FileStream(Directory.GetCurrentDirectory() + "\\output.txt", FileMode.Create);
+            StreamWriter sw = new StreamWriter(s);
+            sw.Write(builder);
+            sw.Close();
+
+            return builder.ToString();
+        }
+
 		public static void InsertData(Microsoft.Data.Sqlite.SqliteConnection connection)
 		{
 			foreach (Client client in Clients)

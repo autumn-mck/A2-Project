@@ -100,7 +100,7 @@ namespace A2_Project.DBMethods
 				};
 				
 				// Find if this column is a foreign key 'from' column
-				var fk = foreignKeys.FirstOrDefault(f => f.ReferencedColumn == colName); // This seems wrong. ReferencedColumn is the column in the *other* table.
+				var fk = foreignKeys.FirstOrDefault(f => f.ReferencedPKColumn == colName); // This seems wrong. ReferencedColumn is the column in the *other* table.
                                                                                      // We need to check if colName is a 'from' column in the foreign_key_list.
                                                                                      // The ForeignKey object stores ReferencedTable and ReferencedColumn (which is the PK of the referenced table).
                                                                                      // The current ForeignKey structure might need adjustment or this logic needs to use the 'from' column.

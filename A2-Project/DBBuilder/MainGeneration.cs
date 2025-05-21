@@ -64,7 +64,10 @@ namespace A2_Project.DBBuilder
 			}
 		}
 
-		// GetSQL() and WriteToFile() methods are removed as per instructions.
+		public static String GetSQL()
+		{
+			return AllData.GetSQL();
+		}
 
 		private void SimulateDay()
 		{

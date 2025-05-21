@@ -1,4 +1,6 @@
-﻿namespace A2_Project.DBBuilder
+﻿using System;
+
+namespace A2_Project.DBBuilder
 {
 	public class Contact
 	{

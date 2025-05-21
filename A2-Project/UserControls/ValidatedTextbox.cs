@@ -93,7 +93,7 @@ namespace A2_Project.UserControls
 		private string GetTooltipText()
 		{
 			DBObjects.ForeignKey fKey = Column.Constraints.ForeignKey;
-			List<string> data = DBMethods.MiscRequests.GetByColumnData(fKey.ReferencedTable, fKey.ReferencedColumn, Text)[0];
+			List<string> data = DBMethods.MiscRequests.GetByColumnData(fKey.ReferencedTable, fKey.ReferencedPKColumn, Text)[0];
 			try
 			{
 				switch (fKey.ReferencedTable)
