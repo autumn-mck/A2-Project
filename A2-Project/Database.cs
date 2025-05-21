@@ -3,6 +3,8 @@ using Microsoft.Data.Sqlite;
 using System.IO;
 using System.Threading.Tasks;
 using System.Windows;
+using System.Security.Cryptography;
+using System.Text;
 
 namespace A2_Project
 {
@@ -17,6 +19,7 @@ namespace A2_Project
 
 		public bool Connect()
 		{
+			bool dbExists = File.Exists("DogCareDB.sqlite");
 			SqliteConnectionStringBuilder scStrBuild = new SqliteConnectionStringBuilder
 			{
 				DataSource = "DogCareDB.sqlite"
@@ -28,6 +31,11 @@ namespace A2_Project
 			try
 			{
 				Conn.Open();
+				if (!dbExists)
+				{
+					CreateTablesIfNotExists();
+					InsertInitialData();
+				}
 				return true;
 			}
 			catch (Exception ex)
@@ -169,6 +177,93 @@ namespace A2_Project
 				command.CommandText = createShiftsTable;
 				command.ExecuteNonQuery();
 				command.CommandText = createShiftExceptionsTable;
+				command.ExecuteNonQuery();
+			}
+		}
+
+		public void InsertInitialData()
+		{
+			// Ensure connection is open
+			if (Conn == null || Conn.State != System.Data.ConnectionState.Open)
+			{
+				Console.WriteLine("Connection is not open. Cannot insert initial data.");
+				// Optionally, throw an exception or attempt to open the connection.
+				// For this context, assuming Connect() has already been called and succeeded.
+				return;
+			}
+
+			string adminUsername = "admin";
+			string password = "password123"; // Default password, should be changed by user
+
+			// Generate Salt
+			byte[] salt = new byte[16];
+			RandomNumberGenerator.Fill(salt);
+			string saltString = Convert.ToBase64String(salt);
+
+			// Hash Password
+			var pbkdf2 = new Rfc2898DeriveBytes(password, salt, 100000, HashAlgorithmName.SHA256);
+			byte[] hash = pbkdf2.GetBytes(20); // Using 20 bytes for the hash as per example
+			string hashString = Convert.ToBase64String(hash);
+
+			// Insert admin user into Staff table
+			// StaffID is INTEGER PRIMARY KEY, so it should auto-increment.
+			string sql = $"INSERT INTO Staff (StaffName, PasswordHash, Salt, StaffEmail, StaffPhoneNo, Uses2FA) VALUES (@StaffName, @PasswordHash, @Salt, @StaffEmail, @StaffPhoneNo, @Uses2FA);";
+
+			using (var command = Conn.CreateCommand())
+			{
+				command.CommandText = sql;
+				command.Parameters.AddWithValue("@StaffName", adminUsername);
+				command.Parameters.AddWithValue("@PasswordHash", hashString);
+				command.Parameters.AddWithValue("@Salt", saltString);
+				command.Parameters.AddWithValue("@StaffEmail", "admin@example.com"); // Default email
+				command.Parameters.AddWithValue("@StaffPhoneNo", "0000000000");    // Default phone
+				command.Parameters.AddWithValue("@Uses2FA", 0);                   // Default 2FA status
+				command.ExecuteNonQuery();
+			}
+
+			// Default Appointment Types
+			string sqlAppType = "INSERT INTO AppointmentTypes (Description, BasePrice, DefaultDurationHours) VALUES (@Description, @BasePrice, @DefaultDurationHours);";
+
+			// Type 1
+			using (var command = Conn.CreateCommand())
+			{
+				command.CommandText = sqlAppType;
+				command.Parameters.AddWithValue("@Description", "Standard Wash");
+				command.Parameters.AddWithValue("@BasePrice", 25.0);
+				command.Parameters.AddWithValue("@DefaultDurationHours", 1.0);
+				command.ExecuteNonQuery();
+			}
+
+			// Type 2
+			using (var command = Conn.CreateCommand())
+			{
+				command.CommandText = sqlAppType; // Re-use the same SQL string
+				command.Parameters.Clear(); // Clear previous parameters
+				command.Parameters.AddWithValue("@Description", "Wash and Trim");
+				command.Parameters.AddWithValue("@BasePrice", 35.0);
+				command.Parameters.AddWithValue("@DefaultDurationHours", 1.5);
+				command.ExecuteNonQuery();
+			}
+
+			// Type 3
+			using (var command = Conn.CreateCommand())
+			{
+				command.CommandText = sqlAppType;
+				command.Parameters.Clear();
+				command.Parameters.AddWithValue("@Description", "Full Groom");
+				command.Parameters.AddWithValue("@BasePrice", 50.0);
+				command.Parameters.AddWithValue("@DefaultDurationHours", 2.0);
+				command.ExecuteNonQuery();
+			}
+
+			// Type 4
+			using (var command = Conn.CreateCommand())
+			{
+				command.CommandText = sqlAppType;
+				command.Parameters.Clear();
+				command.Parameters.AddWithValue("@Description", "Puppy Groom (intro)");
+				command.Parameters.AddWithValue("@BasePrice", 20.0);
+				command.Parameters.AddWithValue("@DefaultDurationHours", 1.0);
 				command.ExecuteNonQuery();
 			}
 		}
